@@ -1,6 +1,6 @@
-# PASOS PARA ARRANCAR MYSQL SERVER Y MYSQL WORKBENCH DESDE EL ZIP
+# PASOS PARA ARRANCAR MYSQL SERVER Y MYSQL WORKBENCH DESDE EL ZIP EN LOS ORDENADORES DE CLASE
 
-Guía para poner en marcha **MySQL Server 26.7.0** y **MySQL Workbench 26.7** en Windows, sin instalador, a partir de los ficheros ZIP.
+Guía para poner en marcha en los ordenadores de clase **MySQL Server 26.7.0** y **MySQL Workbench 26.7** en Windows, sin instalador, a partir de los ficheros ZIP.
 
 > **¿Por qué 26.7?** Desde julio de 2026 MySQL numera sus versiones por calendario (año.mes): 26.7 = julio de 2026. Es la versión siguiente a la 9.7.
 
