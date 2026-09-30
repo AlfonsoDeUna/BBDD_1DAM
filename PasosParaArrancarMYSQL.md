@@ -204,7 +204,7 @@ En la ventana del servidor verás `Shutdown complete` y volverá el prompt.
 
 | Error | Causa y solución |
 |---|---|
-| `the data directory has files in it` | La BBDD ya estaba inicializada o la inicialización falló a medias. Desde `bin`, borra `data` y repite el paso 4: `rmdir /s /q ..\data` — ⚠️ **borra todas tus bases de datos**. |
+| `the data directory has files in it` | La BBDD ya estaba inicializada o la inicialización falló a medias. Desde `bin`, borra `data` y repite el paso 4: `rmdir /s /q ..\data` —  **borra todas tus bases de datos**. |
 | `Found option without preceding group` | Falta `[mysqld]` al principio del `my.ini` (o sobra `echo`). |
 | `"mysqld" no se reconoce como un comando…` | No estás en la carpeta `bin`. Usa `cd /d` con la ruta completa. |
 | Falta `VCRUNTIME140_1.dll` o `MSVCP140.dll` | Instala **Microsoft Visual C++ Redistributable (x64)** y vuelve a probar. |
