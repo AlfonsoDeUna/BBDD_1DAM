@@ -7,7 +7,7 @@
 4. La primera vez que arranquemos inicializa la BBDD (sólo la primera vez
 5. Arrancar la BBDD
 
-** NOTA: ** Los pasos del 1 al 4 solo la primera vez que descargas la BBDD para configurarla, una vez preparado cada vez que quieras trabajar con la BBDD vas al punto 5
+**NOTA:** Los pasos del 1 al 4 solo la primera vez que descargas la BBDD para configurarla, una vez preparado cada vez que quieras trabajar con la BBDD vas al punto 5
    
 ## 3. Crear el fichero my.ini
 
