@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio CHECK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cuaderno de laboratorio — índice fijo a la izquierda, lección + banco de pruebas en cada nivel a la derecha */
+:root{
+  --paper:#F2F4F5; --surface:#FFFFFF; --ink:#16202A; --muted:#55616D; --line:#D6DCE1; --soft:#E7ECEF;
+  --accent:#1D5FA6; --accent-soft:#DCE7F5; --accent-ink:#FFFFFF;
+  --hl:#FFDF7E; --hl-ink:#16202A;
+  --ok:#1B7845; --ok-bg:#E2F3E9; --bad:#B42318; --bad-bg:#FBE8E6; --warn:#8A5300; --warn-bg:#FFF2D4;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#10151A; --surface:#172028; --ink:#E3E8ED; --muted:#96A2AE; --line:#29333D; --soft:#202933;
+  --accent:#80AEE8; --accent-soft:#1D2F46; --accent-ink:#0D1620;
+  --hl:#6E5410; --hl-ink:#FFF3CC;
+  --ok:#62C48D; --ok-bg:#14281D; --bad:#F09184; --bad-bg:#2E1917; --warn:#E6B65C; --warn-bg:#2C2410;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#10151A; --surface:#172028; --ink:#E3E8ED; --muted:#96A2AE; --line:#29333D; --soft:#202933;
+  --accent:#80AEE8; --accent-soft:#1D2F46; --accent-ink:#0D1620;
+  --hl:#6E5410; --hl-ink:#FFF3CC;
+  --ok:#62C48D; --ok-bg:#14281D; --bad:#F09184; --bad-bg:#2E1917; --warn:#E6B65C; --warn-bg:#2C2410;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.6 var(--f-body);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+a{color:var(--accent)}
+code,kbd,pre,textarea,input.mono{font-family:var(--f-mono)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Cabecera */
+.top{padding-block:44px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(32px,5vw,52px)/1.05 var(--f-display);letter-spacing:-.02em;margin:12px 0 14px;text-wrap:balance}
+h1 .re{font-family:var(--f-mono);font-weight:600;font-size:.8em;letter-spacing:0;color:var(--accent);white-space:nowrap}
+.lede{max-width:66ch;color:var(--muted);margin:0 0 22px;font-size:17px}
+.controls{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+.ctl-label{font:600 12px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:500 14px var(--f-body);border:0;background:transparent;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.prog{display:flex;align-items:center;gap:12px;min-width:0}
+.bar{width:180px;max-width:40vw;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.prog-txt{font:500 14px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted)}
+
+/* Estructura */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;padding-block:0 80px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;padding-top:36px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+.toc a{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;align-items:baseline;padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35}
+.toc a:hover{background:var(--soft);color:var(--ink)}
+.toc a .n{font:600 12px var(--f-mono);color:var(--accent)}
+.toc a .c{font:500 12px var(--f-mono);font-variant-numeric:tabular-nums}
+.toc a.done .c{color:var(--ok)}
+.toc .grp{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.8;padding:14px 10px 4px}
+.toc .grp:first-child{padding-top:0}
+main{min-width:0}
+
+.level{padding-block:44px 12px;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+.lv-n{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lv-n .tier{color:var(--muted)}
+h2{font:700 clamp(26px,3.4vw,34px)/1.15 var(--f-display);letter-spacing:-.015em;margin:8px 0 18px;text-wrap:balance}
+h3{font:600 19px/1.3 var(--f-display);margin:28px 0 10px}
+.theory{max-width:70ch}
+.theory p{margin:0 0 14px}
+.theory ul{margin:0 0 14px;padding-left:20px}
+.theory li{margin-bottom:6px}
+.theory :not(pre)>code, .q code, .reveal :not(pre)>code, .msg code{background:var(--soft);padding:1px 6px;border-radius:4px;font-size:.88em;white-space:nowrap}
+.tbl{overflow-x:auto;margin:4px 0 18px}
+table.ref{border-collapse:collapse;font-size:15px;min-width:420px;width:100%}
+table.ref th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 12px 6px 0;border-bottom:1px solid var(--line)}
+table.ref td{padding:7px 12px 7px 0;border-bottom:1px solid var(--soft);vertical-align:top}
+table.ref td:first-child{white-space:nowrap}
+table.ref td code{background:var(--accent-soft);color:var(--ink);padding:2px 7px;border-radius:4px;font-size:14px}
+.callout{background:var(--warn-bg);border-left:3px solid var(--warn);padding:12px 16px;border-radius:0 8px 8px 0;margin:6px 0 18px;max-width:70ch}
+.callout b:first-child{color:var(--warn)}
+pre.code{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:4px 0 18px;max-width:100%}
+pre.code .cm{color:var(--muted)}
+pre.code .kw{color:var(--accent);font-weight:600}
+
+/* Ejercicios */
+.exs{display:flex;flex-direction:column;gap:18px;margin-top:22px}
+.exs-title{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:26px 0 -6px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0;transition:border-color .2s}
+.ex.pass{border-color:var(--ok)}
+.ex-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ex-num{font:600 13px var(--f-mono);color:var(--muted)}
+.pill{font:600 12px var(--f-mono);padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.ko{background:var(--bad-bg);color:var(--bad)}
+.q{margin:0;font-size:16.5px;max-width:72ch}
+.rx-input{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:500 17px var(--f-mono);min-width:0}
+.rx-input:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rx-input .sl{color:var(--muted);padding:0 10px;user-select:none}
+.rx-input input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;padding:12px 0;outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px 6px;min-height:0}
+.chips:empty{display:none}
+.tok{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.4;overflow:hidden;max-width:100%}
+.tok code{background:var(--soft);padding:3px 7px;font-size:12.5px;white-space:pre;border-right:1px solid var(--line)}
+.tok span{padding:3px 8px;color:var(--muted)}
+.tok.k-q{border-color:var(--accent-soft)}
+.tok.k-q code{background:var(--accent-soft)}
+.tok.k-anc code{background:var(--accent);color:var(--accent-ink)}
+.tok.k-err{border-color:var(--bad)}
+.tok.k-err code{background:var(--bad-bg);color:var(--bad)}
+.msgs{display:flex;flex-direction:column;gap:8px}
+.msgs:empty{display:none}
+.msg{padding:9px 12px;border-radius:6px;font-size:14.5px}
+.msg.err{background:var(--bad-bg);color:var(--bad)}
+.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.msg.info{background:var(--accent-soft);color:var(--ink)}
+.msg.info code, .msg.warn code{background:var(--surface)}
+.cases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.col h4{font:600 11.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.list{display:flex;flex-direction:column;gap:5px}
+.case{display:flex;gap:10px;align-items:baseline;padding:6px 10px;border-radius:6px;background:var(--paper);font:14.5px/1.5 var(--f-mono);min-width:0}
+.case .ico{width:14px;flex:none;font-weight:600;color:var(--muted)}
+.case.good{background:var(--ok-bg)} .case.good .ico{color:var(--ok)}
+.case.badc{background:var(--bad-bg)} .case.badc .ico{color:var(--bad)}
+.str{white-space:pre-wrap;word-break:break-all;min-width:0}
+mark{background:var(--hl);color:var(--hl-ink);border-radius:3px;padding:0 1px}
+mark.zero{display:inline-block;width:2px;height:1.05em;padding:0;margin:0 1px;background:var(--accent);vertical-align:-2px}
+.sp{opacity:.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button.ghost{font:500 14px var(--f-body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+button.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.reveal{background:var(--paper);border-radius:8px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.reveal p{margin:0}
+.reveal .sol{display:block;font:500 14.5px var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-all;max-width:100%}
+
+/* SQL */
+pre.ctx{margin:0;background:var(--paper);border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.55;overflow-x:auto;max-width:100%}
+pre.ctx .cm{color:var(--muted)} pre.ctx .kw{color:var(--accent);font-weight:600} pre.ctx .slot{background:var(--hl);color:var(--hl-ink);border-radius:3px;padding:0 4px}
+textarea.sql-in{width:100%;min-height:92px;font:500 15px/1.5 var(--f-mono);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical}
+textarea.sql-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;padding:8px 10px;border-radius:6px;background:var(--paper);align-items:baseline}
+.row.good{background:var(--ok-bg)} .row.badc{background:var(--bad-bg)}
+.row .ico{font:600 14px var(--f-mono);color:var(--muted)}
+.row.good .ico{color:var(--ok)} .row.badc .ico{color:var(--bad)}
+.row .stmt{font:13.5px/1.5 var(--f-mono);word-break:break-all;display:block}
+.row .res{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;margin-top:2px}
+.row .out{font-family:var(--f-mono)}
+.row .out.rej{color:var(--bad)} .row .out.acc{color:var(--ok)}
+.row .exp{color:var(--muted)}
+
+/* Banco libre */
+.lab{display:flex;flex-direction:column;gap:12px}
+.lab-opts{display:flex;gap:18px;flex-wrap:wrap;font-size:14.5px;color:var(--muted)}
+.lab-opts label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+textarea.lab-text{width:100%;min-height:170px;font:500 14.5px/1.6 var(--f-mono);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical}
+textarea.lab-text:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lab-res .case .tag{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;padding-left:10px}
+
+footer{padding-block:28px 40px;color:var(--muted);font-size:14px;max-width:70ch}
+.reset{margin-top:10px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;flex-direction:row;overflow-x:auto;max-height:none;background:var(--paper);padding-block:8px;border-bottom:1px solid var(--line);gap:4px}
+  .toc .grp{display:none}
+  .toc a{display:flex;gap:6px;white-space:nowrap;padding:5px 9px;border:1px solid var(--line);background:var(--surface)}
+  .toc a .t{display:none}
+  .level{scroll-margin-top:64px}
+}
+@media (max-width:620px){
+  .cases{grid-template-columns:minmax(0,1fr)}
+  .ex{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} html{scroll-behavior:auto} }
+html{scroll-behavior:smooth}
+/* --- Laboratorio CHECK: piezas propias --- */
+.sub{font:600 11.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:2px 0 6px}
+textarea.sql-in.big{min-height:110px}
+textarea.sql-in.huge{min-height:260px;font-size:14px;tab-size:2}
+button.primary{font:600 14px var(--f-body);border:0;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:8px 16px;cursor:pointer}
+button.primary:hover{filter:brightness(1.08)}
+.row .vals,.prow .vals{display:flex;flex-wrap:wrap;gap:4px 8px}
+.v{font:12px var(--f-mono);padding:1px 7px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.v-true{color:var(--ok)} .v-false{color:var(--bad)} .v-null{color:var(--warn)}
+.prows{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--paper)}
+.prow.good{background:var(--ok-bg)} .prow.badc{background:var(--bad-bg)}
+.prow .stmt{font:13.5px/1.5 var(--f-mono);word-break:break-all;min-width:0}
+.prow .res{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13px}
+.prow .res .ico{font:600 14px var(--f-mono)}
+.prow.good .ico{color:var(--ok)} .prow.badc .ico{color:var(--bad)}
+.pick{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.pick button{font:500 13px var(--f-body);border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer;white-space:nowrap}
+.pick button+button{border-left:1px solid var(--line)}
+.pick button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.out.acc{color:var(--ok)} .out.rej{color:var(--bad)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:12px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:10px 14px;border-radius:8px;cursor:pointer;font:15px/1.45 var(--f-body)}
+.opt:hover{border-color:var(--accent)}
+.opt .ol{font:600 12px var(--f-mono);color:var(--muted);flex:none}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.dt-wrap{overflow-x:auto;max-width:100%;margin:2px 0 6px}
+table.dt{border-collapse:collapse;font:13px var(--f-mono);min-width:100%}
+table.dt th{text-align:left;font-weight:600;color:var(--muted);padding:5px 12px 5px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+table.dt td{padding:5px 12px 5px 0;border-bottom:1px solid var(--soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.null{color:var(--muted);font-style:italic}
+.empty{color:var(--muted);font-size:14px;margin:4px 0}
+.log{display:flex;flex-direction:column;gap:6px}
+.log:empty,.reqs:empty,.made:empty,.seed:empty{display:none}
+.logl{padding:8px 10px;border-radius:6px;background:var(--paper);display:flex;flex-direction:column;gap:3px;min-width:0}
+.logl .stmt{font:13px/1.5 var(--f-mono);white-space:pre-wrap;word-break:break-word}
+.logl .out{font:13px var(--f-mono)}
+.logl.ko{background:var(--bad-bg)}
+ul.req{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+ul.req li{display:flex;gap:8px}
+ul.req li span{font:600 14px var(--f-mono);width:14px}
+ul.req li.ok span{color:var(--ok)} ul.req li.ko span{color:var(--bad)}
+ul.spec{margin:0;padding-left:20px;font-size:15px;display:flex;flex-direction:column;gap:4px;max-width:72ch}
+ul.spec li::marker{color:var(--accent)}
+ul.chk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13.5px}
+ul.chk li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:5px 10px;background:var(--paper);border-radius:6px;min-width:0}
+ul.chk .kind{color:var(--muted);font-size:12.5px}
+ul.chk .src{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);word-break:break-word;min-width:0}
+pre.sol{font:500 13.5px/1.55 var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;margin:0;max-width:100%;overflow-x:auto}
+.truth{border-collapse:collapse;font:14px var(--f-mono);margin:4px 0 18px}
+.truth th,.truth td{padding:6px 14px;border:1px solid var(--line);text-align:center}
+.truth th{background:var(--soft);font-weight:600}
+.truth td.t{color:var(--ok)} .truth td.f{color:var(--bad)} .truth td.u{color:var(--warn)}
+.lab-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lab-grid label{display:flex;flex-direction:column;gap:6px;font:600 11.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.lab-grid textarea{text-transform:none;letter-spacing:0;min-height:200px}
+#lab-out{display:flex;flex-direction:column;gap:6px}
+.sources{display:flex;flex-direction:column;gap:4px;margin:8px 0 0;padding-left:20px}
+@media (max-width:760px){.lab-grid{grid-template-columns:minmax(0,1fr)} .prow{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Bases de Datos · MySQL 8 · práctica guiada</div>
+    <h1>Laboratorio <span class="re">CHECK</span></h1>
+    <p class="lede">Restricciones <code>CHECK</code> en MySQL desde cero hasta tablas completas. Cada nivel trae la teoría justa y ejercicios que se corrigen en el momento: escribes la restricción y un simulador de MySQL ejecuta los <code>INSERT</code> de prueba y te enseña el mensaje que daría el servidor.</p>
+    <div class="controls">
+      <div class="prog"><div class="bar" aria-hidden="true"><i id="bar"></i></div><span class="prog-txt" id="progtxt">0 de 0</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap shell">
+  <nav class="toc" id="toc" aria-label="Niveles"></nav>
+  <main>
+
+<section class="level" id="n0">
+  <div class="lv-n">Nivel 0 · <span class="tier">Básico</span></div>
+  <h2>Qué es un CHECK y dónde se escribe</h2>
+  <div class="theory">
+    <p>Una restricción <code>CHECK</code> es una regla que tiene que cumplir cada fila de una tabla. MySQL la comprueba cada vez que se guarda una fila: en <code>INSERT</code>, <code>UPDATE</code>, <code>REPLACE</code> y <code>LOAD DATA</code>. Si la regla da falso, la operación falla.</p>
+    <div class="callout"><b>Versión:</b> MySQL aplica los CHECK desde la <b>8.0.16</b>. En versiones anteriores la sintaxis se acepta, pero se ignora sin avisar. Compruébalo con <code>SELECT VERSION();</code></div>
+    <h3>Sintaxis</h3>
+<pre class="code">[<span class="kw">CONSTRAINT</span> [nombre]] <span class="kw">CHECK</span> (expresión) [[<span class="kw">NOT</span>] <span class="kw">ENFORCED</span>]</pre>
+    <p>Se puede escribir en dos sitios:</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Tipo</th><th>Dónde va</th><th>Qué columnas puede usar</th></tr></thead><tbody>
+      <tr><td>De columna</td><td>dentro de la definición de una columna</td><td>solo esa columna</td></tr>
+      <tr><td>De tabla</td><td>separada por comas, junto a las columnas (normalmente al final)</td><td>cualquier columna de la tabla</td></tr>
+    </tbody></table></div>
+<pre class="code"><span class="kw">CREATE TABLE</span> producto (
+  id      INT <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  nombre  VARCHAR(50) <span class="kw">NOT NULL</span>,
+  precio  DECIMAL(8,2) <span class="kw">CHECK</span> (precio > 0),                       <span class="cm">-- de columna, sin nombre</span>
+  stock   INT <span class="kw">CONSTRAINT</span> prod_stock_ck <span class="kw">CHECK</span> (stock >= 0),     <span class="cm">-- de columna, con nombre</span>
+  <span class="kw">CONSTRAINT</span> prod_nombre_ck <span class="kw">CHECK</span> (CHAR_LENGTH(nombre) >= 2)   <span class="cm">-- de tabla, con nombre</span>
+);</pre>
+    <h3>Nombres</h3>
+    <p>Si no le pones nombre, MySQL lo genera: <code>tabla_chk_1</code>, <code>tabla_chk_2</code>… en el orden en que aparecen. Ponles nombre siempre (por ejemplo <code>tabla_columna_ck</code>): el error dice qué restricción ha fallado y luego la puedes desactivar o borrar por su nombre. Los nombres de CHECK no se pueden repetir en toda la base de datos, ni siquiera en tablas distintas.</p>
+    <h3>Cuando una fila no cumple</h3>
+<pre class="code">ERROR 3819 (HY000): Check constraint 'prod_stock_ck' is violated.</pre>
+    <p>Una regla importante que verás a fondo en el nivel 2: el CHECK solo rechaza la fila cuando la expresión da <b>FALSE</b>. Si da TRUE o NULL, la fila entra.</p>
+  </div>
+  <div class="exs" data-level="n0"></div>
+</section>
+
+<section class="level" id="n1">
+  <div class="lv-n">Nivel 1 · <span class="tier">Básico</span></div>
+  <h2>Comparaciones, rangos y listas</h2>
+  <div class="theory">
+    <div class="tbl"><table class="ref"><thead><tr><th>Operador</th><th>Ejemplo</th><th>Significa</th></tr></thead><tbody>
+      <tr><td><code>= &lt;&gt; !=</code></td><td><code>estado &lt;&gt; 'BAJA'</code></td><td>igual / distinto</td></tr>
+      <tr><td><code>&lt; &gt; &lt;= &gt;=</code></td><td><code>edad &gt;= 16</code></td><td>menor, mayor…</td></tr>
+      <tr><td><code>BETWEEN a AND b</code></td><td><code>nota BETWEEN 0 AND 10</code></td><td>entre a y b, <b>ambos incluidos</b>. a tiene que ser el menor</td></tr>
+      <tr><td><code>IN (…)</code></td><td><code>curso IN (1, 2)</code></td><td>uno de los valores de la lista</td></tr>
+      <tr><td><code>NOT IN (…)</code></td><td><code>talla NOT IN ('XXL')</code></td><td>ninguno de la lista</td></tr>
+      <tr><td><code>AND OR NOT</code></td><td><code>a &gt; 0 AND b &gt; 0</code></td><td>combinar condiciones</td></tr>
+    </tbody></table></div>
+    <h3>Los textos y la colación</h3>
+    <p>MySQL compara los textos según la <b>colación</b> de la columna. La de MySQL 8 por defecto es <code>utf8mb4_0900_ai_ci</code>: <i>ai</i> = no distingue acentos, <i>ci</i> = no distingue mayúsculas. Por eso <code>'tarde' = 'TARDE'</code> y <code>'Manana' = 'MAÑANA'</code> son verdaderas.</p>
+    <p>Para listas cerradas de textos MySQL tiene también el tipo <code>ENUM('MAÑANA','TARDE')</code>. Con CHECK la regla queda a la vista y se puede combinar con otras columnas.</p>
+  </div>
+  <div class="exs" data-level="n1"></div>
+</section>
+
+<section class="level" id="n2">
+  <div class="lv-n">Nivel 2 · <span class="tier">Básico</span></div>
+  <h2>NULL y la lógica de tres valores</h2>
+  <div class="theory">
+    <p>En SQL una condición puede valer <b>TRUE</b>, <b>FALSE</b> o <b>NULL</b> (desconocido). Cualquier comparación con un NULL da NULL: <code>NULL &gt; 0</code>, <code>NULL = NULL</code> y <code>NULL &lt;&gt; 'A'</code> valen NULL.</p>
+    <div class="callout"><b>La regla clave:</b> un CHECK solo rechaza la fila si la condición da <b>FALSE</b>. Con TRUE o con NULL, la fila entra.</div>
+    <div class="tbl"><table class="truth"><thead><tr><th>A</th><th>B</th><th>A AND B</th><th>A OR B</th></tr></thead><tbody>
+      <tr><td class="t">TRUE</td><td class="u">NULL</td><td class="u">NULL</td><td class="t">TRUE</td></tr>
+      <tr><td class="f">FALSE</td><td class="u">NULL</td><td class="f">FALSE</td><td class="u">NULL</td></tr>
+      <tr><td class="u">NULL</td><td class="u">NULL</td><td class="u">NULL</td><td class="u">NULL</td></tr>
+    </tbody></table></div>
+    <p>Y <code>NOT</code> aplicado a NULL sigue siendo NULL.</p>
+    <ul>
+      <li>Para preguntar por NULL se usa <code>IS NULL</code> o <code>IS NOT NULL</code>, que siempre dan TRUE o FALSE. Nunca <code>= NULL</code>.</li>
+      <li>MySQL tiene además <code>&lt;=&gt;</code>, la igualdad segura con NULL: <code>NULL &lt;=&gt; NULL</code> es TRUE.</li>
+      <li>Si una columna es obligatoria, lo correcto es <code>NOT NULL</code> en la columna (error 1048, más claro). Un CHECK con <code>IS NOT NULL</code> también lo consigue.</li>
+      <li>Nunca pongas NULL dentro de <code>NOT IN (…)</code>: la condición pasa a valer NULL para cualquier valor que no esté en la lista.</li>
+    </ul>
+  </div>
+  <div class="exs" data-level="n2"></div>
+</section>
+
+<section class="level" id="n3">
+  <div class="lv-n">Nivel 3 · <span class="tier">Intermedio</span></div>
+  <h2>Reglas entre varias columnas</h2>
+  <div class="theory">
+    <p>Un CHECK de tabla puede comparar columnas entre sí y hacer operaciones con ellas: <code>fecha_fin &gt;= fecha_inicio</code>, <code>adultos + ninos &lt;= plazas</code>. La regla se evalúa con los valores de la <b>misma fila</b>.</p>
+    <p>Un CHECK de columna solo puede usar su propia columna. Si en la definición de <code>a</code> escribes <code>CHECK (a &gt; b)</code>, MySQL no crea la tabla. Escríbelo como restricción de tabla; ahí sí puedes usar columnas que se definen más abajo.</p>
+    <p>En las columnas opcionales, la lógica de tres valores trabaja a tu favor: <code>precio_oferta &lt; precio_venta</code> se cumple o se ignora sola cuando no hay oferta.</p>
+  </div>
+  <div class="exs" data-level="n3"></div>
+</section>
+
+<section class="level" id="n4">
+  <div class="lv-n">Nivel 4 · <span class="tier">Intermedio</span></div>
+  <h2>Reglas condicionales: «si… entonces…»</h2>
+  <div class="theory">
+    <p>Muchas reglas de negocio son condicionales. Así se traducen:</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Regla</th><th>Condición</th></tr></thead><tbody>
+      <tr><td>Si A, entonces B</td><td><code>NOT A OR B</code></td></tr>
+      <tr><td>A si y solo si B</td><td><code>(A AND B) OR (NOT A AND NOT B)</code></td></tr>
+      <tr><td>Al menos uno de x, y</td><td><code>x IS NOT NULL OR y IS NOT NULL</code></td></tr>
+      <tr><td>Exactamente uno de x, y</td><td><code>(x IS NULL) XOR (y IS NULL)</code></td></tr>
+      <tr><td>Según el valor de una columna</td><td><code>CASE tipo WHEN 'A' THEN … WHEN 'B' THEN … ELSE FALSE END</code></td></tr>
+    </tbody></table></div>
+    <p>Ejemplo: «si el estado es BAJA, hay fecha de baja» se escribe <code>estado &lt;&gt; 'BAJA' OR fecha_baja IS NOT NULL</code>.</p>
+    <div class="callout"><b>Cuidado con NULL en la parte del «si»:</b> si A puede ser NULL, <code>NOT A OR B</code> puede dar NULL y dejar pasar la fila. Por eso en estos ejercicios la columna de la condición es NOT NULL.</div>
+  </div>
+  <div class="exs" data-level="n4"></div>
+</section>
+
+<section class="level" id="n5">
+  <div class="lv-n">Nivel 5 · <span class="tier">Intermedio</span></div>
+  <h2>Reglas sobre texto</h2>
+  <div class="theory">
+    <div class="tbl"><table class="ref"><thead><tr><th>Herramienta</th><th>Para qué</th></tr></thead><tbody>
+      <tr><td><code>CHAR_LENGTH(x)</code></td><td>número de caracteres</td></tr>
+      <tr><td><code>LENGTH(x)</code></td><td>número de <b>bytes</b>: la ñ y las tildes ocupan 2 en utf8mb4</td></tr>
+      <tr><td><code>x = TRIM(x)</code></td><td>sin espacios al principio ni al final</td></tr>
+      <tr><td><code>x LIKE 'DAM%'</code></td><td>patrón: <code>%</code> cualquier texto, <code>_</code> un carácter</td></tr>
+      <tr><td><code>REGEXP_LIKE(x, '^…$')</code></td><td>expresiones regulares (practícalas en el <a href="laboratorio_regexp_like.html">Laboratorio REGEXP_LIKE</a>)</td></tr>
+      <tr><td><code>UPPER(x)</code>, <code>LOWER(x)</code>, <code>SUBSTRING(x, pos, n)</code>, <code>LEFT</code>, <code>RIGHT</code></td><td>transformar o recortar</td></tr>
+    </tbody></table></div>
+    <h3>Mayúsculas y minúsculas</h3>
+    <p>Con la colación por defecto (<code>…_ci</code>), <code>'Madrid' = 'MADRID'</code> es verdadero. Por eso <code>provincia = UPPER(provincia)</code> <b>no</b> obliga a escribir en mayúsculas: siempre se cumple. Para comparar distinguiendo mayúsculas:</p>
+    <ul>
+      <li><code>provincia COLLATE utf8mb4_bin = UPPER(provincia)</code></li>
+      <li><code>CAST(provincia AS BINARY) = UPPER(provincia)</code></li>
+      <li><code>REGEXP_LIKE(provincia, '^[A-ZÑ ]+$', 'c')</code>: la <code>'c'</code> hace que distinga mayúsculas.</li>
+      <li>Declarar la columna con <code>COLLATE utf8mb4_bin</code>.</li>
+    </ul>
+    <p>Lo mismo pasa con <code>LIKE</code> e <code>IN</code>: con la colación por defecto no distinguen mayúsculas ni tildes.</p>
+  </div>
+  <div class="exs" data-level="n5"></div>
+</section>
+
+<section class="level" id="n6">
+  <div class="lv-n">Nivel 6 · <span class="tier">Avanzado</span></div>
+  <h2>Números y fechas</h2>
+  <div class="theory">
+    <div class="tbl"><table class="ref"><thead><tr><th>Función</th><th>Devuelve</th></tr></thead><tbody>
+      <tr><td><code>x % n</code>, <code>MOD(x, n)</code></td><td>el resto de dividir x entre n</td></tr>
+      <tr><td><code>ROUND(x, d)</code>, <code>TRUNCATE(x, d)</code></td><td>redondear o recortar decimales</td></tr>
+      <tr><td><code>YEAR(f)</code>, <code>MONTH(f)</code>, <code>DAY(f)</code></td><td>partes de una fecha</td></tr>
+      <tr><td><code>DAYOFWEEK(f)</code></td><td>1 = domingo … 7 = sábado</td></tr>
+      <tr><td><code>WEEKDAY(f)</code></td><td>0 = lunes … 6 = domingo</td></tr>
+      <tr><td><code>DATEDIFF(a, b)</code></td><td>días de b a a</td></tr>
+      <tr><td><code>TIMESTAMPDIFF(YEAR, a, b)</code></td><td>años completos de a a b (también MONTH, DAY)</td></tr>
+      <tr><td><code>DATE_ADD(f, INTERVAL 16 YEAR)</code></td><td>sumar a una fecha</td></tr>
+    </tbody></table></div>
+    <p>Las fechas se escriben como texto <code>'AAAA-MM-DD'</code> (o <code>DATE 'AAAA-MM-DD'</code>) y se comparan con los operadores de siempre.</p>
+    <div class="callout"><b>Cuidado:</b> <code>fecha_fin - fecha_inicio</code> no da días. MySQL convierte las fechas en números AAAAMMDD y los resta. Para días, usa <code>DATEDIFF</code>.</div>
+  </div>
+  <div class="exs" data-level="n6"></div>
+</section>
+
+<section class="level" id="n7">
+  <div class="lv-n">Nivel 7 · <span class="tier">Avanzado</span></div>
+  <h2>Lo que un CHECK no puede hacer</h2>
+  <div class="theory">
+    <p>Según el manual de MySQL, la expresión de un CHECK solo puede usar literales, columnas de la propia tabla, operadores y funciones <b>deterministas</b> (las que con los mismos datos dan siempre el mismo resultado). Está prohibido:</p>
+    <ul>
+      <li>Funciones no deterministas: <code>NOW()</code>, <code>CURDATE()</code>, <code>CURRENT_DATE</code>, <code>RAND()</code>, <code>UUID()</code>, <code>CURRENT_USER()</code>, <code>CONNECTION_ID()</code>…</li>
+      <li>Funciones almacenadas (las creadas con <code>CREATE FUNCTION</code>).</li>
+      <li>Variables de usuario (<code>@x</code>), del sistema (<code>@@x</code>) o de procedimientos.</li>
+      <li>Subconsultas y columnas de otras tablas.</li>
+      <li>Columnas <code>AUTO_INCREMENT</code>.</li>
+      <li>Columnas que usa una clave ajena con <code>ON UPDATE</code> u <code>ON DELETE</code>.</li>
+    </ul>
+    <div class="tbl"><table class="ref"><thead><tr><th>Si necesitas…</th><th>Usa</th></tr></thead><tbody>
+      <tr><td>que un valor exista en otra tabla</td><td><code>FOREIGN KEY</code></td></tr>
+      <tr><td>que no se repita</td><td><code>UNIQUE</code> o <code>PRIMARY KEY</code></td></tr>
+      <tr><td>comparar con la fecha de hoy o el usuario</td><td>un trigger <code>BEFORE INSERT</code>/<code>UPDATE</code>, o la aplicación</td></tr>
+      <tr><td>que el valor sea obligatorio</td><td><code>NOT NULL</code></td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="exs" data-level="n7"></div>
+</section>
+
+<section class="level" id="n8">
+  <div class="lv-n">Nivel 8 · <span class="tier">Avanzado</span></div>
+  <h2>Gestionar restricciones con ALTER TABLE</h2>
+  <div class="theory">
+<pre class="code"><span class="cm">-- Añadir</span>
+<span class="kw">ALTER TABLE</span> producto <span class="kw">ADD CONSTRAINT</span> prod_precio_ck <span class="kw">CHECK</span> (precio > 0);
+
+<span class="cm">-- Desactivar y volver a activar (se conserva la definición)</span>
+<span class="kw">ALTER TABLE</span> producto <span class="kw">ALTER CHECK</span> prod_precio_ck <span class="kw">NOT ENFORCED</span>;
+<span class="kw">ALTER TABLE</span> producto <span class="kw">ALTER CHECK</span> prod_precio_ck <span class="kw">ENFORCED</span>;
+
+<span class="cm">-- Borrar (DROP CONSTRAINT también funciona desde MySQL 8.0.19)</span>
+<span class="kw">ALTER TABLE</span> producto <span class="kw">DROP CHECK</span> prod_precio_ck;
+
+<span class="cm">-- Ver cómo ha quedado</span>
+SHOW CREATE TABLE producto;</pre>
+    <ul>
+      <li>Al <b>añadir</b> una restricción activa o al pasarla a <code>ENFORCED</code>, MySQL comprueba las filas que ya hay. Si alguna la incumple, la sentencia falla con el error 3819 y no cambia nada. Corrige o borra antes esas filas.</li>
+      <li>Una restricción <code>NOT ENFORCED</code> existe, pero no se comprueba.</li>
+      <li>Un CHECK no se modifica: para cambiar la condición, se borra y se vuelve a crear. Se puede hacer en una sola sentencia: <code>ALTER TABLE t DROP CHECK x, ADD CONSTRAINT x CHECK (…);</code></li>
+      <li>Con <code>INSERT IGNORE</code> o <code>UPDATE IGNORE</code>, las filas que incumplen un CHECK se saltan con un aviso en vez de un error.</li>
+    </ul>
+    <h3>Consultar las restricciones</h3>
+<pre class="code"><span class="kw">SELECT</span> tc.TABLE_NAME, tc.CONSTRAINT_NAME, tc.ENFORCED, cc.CHECK_CLAUSE
+<span class="kw">FROM</span> information_schema.TABLE_CONSTRAINTS tc
+<span class="kw">JOIN</span> information_schema.CHECK_CONSTRAINTS cc
+  <span class="kw">ON</span> cc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA
+ <span class="kw">AND</span> cc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+<span class="kw">WHERE</span> tc.CONSTRAINT_TYPE = 'CHECK'
+  <span class="kw">AND</span> tc.TABLE_SCHEMA = DATABASE();</pre>
+    <p>En los ejercicios de este nivel puedes escribir varias sentencias separadas por <code>;</code>: <code>ALTER TABLE</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>SELECT * FROM</code> y <code>SHOW CREATE TABLE</code>.</p>
+  </div>
+  <div class="exs" data-level="n8"></div>
+</section>
+
+<section class="level" id="n9">
+  <div class="lv-n">Nivel 9 · <span class="tier">Experto</span></div>
+  <h2>Diseñar una tabla completa</h2>
+  <div class="theory">
+    <p>Ahora escribes el <code>CREATE TABLE</code> entero: columnas, tipos, <code>NOT NULL</code>, clave primaria y todas las restricciones. Los <code>INSERT</code> de prueba se ejecutan en orden sobre tu tabla, así que también cuentan las claves repetidas.</p>
+    <p>Un método que funciona:</p>
+    <ul>
+      <li>Lee cada requisito y decide si es tipo de dato, <code>NOT NULL</code>, <code>DEFAULT</code>, clave o CHECK.</li>
+      <li>Escribe un CHECK con nombre por cada regla. Es más fácil saber cuál falla.</li>
+      <li>Para cada regla, piensa en un valor válido, uno inválido y NULL.</li>
+      <li>Repasa los textos (mayúsculas, espacios, LENGTH frente a CHAR_LENGTH) y las fechas.</li>
+    </ul>
+  </div>
+  <div class="exs" data-level="n9"></div>
+</section>
+
+<section class="level" id="lab">
+  <div class="lv-n">Banco libre</div>
+  <h2>Prueba tus propias tablas</h2>
+  <div class="theory"><p>Escribe un <code>CREATE TABLE</code> a la izquierda y las sentencias que quieras probar a la derecha. Se ejecutan todas, aunque alguna falle.</p></div>
+  <div class="ex">
+    <div class="lab-grid">
+      <label for="lab-ddl">CREATE TABLE<textarea class="sql-in" id="lab-ddl" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea></label>
+      <label for="lab-sql">Sentencias<textarea class="sql-in" id="lab-sql" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea></label>
+    </div>
+    <div class="actions"><button type="button" class="ghost" id="lab-reset">Volver al ejemplo</button></div>
+    <div id="lab-out"></div>
+  </div>
+</section>
+
+<footer>
+  <p>El simulador reproduce el comportamiento de MySQL 8 con la colación por defecto <code>utf8mb4_0900_ai_ci</code> y el modo estricto: lógica de tres valores, mensajes de error reales (3819, 1048, 1406, 1062…), nombres automáticos y restricciones de columna y de tabla. No es un servidor MySQL de verdad: para casos muy rebuscados, compruébalo en tu base de datos.</p>
+  <p>Lo que escribes se guarda solo en este navegador.</p>
+  <p>Documentación oficial de MySQL 8.0:</p>
+  <ul class="sources">
+    <li><a href="https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html">CHECK Constraints</a></li>
+    <li><a href="https://dev.mysql.com/doc/refman/8.0/en/alter-table.html">ALTER TABLE Statement</a></li>
+    <li><a href="https://dev.mysql.com/doc/refman/8.0/en/information-schema-check-constraints-table.html">The INFORMATION_SCHEMA CHECK_CONSTRAINTS Table</a></li>
+    <li><a href="https://dev.mysql.com/doc/refman/8.0/en/information-schema-table-constraints-table.html">The INFORMATION_SCHEMA TABLE_CONSTRAINTS Table</a></li>
+  </ul>
+  <button type="button" class="ghost reset" id="reset">Borrar mis respuestas</button>
+</footer>
+  </main>
+</div>
+<script src="laboratorio_check.js"></script>
+</body>
+</html>
