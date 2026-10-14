@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio REGEXP_LIKE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cuaderno de laboratorio — índice fijo a la izquierda, lección + banco de pruebas en cada nivel a la derecha */
+:root{
+  --paper:#F2F4F5; --surface:#FFFFFF; --ink:#16202A; --muted:#55616D; --line:#D6DCE1; --soft:#E7ECEF;
+  --accent:#1D5FA6; --accent-soft:#DCE7F5; --accent-ink:#FFFFFF;
+  --hl:#FFDF7E; --hl-ink:#16202A;
+  --ok:#1B7845; --ok-bg:#E2F3E9; --bad:#B42318; --bad-bg:#FBE8E6; --warn:#8A5300; --warn-bg:#FFF2D4;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#10151A; --surface:#172028; --ink:#E3E8ED; --muted:#96A2AE; --line:#29333D; --soft:#202933;
+  --accent:#80AEE8; --accent-soft:#1D2F46; --accent-ink:#0D1620;
+  --hl:#6E5410; --hl-ink:#FFF3CC;
+  --ok:#62C48D; --ok-bg:#14281D; --bad:#F09184; --bad-bg:#2E1917; --warn:#E6B65C; --warn-bg:#2C2410;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#10151A; --surface:#172028; --ink:#E3E8ED; --muted:#96A2AE; --line:#29333D; --soft:#202933;
+  --accent:#80AEE8; --accent-soft:#1D2F46; --accent-ink:#0D1620;
+  --hl:#6E5410; --hl-ink:#FFF3CC;
+  --ok:#62C48D; --ok-bg:#14281D; --bad:#F09184; --bad-bg:#2E1917; --warn:#E6B65C; --warn-bg:#2C2410;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.6 var(--f-body);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+a{color:var(--accent)}
+code,kbd,pre,textarea,input.mono{font-family:var(--f-mono)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Cabecera */
+.top{padding-block:44px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(32px,5vw,52px)/1.05 var(--f-display);letter-spacing:-.02em;margin:12px 0 14px;text-wrap:balance}
+h1 .re{font-family:var(--f-mono);font-weight:600;font-size:.8em;letter-spacing:0;color:var(--accent);white-space:nowrap}
+.lede{max-width:66ch;color:var(--muted);margin:0 0 22px;font-size:17px}
+.controls{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+.ctl-label{font:600 12px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:500 14px var(--f-body);border:0;background:transparent;color:var(--muted);padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.prog{display:flex;align-items:center;gap:12px;min-width:0}
+.bar{width:180px;max-width:40vw;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.prog-txt{font:500 14px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted)}
+
+/* Estructura */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;padding-block:0 80px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;padding-top:36px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+.toc a{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;align-items:baseline;padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35}
+.toc a:hover{background:var(--soft);color:var(--ink)}
+.toc a .n{font:600 12px var(--f-mono);color:var(--accent)}
+.toc a .c{font:500 12px var(--f-mono);font-variant-numeric:tabular-nums}
+.toc a.done .c{color:var(--ok)}
+.toc .grp{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.8;padding:14px 10px 4px}
+.toc .grp:first-child{padding-top:0}
+main{min-width:0}
+
+.level{padding-block:44px 12px;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+.lv-n{font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lv-n .tier{color:var(--muted)}
+h2{font:700 clamp(26px,3.4vw,34px)/1.15 var(--f-display);letter-spacing:-.015em;margin:8px 0 18px;text-wrap:balance}
+h3{font:600 19px/1.3 var(--f-display);margin:28px 0 10px}
+.theory{max-width:70ch}
+.theory p{margin:0 0 14px}
+.theory ul{margin:0 0 14px;padding-left:20px}
+.theory li{margin-bottom:6px}
+.theory :not(pre)>code, .q code, .reveal :not(pre)>code, .msg code{background:var(--soft);padding:1px 6px;border-radius:4px;font-size:.88em;white-space:nowrap}
+.tbl{overflow-x:auto;margin:4px 0 18px}
+table.ref{border-collapse:collapse;font-size:15px;min-width:420px;width:100%}
+table.ref th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 12px 6px 0;border-bottom:1px solid var(--line)}
+table.ref td{padding:7px 12px 7px 0;border-bottom:1px solid var(--soft);vertical-align:top}
+table.ref td:first-child{white-space:nowrap}
+table.ref td code{background:var(--accent-soft);color:var(--ink);padding:2px 7px;border-radius:4px;font-size:14px}
+.callout{background:var(--warn-bg);border-left:3px solid var(--warn);padding:12px 16px;border-radius:0 8px 8px 0;margin:6px 0 18px;max-width:70ch}
+.callout b:first-child{color:var(--warn)}
+pre.code{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:4px 0 18px;max-width:100%}
+pre.code .cm{color:var(--muted)}
+pre.code .kw{color:var(--accent);font-weight:600}
+
+/* Ejercicios */
+.exs{display:flex;flex-direction:column;gap:18px;margin-top:22px}
+.exs-title{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:26px 0 -6px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0;transition:border-color .2s}
+.ex.pass{border-color:var(--ok)}
+.ex-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ex-num{font:600 13px var(--f-mono);color:var(--muted)}
+.pill{font:600 12px var(--f-mono);padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.ko{background:var(--bad-bg);color:var(--bad)}
+.q{margin:0;font-size:16.5px;max-width:72ch}
+.rx-input{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:500 17px var(--f-mono);min-width:0}
+.rx-input:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rx-input .sl{color:var(--muted);padding:0 10px;user-select:none}
+.rx-input input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;padding:12px 0;outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px 6px;min-height:0}
+.chips:empty{display:none}
+.tok{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.4;overflow:hidden;max-width:100%}
+.tok code{background:var(--soft);padding:3px 7px;font-size:12.5px;white-space:pre;border-right:1px solid var(--line)}
+.tok span{padding:3px 8px;color:var(--muted)}
+.tok.k-q{border-color:var(--accent-soft)}
+.tok.k-q code{background:var(--accent-soft)}
+.tok.k-anc code{background:var(--accent);color:var(--accent-ink)}
+.tok.k-err{border-color:var(--bad)}
+.tok.k-err code{background:var(--bad-bg);color:var(--bad)}
+.msgs{display:flex;flex-direction:column;gap:8px}
+.msgs:empty{display:none}
+.msg{padding:9px 12px;border-radius:6px;font-size:14.5px}
+.msg.err{background:var(--bad-bg);color:var(--bad)}
+.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.msg.info{background:var(--accent-soft);color:var(--ink)}
+.msg.info code, .msg.warn code{background:var(--surface)}
+.cases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.col h4{font:600 11.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.list{display:flex;flex-direction:column;gap:5px}
+.case{display:flex;gap:10px;align-items:baseline;padding:6px 10px;border-radius:6px;background:var(--paper);font:14.5px/1.5 var(--f-mono);min-width:0}
+.case .ico{width:14px;flex:none;font-weight:600;color:var(--muted)}
+.case.good{background:var(--ok-bg)} .case.good .ico{color:var(--ok)}
+.case.badc{background:var(--bad-bg)} .case.badc .ico{color:var(--bad)}
+.str{white-space:pre-wrap;word-break:break-all;min-width:0}
+mark{background:var(--hl);color:var(--hl-ink);border-radius:3px;padding:0 1px}
+mark.zero{display:inline-block;width:2px;height:1.05em;padding:0;margin:0 1px;background:var(--accent);vertical-align:-2px}
+.sp{opacity:.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button.ghost{font:500 14px var(--f-body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+button.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.reveal{background:var(--paper);border-radius:8px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.reveal p{margin:0}
+.reveal .sol{display:block;font:500 14.5px var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-all;max-width:100%}
+
+/* SQL */
+pre.ctx{margin:0;background:var(--paper);border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.55;overflow-x:auto;max-width:100%}
+pre.ctx .cm{color:var(--muted)} pre.ctx .kw{color:var(--accent);font-weight:600} pre.ctx .slot{background:var(--hl);color:var(--hl-ink);border-radius:3px;padding:0 4px}
+textarea.sql-in{width:100%;min-height:92px;font:500 15px/1.5 var(--f-mono);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical}
+textarea.sql-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;padding:8px 10px;border-radius:6px;background:var(--paper);align-items:baseline}
+.row.good{background:var(--ok-bg)} .row.badc{background:var(--bad-bg)}
+.row .ico{font:600 14px var(--f-mono);color:var(--muted)}
+.row.good .ico{color:var(--ok)} .row.badc .ico{color:var(--bad)}
+.row .stmt{font:13.5px/1.5 var(--f-mono);word-break:break-all;display:block}
+.row .res{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;margin-top:2px}
+.row .out{font-family:var(--f-mono)}
+.row .out.rej{color:var(--bad)} .row .out.acc{color:var(--ok)}
+.row .exp{color:var(--muted)}
+
+/* Banco libre */
+.lab{display:flex;flex-direction:column;gap:12px}
+.lab-opts{display:flex;gap:18px;flex-wrap:wrap;font-size:14.5px;color:var(--muted)}
+.lab-opts label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+textarea.lab-text{width:100%;min-height:170px;font:500 14.5px/1.6 var(--f-mono);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical}
+textarea.lab-text:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lab-res .case .tag{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;padding-left:10px}
+
+footer{padding-block:28px 40px;color:var(--muted);font-size:14px;max-width:70ch}
+.reset{margin-top:10px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;flex-direction:row;overflow-x:auto;max-height:none;background:var(--paper);padding-block:8px;border-bottom:1px solid var(--line);gap:4px}
+  .toc .grp{display:none}
+  .toc a{display:flex;gap:6px;white-space:nowrap;padding:5px 9px;border:1px solid var(--line);background:var(--surface)}
+  .toc a .t{display:none}
+  .level{scroll-margin-top:64px}
+}
+@media (max-width:620px){
+  .cases{grid-template-columns:minmax(0,1fr)}
+  .ex{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} html{scroll-behavior:auto} }
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Bases de Datos · tutorial práctico</div>
+    <h1>Laboratorio <span class="re">REGEXP_LIKE</span></h1>
+    <p class="lede">Expresiones regulares desde cero hasta restricciones <code>CHECK</code>. Once niveles: cada uno con la teoría justa y ejercicios que se corrigen mientras escribes. Los textos se evalúan igual que en <code>REGEXP_LIKE</code>: basta con que el patrón aparezca en algún sitio. Debajo de cada patrón verás cómo lo interpreta el motor, pieza a pieza.</p>
+    <div class="controls">
+      <div><span class="ctl-label">Motor</span><span class="seg" role="group" aria-label="Motor de base de datos"><button type="button" id="d-oracle" data-d="oracle">Oracle</button><button type="button" id="d-mysql" data-d="mysql">MySQL 8</button></span></div>
+      <div class="prog"><div class="bar" aria-hidden="true"><i id="bar"></i></div><span class="prog-txt" id="progtxt">0 de 0</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap shell">
+  <nav class="toc" id="toc" aria-label="Niveles"></nav>
+  <main>
+
+<!-- NIVEL 0 -->
+<section class="level" id="l0">
+  <div class="lv-n">Nivel 0 · <span class="tier">Básico</span></div>
+  <h2>Literales: el patrón más simple</h2>
+  <div class="theory">
+    <p>Una expresión regular es un patrón que describe un conjunto de textos. El caso más simple es un <b>literal</b>: el patrón <code>SMR</code> busca exactamente esas tres letras, en ese orden.</p>
+    <p>La idea que más errores evita en los <code>CHECK</code>: <code>REGEXP_LIKE</code> devuelve verdadero si el patrón aparece <b>en cualquier parte</b> del texto. <code>SMR</code> encuentra «1º SMR A». En los ejercicios, lo resaltado en amarillo es lo que ha encontrado el motor.</p>
+    <p>Las mayúsculas cuentan: <code>SMR</code> no encuentra «smr». Los espacios también son caracteres; aquí los verás como un punto tenue <span class="sp">·</span>.</p>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l0"></div>
+</section>
+
+<!-- NIVEL 1 -->
+<section class="level" id="l1">
+  <div class="lv-n">Nivel 1 · <span class="tier">Básico</span></div>
+  <h2>Anclas: dónde empieza y dónde acaba</h2>
+  <div class="theory">
+    <p><code>^</code> marca el inicio del texto y <code>$</code> el final. No consumen caracteres: señalan una posición.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Patrón</th><th>Significa</th><th>Coincide con</th></tr></thead><tbody>
+      <tr><td><code>^ES</code></td><td>empieza por ES</td><td>«ES91…», no «XES»</td></tr>
+      <tr><td><code>sql$</code></td><td>termina en sql</td><td>«mysql», no «sqlite»</td></tr>
+      <tr><td><code>^DAM$</code></td><td>es exactamente DAM</td><td>«DAM», no «DAM1»</td></tr>
+    </tbody></table></div>
+    <div class="callout"><b>Para los CHECK:</b> casi siempre querrás las dos anclas. Sin ellas, <code>DAM</code> acepta «xDAMx» porque contiene DAM en algún sitio. Es el fallo número uno al validar con <code>REGEXP_LIKE</code>.</div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l1"></div>
+</section>
+
+<!-- NIVEL 2 -->
+<section class="level" id="l2">
+  <div class="lv-n">Nivel 2 · <span class="tier">Básico</span></div>
+  <h2>El punto y cómo escapar</h2>
+  <div class="theory">
+    <p><code>.</code> coincide con <b>un</b> carácter cualquiera. <code>c.sa</code> encuentra «casa», «cosa» y «c#sa».</p>
+    <p>Algunos caracteres tienen significado especial (metacaracteres):</p>
+    <p><code>. ^ $ * + ? ( ) [ ] { } | \</code></p>
+    <p>Para usar cualquiera de ellos como carácter normal, ponle delante una barra invertida: <code>\.</code> es un punto de verdad, <code>\+</code> un signo más, <code>\(</code> un paréntesis.</p>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l2"></div>
+</section>
+
+<!-- NIVEL 3 -->
+<section class="level" id="l3">
+  <div class="lv-n">Nivel 3 · <span class="tier">Básico</span></div>
+  <h2>Clases de caracteres <code style="font-size:.8em;background:none">[ ]</code></h2>
+  <div class="theory">
+    <p>Los corchetes definen un conjunto y coinciden con <b>un solo carácter</b> de ese conjunto.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Clase</th><th>Coincide con un carácter que sea…</th></tr></thead><tbody>
+      <tr><td><code>[abc]</code></td><td>a, b o c</td></tr>
+      <tr><td><code>[a-z]</code></td><td>una minúscula de la a a la z (sin ñ ni vocales con tilde)</td></tr>
+      <tr><td><code>[0-9]</code></td><td>un dígito</td></tr>
+      <tr><td><code>[A-Za-z0-9]</code></td><td>una letra o un dígito (los rangos se ponen seguidos)</td></tr>
+      <tr><td><code>[^0-9]</code></td><td>cualquier cosa que <b>no</b> sea un dígito</td></tr>
+      <tr><td><code>[a-zñáéíóúü]</code></td><td>una minúscula, incluidas las españolas</td></tr>
+    </tbody></table></div>
+    <p>Dentro de los corchetes casi todo es literal: <code>[.]</code> es un punto y <code>[+]</code> un más. Tres excepciones:</p>
+    <ul>
+      <li><code>^</code> niega la clase solo si va el <b>primero</b>.</li>
+      <li><code>-</code> crea un rango; si lo quieres literal, ponlo al principio o al final: <code>[-+]</code>.</li>
+      <li><code>]</code> cerraría la clase; si lo quieres literal, ponlo el primero: <code>[]a]</code>.</li>
+    </ul>
+    <div class="callout"><b>Ojo:</b> <code>^</code> significa cosas distintas según dónde esté. En <code>^[^0-9]</code> el primero ancla al inicio y el segundo niega la clase.</div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l3"></div>
+</section>
+
+<!-- NIVEL 4 -->
+<section class="level" id="l4">
+  <div class="lv-n">Nivel 4 · <span class="tier">Intermedio</span></div>
+  <h2>Atajos y clases POSIX</h2>
+  <div class="theory">
+    <p>Hay abreviaturas para las clases más usadas. La mayúscula es siempre la negación.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Atajo</th><th>Equivale a</th><th>Negación</th></tr></thead><tbody>
+      <tr><td><code>\d</code></td><td>un dígito, <code>[0-9]</code></td><td><code>\D</code></td></tr>
+      <tr><td><code>\w</code></td><td>letra, dígito o guion bajo, <code>[A-Za-z0-9_]</code></td><td><code>\W</code></td></tr>
+      <tr><td><code>\s</code></td><td>espacio, tabulador o salto de línea</td><td><code>\S</code></td></tr>
+    </tbody></table></div>
+    <p>Oracle y MySQL admiten también las <b>clases POSIX</b>, que se escriben <b>dentro</b> de unos corchetes:</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Clase POSIX</th><th>Significa</th></tr></thead><tbody>
+      <tr><td><code>[[:digit:]]</code></td><td>un dígito</td></tr>
+      <tr><td><code>[[:alpha:]]</code></td><td>una letra</td></tr>
+      <tr><td><code>[[:upper:]]</code> / <code>[[:lower:]]</code></td><td>una mayúscula / una minúscula</td></tr>
+      <tr><td><code>[[:alnum:]]</code></td><td>letra o dígito</td></tr>
+      <tr><td><code>[[:space:]]</code></td><td>espacio en blanco</td></tr>
+      <tr><td><code>[[:punct:]]</code></td><td>signo de puntuación</td></tr>
+      <tr><td><code>[[:upper:][:digit:]]</code></td><td>se combinan: una mayúscula o un dígito</td></tr>
+    </tbody></table></div>
+    <div class="callout"><b>Trampa de Oracle:</b> dentro de corchetes la barra <code>\</code> es un carácter normal. <code>[\d]</code> significa «una barra o una d», no «un dígito». Fuera de corchetes <code>\d</code> funciona bien. Dentro, usa <code>[0-9]</code> o <code>[[:digit:]]</code>. Con el motor Oracle seleccionado arriba, los ejercicios reproducen este comportamiento.</div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l4"></div>
+</section>
+
+<!-- NIVEL 5 -->
+<section class="level" id="l5">
+  <div class="lv-n">Nivel 5 · <span class="tier">Intermedio</span></div>
+  <h2>Cuantificadores: cuántas veces</h2>
+  <div class="theory">
+    <p>Un cuantificador indica cuántas veces se repite lo que tiene <b>justo delante</b>.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Cuantificador</th><th>Veces</th><th>Ejemplo</th></tr></thead><tbody>
+      <tr><td><code>*</code></td><td>0 o más</td><td><code>ab*</code>: a, ab, abbb</td></tr>
+      <tr><td><code>+</code></td><td>1 o más</td><td><code>ab+</code>: ab, abbb (no «a»)</td></tr>
+      <tr><td><code>?</code></td><td>0 o 1 (opcional)</td><td><code>colou?r</code>: color, colour</td></tr>
+      <tr><td><code>{n}</code></td><td>exactamente n</td><td><code>[0-9]{5}</code>: cinco dígitos</td></tr>
+      <tr><td><code>{n,}</code></td><td>n o más</td><td><code>.{8,}</code>: ocho caracteres o más</td></tr>
+      <tr><td><code>{n,m}</code></td><td>entre n y m</td><td><code>[a-z]{3,10}</code></td></tr>
+    </tbody></table></div>
+    <div class="callout"><b>Solo afecta a lo inmediato anterior:</b> <code>ab+</code> es «a» seguida de una o más «b», no «ab» repetido. Para repetir varios caracteres juntos hace falta un grupo, que es el siguiente nivel. El desglose bajo tu patrón te lo marca con una flecha ↑.</div>
+    <p>Sin anclas, los cuantificadores engañan: <code>[0-9]{5}</code> acepta «123456» porque dentro hay cinco dígitos seguidos. Con <code>^[0-9]{5}$</code> ya no.</p>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l5"></div>
+</section>
+
+<!-- NIVEL 6 -->
+<section class="level" id="l6">
+  <div class="lv-n">Nivel 6 · <span class="tier">Intermedio</span></div>
+  <h2>Grupos y alternativas</h2>
+  <div class="theory">
+    <p>Los paréntesis agrupan para tratar varios caracteres como una unidad: <code>(ab)+</code> repite «ab». La barra vertical <code>|</code> significa «o bien»: <code>gato|perro</code>.</p>
+    <p>La alternativa tiene la prioridad más baja de todas: separa todo lo que tiene a izquierda y derecha, salvo que la encierres en un grupo.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Patrón</th><th>Lo que realmente significa</th></tr></thead><tbody>
+      <tr><td><code>^SMR|DAM$</code></td><td>«empieza por SMR» <b>o</b> «termina en DAM». Acepta «SMRxyz».</td></tr>
+      <tr><td><code>^(SMR|DAM)$</code></td><td>exactamente SMR o exactamente DAM</td></tr>
+      <tr><td><code>(\+34)?[6-9][0-9]{8}</code></td><td>el prefijo completo es opcional</td></tr>
+    </tbody></table></div>
+    <div class="callout"><b>Oracle no admite</b> grupos sin captura <code>(?:…)</code>. Usa paréntesis normales: funcionan igual para agrupar.</div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l6"></div>
+</section>
+
+<!-- NIVEL 7 -->
+<section class="level" id="l7">
+  <div class="lv-n">Nivel 7 · <span class="tier">Avanzado</span></div>
+  <h2>Formatos compuestos, pieza a pieza</h2>
+  <div class="theory">
+    <p>Los formatos reales se construyen por partes. Un método que funciona:</p>
+    <ul>
+      <li>Escribe ejemplos válidos e inválidos antes de escribir el patrón.</li>
+      <li>Divide el formato en trozos (día, separador, mes…).</li>
+      <li>Escribe cada trozo por separado y pruébalo en el banco libre del final.</li>
+      <li>Únelos y pon las anclas.</li>
+      <li>Prueba los casos límite: 0, 9, 10, 31, 32, 255, 256…</li>
+    </ul>
+    <p>Una regex no entiende números, solo caracteres. Para limitar un rango numérico hay que enumerar los casos por su primera cifra. Del 01 al 31:</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Trozo</th><th>Cubre</th></tr></thead><tbody>
+      <tr><td><code>0[1-9]</code></td><td>01 a 09</td></tr>
+      <tr><td><code>[12][0-9]</code></td><td>10 a 29</td></tr>
+      <tr><td><code>3[01]</code></td><td>30 y 31</td></tr>
+      <tr><td><code>(0[1-9]|[12][0-9]|3[01])</code></td><td>todo junto</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l7"></div>
+</section>
+
+<!-- NIVEL 8 -->
+<section class="level" id="l8">
+  <div class="lv-n">Nivel 8 · <span class="tier">Avanzado</span></div>
+  <h2>Retroreferencias</h2>
+  <div class="theory">
+    <p>Cada grupo entre paréntesis <b>captura</b> el texto que encontró. <code>\1</code> exige que vuelva a aparecer ese mismo texto. Ojo: repite el texto, no el patrón.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Patrón</th><th>Significa</th></tr></thead><tbody>
+      <tr><td><code>([a-z])\1</code></td><td>una letra repetida dos veces seguidas: «ll», «rr»</td></tr>
+      <tr><td><code>([a-z])[a-z]</code></td><td>dos letras cualesquiera (la segunda puede ser distinta)</td></tr>
+      <tr><td><code>([-/])…\1</code></td><td>el segundo separador igual que el primero</td></tr>
+    </tbody></table></div>
+    <p>Los grupos se numeran por el orden de su paréntesis de apertura, de izquierda a derecha. Oracle admite de <code>\1</code> a <code>\9</code>.</p>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l8"></div>
+</section>
+
+<!-- NIVEL 9 -->
+<section class="level" id="l9">
+  <div class="lv-n">Nivel 9 · <span class="tier">Experto</span></div>
+  <h2>Formatos españoles reales</h2>
+  <div class="theory">
+    <p>Los datos que más se validan en una base de datos española. Recuerda que una regex comprueba el <b>formato</b>, no la validez: «12345678A» tiene formato de DNI aunque su letra sea incorrecta.</p>
+    <div class="tbl"><table class="ref"><thead><tr><th>Dato</th><th>Formato</th></tr></thead><tbody>
+      <tr><td>DNI</td><td>8 dígitos + letra. Letras posibles: TRWAGMYFPDXBNJZSQVHLCKE (nunca I, Ñ, O, U)</td></tr>
+      <tr><td>NIE</td><td>X, Y o Z + 7 dígitos + letra</td></tr>
+      <tr><td>Código postal</td><td>5 dígitos; los dos primeros son la provincia, de 01 a 52</td></tr>
+      <tr><td>IBAN español</td><td>ES + 2 dígitos de control + 20 dígitos</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="exs-title">Practica</div>
+  <div class="exs" data-level="l9"></div>
+</section>
+
+<!-- NIVEL 10 SQL -->
+<section class="level" id="sql">
+  <div class="lv-n">Nivel 10 · <span class="tier">Experto</span></div>
+  <h2>REGEXP_LIKE en restricciones CHECK</h2>
+  <div class="theory">
+    <h3>Sintaxis</h3>
+<pre class="code"><span class="kw">REGEXP_LIKE</span>(columna, 'patrón' [, 'parámetros'])</pre>
+    <div class="tbl"><table class="ref"><thead><tr><th>Parámetro</th><th>Efecto</th></tr></thead><tbody>
+      <tr><td><code>'i'</code></td><td>no distingue mayúsculas</td></tr>
+      <tr><td><code>'c'</code></td><td>sí distingue mayúsculas</td></tr>
+      <tr><td><code>'n'</code></td><td>el punto también coincide con saltos de línea</td></tr>
+      <tr><td><code>'m'</code></td><td><code>^</code> y <code>$</code> funcionan por líneas</td></tr>
+      <tr><td><code>'x'</code></td><td>ignora los espacios del patrón (solo Oracle)</td></tr>
+    </tbody></table></div>
+    <h3>Dentro de una tabla</h3>
+<pre class="code"><span class="kw">CREATE TABLE</span> alumno (
+  dni    VARCHAR2(9)   <span class="kw">NOT NULL</span>,
+  email  VARCHAR2(100),
+  cp     VARCHAR2(5),
+  <span class="kw">CONSTRAINT</span> alu_dni_ck   <span class="kw">CHECK</span> (<span class="kw">REGEXP_LIKE</span>(dni, '^[0-9]{8}[A-HJ-NP-TV-Z]$')),
+  <span class="kw">CONSTRAINT</span> alu_email_ck <span class="kw">CHECK</span> (<span class="kw">REGEXP_LIKE</span>(email, '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$', 'i'))
+);
+
+<span class="cm">-- Añadirla después</span>
+<span class="kw">ALTER TABLE</span> alumno <span class="kw">ADD CONSTRAINT</span> alu_cp_ck
+  <span class="kw">CHECK</span> (<span class="kw">REGEXP_LIKE</span>(cp, '^[0-9]{5}$'));
+
+<span class="cm">-- Antes de añadirla, busca las filas que la incumplirían</span>
+<span class="kw">SELECT</span> cp <span class="kw">FROM</span> alumno <span class="kw">WHERE NOT REGEXP_LIKE</span>(cp, '^[0-9]{5}$');</pre>
+    <p>Nombra siempre las restricciones: el error dirá cuál ha fallado (<code>ORA-02290: restricción de control (DAM.ALU_DNI_CK) violada</code>).</p>
+    <h3>Las seis trampas</h3>
+    <ul>
+      <li><b>Anclas.</b> Sin <code>^</code> y <code>$</code> la columna solo tiene que <i>contener</i> el patrón.</li>
+      <li><b>NULL pasa.</b> Un CHECK rechaza la fila solo si la condición es FALSE. <code>REGEXP_LIKE(NULL, …)</code> da UNKNOWN y la fila entra. Si la columna es obligatoria, añade <code>NOT NULL</code>.</li>
+      <li><b>Cadena vacía en Oracle.</b> Para Oracle <code>''</code> es NULL, así que también pasa.</li>
+      <li><b>Barra dentro de corchetes (Oracle).</b> <code>[\d]</code> no es un dígito. Usa <code>[0-9]</code>.</li>
+      <li><b>Oracle no tiene lookahead</b> <code>(?=…)</code>, ni <code>(?:…)</code>, ni <code>\b</code>. Para exigir varias cosas a la vez, encadena varias <code>REGEXP_LIKE</code> con <code>AND</code>.</li>
+      <li><b>Datos existentes.</b> Si ya hay filas que incumplen, <code>ALTER TABLE … ADD CONSTRAINT</code> falla con ORA-02293. Búscalas antes con el <code>SELECT … WHERE NOT REGEXP_LIKE</code>.</li>
+    </ul>
+    <h3>Si trabajas con MySQL 8</h3>
+    <ul>
+      <li>Los CHECK se aplican desde la versión 8.0.16. En versiones anteriores se aceptaban pero se ignoraban.</li>
+      <li>En un literal de cadena la barra es carácter de escape: <code>'\d'</code> llega al motor como <code>d</code>. Escribe <code>'\\d'</code>, <code>'\\.'</code>… o usa clases: <code>[0-9]</code>, <code>[.]</code>.</li>
+      <li>Con la colación habitual (<code>utf8mb4_0900_ai_ci</code>) <code>REGEXP_LIKE</code> no distingue mayúsculas: <code>[A-Z]</code> acepta minúsculas. Añade el parámetro <code>'c'</code>.</li>
+      <li>Su motor (ICU) sí admite lookahead y <code>\b</code>.</li>
+    </ul>
+    <p>Cambia el selector de la cabecera a <b>MySQL 8</b> y los ejercicios de este nivel se evaluarán con esas reglas. Prueba a resolver el mismo ejercicio en los dos motores.</p>
+    <h3>Para nota: comprobar la letra del DNI</h3>
+    <p>La letra es el resto de dividir el número entre 23, usado como posición en «TRWAGMYFPDXBNJZSQVHLCKE». En Oracle se puede comprobar en el mismo CHECK. El <code>CASE</code> garantiza que <code>TO_NUMBER</code> solo se ejecuta si el formato ya es correcto:</p>
+<pre class="code"><span class="kw">CONSTRAINT</span> alu_dni_letra_ck <span class="kw">CHECK</span> (
+  <span class="kw">CASE WHEN REGEXP_LIKE</span>(dni, '^[0-9]{8}[A-Z]$')
+       <span class="kw">AND</span> SUBSTR('TRWAGMYFPDXBNJZSQVHLCKE',
+                  MOD(TO_NUMBER(SUBSTR(dni, 1, 8)), 23) + 1, 1) = SUBSTR(dni, 9, 1)
+       <span class="kw">THEN</span> 1 <span class="kw">ELSE</span> 0 <span class="kw">END</span> = 1
+)</pre>
+    <p>Aquí el <code>CASE</code> devuelve 0 con NULL, así que esta versión también rechaza los DNI vacíos.</p>
+  </div>
+  <div class="exs-title">Practica: escribe la condición del CHECK</div>
+  <p class="theory" style="color:var(--muted);font-size:15px;margin:8px 0 0">Escribe <code>CHECK (…)</code> completo o solo la condición. El simulador entiende <code>REGEXP_LIKE</code>, <code>AND</code>, <code>OR</code>, <code>NOT</code>, paréntesis, <code>IS [NOT] NULL</code>, <code>LENGTH()</code>, <code>UPPER()</code> y comparaciones.</p>
+  <div class="exs" data-level="sql"></div>
+</section>
+
+<!-- BANCO LIBRE -->
+<section class="level" id="lab">
+  <div class="lv-n">Banco libre</div>
+  <h2>Prueba cualquier patrón</h2>
+  <div class="theory"><p>Una línea por texto. Cada línea se evalúa como un <code>REGEXP_LIKE</code> independiente y se resaltan todas las coincidencias.</p></div>
+  <div class="ex lab">
+    <label class="rx-input" for="lab-rx"><span class="sl" aria-hidden="true">'</span><input id="lab-rx" class="mono" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Patrón"><span class="sl" aria-hidden="true">'</span></label>
+    <div class="chips" id="lab-chips"></div>
+    <div class="lab-opts"><label><input type="checkbox" id="lab-i"> parámetro 'i' (ignorar mayúsculas)</label></div>
+    <div class="msgs" id="lab-msgs"></div>
+    <textarea class="lab-text" id="lab-text" spellcheck="false" aria-label="Textos de prueba, uno por línea"></textarea>
+    <div class="list lab-res" id="lab-res"></div>
+  </div>
+</section>
+
+<footer>
+  <p>El corrector usa el motor de expresiones regulares del navegador y emula las diferencias principales de Oracle y MySQL 8 (barra dentro de corchetes, construcciones no admitidas, escapes de cadena, mayúsculas por defecto y lógica de tres valores con NULL). Para casos muy rebuscados, confirma en tu base de datos.</p>
+  <p>Lo que escribes se guarda en este navegador.</p>
+  <button type="button" class="ghost reset" id="reset">Borrar mis respuestas</button>
+</footer>
+  </main>
+</div>
+
+<script src="laboratorio_regexp_like.js"></script>
+</body>
+</html>
