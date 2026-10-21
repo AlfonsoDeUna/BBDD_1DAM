@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Laboratorio guiado e interactivo de claves primarias, claves foráneas y relaciones en MySQL. Explicaciones, SQL, simulaciones y cuaderno de aprendizaje para 1.º DAM.">
+<meta name="theme-color" content="#172639">
+<title>Laboratorio de claves primarias y foráneas · 1.º DAM</title>
+<link rel="stylesheet" href="laboratorio_claves_assets/estilo.css">
+</head>
+<body>
+<a href="#main" class="skip">Saltar al contenido</a>
+<header class="topbar">
+ <a class="brand" href="#n0" aria-label="Inicio del laboratorio"><span class="brand-mark">PK/FK</span><span><strong>Laboratorio de claves</strong><small>Bases de Datos · 1.º DAM · MySQL</small></span></a>
+ <button id="menu-toggle" class="btn mobile-menu" aria-controls="sidebar" aria-expanded="false">Índice</button>
+ <div class="toolbar" aria-label="Opciones de visualización"><button class="btn" id="btn-present" aria-pressed="false">Proyectar</button><button class="btn" id="btn-complete" aria-pressed="false">Vista completa</button><button class="btn soft" data-action="open-notebook">Cuaderno ↗</button></div>
+</header>
+<div class="layout">
+ <aside class="sidebar" id="sidebar" aria-label="Índice del laboratorio"><nav id="toc" aria-label="Bloques de la lección"></nav><div class="side-note"><strong>Tu recorrido</strong><div class="meter" aria-hidden="true"><i id="progress-bar"></i></div><div id="progress-visited"></div><div id="progress-sql" style="margin-top:4px"></div><p id="save-status" style="margin-top:12px">Guardado local</p><p class="small" style="margin-top:12px">El progreso no es una nota.<br>Alt + ← / → cambia de pantalla.</p></div></aside>
+ <main class="stage" id="main"><div class="crumb"><strong id="crumb-block"></strong><span id="crumb-count"></span></div><nav id="step-tabs" class="step-tabs" aria-label="Pasos del bloque"></nav><div id="panels"></div><noscript><div class="rule warn">Este laboratorio necesita JavaScript para mostrar las actividades y guardar tus respuestas. Actívalo en tu navegador y vuelve a abrir la página.</div></noscript></main>
+</div>
+<footer class="bottomnav" aria-label="Navegación entre pantallas"><button class="btn" id="prev">← Anterior</button><span id="next-label" class="nextlabel"></span><span id="page-label" class="page-label"></span><button class="btn primary" id="next">Siguiente →</button></footer>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="notebook" class="modal" aria-labelledby="notebook-title">
+ <div class="modal-head"><h2 id="notebook-title">Mi cuaderno del laboratorio</h2><button class="btn small" data-action="close-notebook" aria-label="Cerrar cuaderno">Cerrar ×</button></div>
+ <p class="small muted">Tu trabajo se guarda solo en este navegador. No hay cuentas, envío al profesor ni sincronización entre equipos. Usa un alias o código de alumno; no es necesario indicar datos personales.</p>
+ <div class="form-row"><div><label class="field-label" for="student-name">Alias o código de alumno</label><input id="student-name" class="input" maxlength="120" placeholder="Ej.: DAM-07"></div><div><label class="field-label" for="student-group">Grupo (opcional)</label><input id="student-group" class="input" maxlength="80" placeholder="Ej.: 1.º DAM A"></div></div>
+ <div id="nb-stats" class="summary-stats"></div>
+ <h3>Entregar o conservar</h3><p class="small muted">El cuaderno TXT incluye SQL, últimos intentos, pistas, soluciones consultadas, respuestas, reflexiones y experimentos. No es una nota ni una verificación de autoría.</p>
+ <div class="actions"><button class="btn primary" data-action="download-text">Descargar cuaderno TXT</button><button class="btn" data-action="download-ownsql">Descargar mi SQL</button></div>
+ <h3 style="margin-top:25px">Continuar en otro navegador</h3><p class="small muted">La copia JSON permite recuperar el trabajo en otro equipo. Importar una copia sustituye el trabajo local actual.</p><div class="actions"><button class="btn" data-action="download-json">Guardar copia JSON</button></div><label class="field-label" for="import-file">Importar una copia de este laboratorio</label><input class="backup-file" id="import-file" type="file" accept=".json,application/json">
+ <details class="note-box"><summary>Ayuda y privacidad</summary><p class="small">No se hacen peticiones de red para usar las actividades. Los enlaces a documentación son externos. El almacenamiento local puede no estar disponible en modo privado o con ciertas restricciones del navegador; exporta una copia antes de cerrar. Abrir el HTML desde otra carpeta o dirección puede dar acceso a un almacenamiento distinto.</p><p class="small">Los simuladores no ejecutan un motor SQL. El comprobador está limitado a las construcciones de la lección y no debe usarse para auditar una base de datos real.</p></details>
+ <button class="btn danger small" data-action="reset-all">Borrar mi trabajo local</button>
+</dialog>
+<script src="laboratorio_claves_assets/01_analizador.js"></script>
+<script src="laboratorio_claves_assets/02_actividades.js"></script>
+<script src="laboratorio_claves_assets/03_contenido.js"></script>
+<script src="laboratorio_claves_assets/04_interfaz.js"></script>
+<script src="laboratorio_claves_assets/05_simuladores.js"></script>
+<script src="laboratorio_claves_assets/06_cuaderno.js"></script>
+<script src="laboratorio_claves_assets/07_eventos.js"></script>
+</body>
+</html>
