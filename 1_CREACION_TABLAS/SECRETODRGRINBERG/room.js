@@ -197,7 +197,7 @@
     $('pattern-form').setAttribute('aria-busy','true');
     const evaluatingStage = stage;
     try {
-      worker = new Worker('regex-worker.js?v=6');
+      worker = new Worker('regex-worker.js?v=7');
       worker.onmessage = ({data}) => {
         if (data.ready) {
           clearTimeout(deadline);
