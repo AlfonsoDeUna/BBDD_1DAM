@@ -7,8 +7,10 @@
   <meta name="description" content="El secreto del doctor Grinberg. Una aventura de ficción entre archivos ocultos, patrones y expresiones regulares.">
   <title>El secreto del doctor Grinberg</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2310110f'/%3E%3Ctext x='8' y='44' fill='%23eeb26b' font-family='monospace' font-size='40'%3E[G%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=2">
-  <script defer src="app.js?v=2"></script>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="room.css?v=3">
+  <script defer src="room.js?v=3"></script>
+  <script defer src="app.js?v=3"></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -94,11 +96,70 @@
          |_|_______________|_|
         /_____________________\
         </pre><span class="door-light"></span></div>
-        <div class="arrival-copy"><p class="eyebrow amber">IDENTIDAD CONFIRMADA / PRÓLOGO COMPLETADO</p><h2 id="arrival-title" tabindex="-1">Te estábamos<br>esperando, <span id="player-name"></span>.</h2><p class="arrival-quote">«La primera puerta no se abre con una llave.<br>Se abre con una pregunta bien escrita».</p><div class="preview-note"><span class="amber">CONTINUARÁ_</span><p>Has llegado al final de esta primera versión.<br>Las salas y el muro de escapistas llegarán en la próxima fase.</p></div><div class="arrival-actions"><button id="replay" class="primary-button"><span>REPETIR INTRODUCCIÓN</span><span aria-hidden="true">↺</span></button><button id="back" class="text-button">← Volver a la portada</button></div></div>
+        <div class="arrival-copy"><p class="eyebrow amber">IDENTIDAD CONFIRMADA / PRÓLOGO COMPLETADO</p><h2 id="arrival-title" tabindex="-1">Te estábamos<br>esperando, <span id="player-name"></span>.</h2><p class="arrival-quote">«La primera puerta no se abre con una llave.<br>Se abre con una pregunta bien escrita».</p><div class="preview-note"><span class="amber">SALA 01 / LA RECEPCIÓN</span><p>Una nota. Una terminal encendida. Una puerta cerrada.<br>Tu investigación empieza aquí.</p></div><div class="arrival-actions"><button id="enter-room" class="primary-button"><span>ENTRAR EN RECEPCIÓN</span><span aria-hidden="true">→</span></button><button id="replay" class="text-button">Repetir introducción</button><button id="back" class="text-button">← Volver a la portada</button></div></div>
+      </section>
+
+      <section id="room" class="room" aria-labelledby="room-title" hidden>
+        <div id="room-play">
+          <div class="room-heading"><div><p class="eyebrow amber">CAPÍTULO 01 / EL PRIMER RASTRO</p><h2 id="room-title" tabindex="-1">La recepción<span class="amber">.</span></h2></div><div class="room-identity"><span id="room-alias"></span><span id="room-progress">0 / 2 PRUEBAS</span></div></div>
+          <div class="room-layout">
+            <div class="room-left">
+              <div class="room-scene" aria-label="Objetos de la recepción. Pulsa uno para investigarlo.">
+                <div class="scene-caption"><span>LABORATORIO / PLANTA 00</span><span id="room-door-status" class="locked-label">ACCESO CERRADO</span></div>
+                <div class="ceiling-lamp" aria-hidden="true"><span>|</span><span>____|____</span><span>\_______/</span></div>
+                <span class="wall-number" aria-hidden="true">01</span>
+                <div class="room-objects">
+                  <div class="desk-area">
+                    <button class="room-object terminal-object" id="object-terminal" aria-pressed="false"><span class="object-index">02 / TERMINAL</span><pre aria-hidden="true">  .--------------------.
+  | &gt;_                 |
+  |   SEÑAL PERDIDA     |
+  |                    |
+  '--------------------'
+          |    |
+       ___|____|___
+  ____/____________\____</pre><span id="terminal-object-status" class="object-state">BUSCAR TRANSMISIÓN ↗</span></button>
+                    <button class="room-object note-object" id="object-note" aria-pressed="false"><span class="paper-fold" aria-hidden="true"></span><span class="note-lines" aria-hidden="true">// G.<br>─────<br>───</span><span>01 / LEER LA NOTA ↗</span></button>
+                    <div class="desk" aria-hidden="true"><span>╤══════════════════════════╤</span><span>│                          │</span><span>│                          │</span></div>
+                  </div>
+                  <button class="room-object door-object" id="object-door" aria-pressed="false"><span class="object-index">03 / PUERTA</span><pre aria-hidden="true"> .---------------.
+ | .-----------. |
+ | |  ARCHIVO  | |
+ | |    02     | |
+ | |           | |
+ | |   [ ? ]   | |
+ | |           | |
+ | |       [o] | |
+ | |           | |
+ |_|___________|_|</pre><span class="door-indicator" aria-hidden="true"></span><span id="door-object-status" class="object-state">CERRADURA BLOQUEADA</span></button>
+                </div>
+                <div class="floor-grid" aria-hidden="true"></div>
+                <p class="scene-instruction">EXAMINA LOS OBJETOS. TODO DEJA UN RASTRO.</p>
+              </div>
+              <div class="inventory"><span>EN TU PODER</span><span id="inventory-content">— Todavía no has recogido ninguna pista.</span></div>
+              <div class="room-bottom"><button id="room-cover" class="text-button">← Portada</button><span>El avance se guarda en este navegador.</span><button id="room-reset" class="text-button">Reiniciar sala</button></div>
+            </div>
+            <div class="inspection" id="inspection">
+              <div class="inspection-top"><span id="inspection-source">EXPLORACIÓN</span><span id="inspection-state">[ EN CURSO ]</span></div>
+              <div id="welcome-panel" class="inspection-panel"><p class="eyebrow">EL SILENCIO NO ES UNA RESPUESTA</p><h3 tabindex="-1">Alguien estuvo aquí.</h3><p>Una taza fría. El zumbido de un monitor. Al fondo, la luz roja de una cerradura.</p><p>Junto al teclado hay una nota escrita a mano. Parece que el doctor esperaba una visita.</p><button id="begin-note" class="primary-button"><span>EXAMINAR LA NOTA</span><span aria-hidden="true">↗</span></button><p class="panel-footnote">Pulsa los objetos de la habitación para investigarlos.</p></div>
+              <div id="note-panel" class="inspection-panel" hidden><p class="eyebrow">PISTA 01 / NOTA MANUSCRITA</p><h3 tabindex="-1">«Busca mi marca».</h3><blockquote>Si alguien ha borrado mi rastro, aún quedarán mensajes en la terminal.<br><br>Todos los míos contienen <strong>ORIGEN</strong>, en mayúsculas. La marca puede estar en cualquier parte.<br><br>Filtra el ruido. Recupera mi transmisión.<cite>— G.</cite></blockquote><button id="note-to-terminal" class="primary-button"><span>INVESTIGAR LA TERMINAL</span><span aria-hidden="true">→</span></button></div>
+              <div id="locked-panel" class="inspection-panel" hidden><p class="eyebrow">LECTOR DE ACCESO / SIN SINCRONIZAR</p><h3 tabindex="-1">La puerta no responde.</h3><p>El lector necesita una transmisión del doctor para activar la cerradura.</p><p>La terminal de recepción sigue encendida. Quizá puedas recuperar algo allí.</p><button id="locked-to-terminal" class="primary-button"><span>IR A LA TERMINAL</span><span aria-hidden="true">→</span></button></div>
+              <div id="challenge-panel" class="inspection-panel challenge-panel" hidden>
+                <p id="challenge-kicker" class="eyebrow"></p><h3 id="challenge-title" tabindex="-1"></h3><p id="challenge-description" class="challenge-description"></p>
+                <div class="record-heading"><span id="record-label">REGISTROS RECUPERADOS</span><span id="match-count">SIN FILTRAR</span></div><ul id="records" class="records" aria-label="Registros de prueba"></ul>
+                <form id="pattern-form" novalidate><label for="pattern">Tu expresión regular</label><div class="input-frame pattern-frame"><span aria-hidden="true">&gt;_</span><input id="pattern" name="pattern" maxlength="120" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="pattern-help pattern-feedback" placeholder="Escribe un patrón…"></div><p id="pattern-help" class="field-help">Escribe solo el patrón, sin comillas ni barras / /.</p><button id="test-pattern" class="primary-button" type="submit"><span>PROBAR PATRÓN</span><span aria-hidden="true">↵</span></button></form>
+                <div id="pattern-feedback" class="pattern-feedback" role="status" aria-live="polite" hidden></div>
+                <div id="recovered-message" class="recovered-message" hidden><p class="eyebrow">TRANSMISIÓN AUTÉNTICA / RECUPERADA</p><p>«La puerta reconoce <strong>ORIGEN</strong>. Solo esa palabra. Ni un carácter delante. Ni uno detrás. Cuidado con las copias».</p><button id="message-to-door" class="primary-button"><span>IR A LA CERRADURA</span><span aria-hidden="true">→</span></button></div>
+                <div id="door-ready" class="recovered-message" hidden><p>Oyes un clic. El indicador cambia a verde.</p><button id="open-door" class="primary-button"><span>ABRIR LA PUERTA</span><span aria-hidden="true">→</span></button></div>
+                <div id="notebook" class="notebook"><button id="hint-button" class="text-button">+ Consultar el cuaderno del doctor</button><div id="hint-body" hidden><p id="hint-text"></p><button id="next-hint" class="text-button">Otra pista →</button></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="room-success" class="room-success" hidden><p class="eyebrow amber">SALA 01 / SUPERADA</p><div class="success-seal" aria-hidden="true">[ ✓ ]</div><h2 id="room-success-title" tabindex="-1">Has encontrado<br>el primer rastro.</h2><p class="success-personal" id="success-personal"></p><div class="success-stats"><span>PRUEBAS<strong>2 / 2</strong></span><span>INTENTOS<strong id="success-attempts"></strong></span><span>PISTAS CONSULTADAS<strong id="success-hints"></strong></span></div><div class="file-fragment"><span>FRAGMENTO 01 / PROYECTO ORIGEN</span><p>«Hay un nombre que han intentado borrar.<br>Búscalo entre las identidades».</p></div><p class="success-next">Al otro lado espera el archivo de identidades.<br>Esta demo termina aquí: la siguiente sala y el muro aún no están activos.</p><div class="success-actions"><button id="room-replay" class="primary-button"><span>VOLVER A JUGAR ESTA SALA</span><span aria-hidden="true">↺</span></button><button id="success-cover" class="text-button">← Volver a la portada</button></div></div>
       </section>
     </main>
 
-    <footer class="footer"><span><span class="footer-mark" aria-hidden="true">[ .* ]</span> ENCUENTRA EL PATRÓN. DESCUBRE EL SECRETO.</span><span>UNA HISTORIA DE FICCIÓN <span class="footer-divider">/</span> PRÓLOGO 00</span></footer>
+    <footer class="footer"><span><span class="footer-mark" aria-hidden="true">[ .* ]</span> ENCUENTRA EL PATRÓN. DESCUBRE EL SECRETO.</span><span>UNA HISTORIA DE FICCIÓN <span class="footer-divider">/</span> PRÓLOGO + SALA 01</span></footer>
     <noscript><p class="noscript-note">Activa JavaScript para escribir tu alias y reproducir la introducción.</p></noscript>
   </div>
 </body>

@@ -3,7 +3,7 @@
   const $ = (id) => document.getElementById(id);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const aliasInput = $('alias');
-  const screens = ['cover', 'intro', 'arrival'];
+  const screens = ['cover', 'intro', 'arrival', 'room'];
   const storageKey = 'grinberg.alias.v1';
   let alias = '';
   let screen = 'cover';
@@ -29,6 +29,7 @@
 
   function showScreen(nextScreen) {
     clearTimeout(timer);
+    if (screen === 'room' && nextScreen !== 'room') window.GrinbergRoom.leave();
     screen = nextScreen;
     screens.forEach((id) => { $(id).hidden = id !== nextScreen; });
     document.body.classList.toggle('is-intro', nextScreen === 'intro');
@@ -124,6 +125,8 @@
   $('pause').addEventListener('click', () => { automaticPause = false; setPaused(!paused); });
   $('replay').addEventListener('click', startIntro);
   $('back').addEventListener('click', () => { showScreen('cover'); aliasInput.focus({preventScroll:true}); });
+  $('enter-room').addEventListener('click', () => { showScreen('room'); window.GrinbergRoom.enter(alias); });
+  ['room-cover', 'success-cover'].forEach((id) => $(id).addEventListener('click', () => { showScreen('cover'); aliasInput.focus({preventScroll:true}); }));
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
