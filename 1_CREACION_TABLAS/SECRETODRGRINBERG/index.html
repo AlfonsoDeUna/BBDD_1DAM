@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10110f">
+  <meta name="description" content="El secreto del doctor Grinberg. Una aventura de ficción entre archivos ocultos, patrones y expresiones regulares.">
+  <title>El secreto del doctor Grinberg</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2310110f'/%3E%3Ctext x='8' y='44' fill='%23eeb26b' font-family='monospace' font-size='40'%3E[G%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="Volver a la portada"><span class="brand-icon" aria-hidden="true">[G]</span><span>ARCHIVO GRINBERG<span class="brand-sub">DEPARTAMENTO DE LO IMPOSIBLE</span></span></a>
+      <div class="header-right"><span class="connection"><span class="status-dot"></span> SEÑAL RECUPERADA</span><button id="sound" class="sound-button" aria-pressed="false"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="sound-label">SONIDO: OFF</span></button></div>
+    </header>
+
+    <main>
+      <section id="cover" class="cover" aria-labelledby="title">
+        <figure class="portrait-panel">
+          <div class="panel-top"><span>EXPEDIENTE N.º 001</span><span class="amber">[ CLASIFICADO ]</span></div>
+          <div class="portrait-stage" role="img" aria-label="Retrato ASCII de un científico ficticio, de pelo blanco, gafas redondas y barba, entre órbitas y estrellas.">
+            <span class="cross cross-tl" aria-hidden="true">+</span><span class="cross cross-tr" aria-hidden="true">+</span><span class="cross cross-bl" aria-hidden="true">+</span><span class="cross cross-br" aria-hidden="true">+</span>
+            <span class="star star-one" aria-hidden="true">+</span><span class="star star-two" aria-hidden="true">*</span><span class="star star-three" aria-hidden="true">+</span>
+            <pre id="portrait" aria-hidden="true">          .       +       .
+                 _____
+            .-:::::::::-.
+           /::::     ::::\
+          |::  _     _  ::|
+          |:  (o)---(o)  :|
+          |     /   \    |
+           \   .-----,  /
+            \ ::===:: /
+             \:::::::/
+           ___\:::::/___
+        .-'    \___/    '-.
+       /   /\    |    /\   \
+      /___/  \___|___/  \___\
+          .       +       .</pre>
+            <div class="scan-line" aria-hidden="true"></div>
+            <span class="portrait-code" aria-hidden="true">FIG. 01 / IDENTIDAD DESCONOCIDA</span>
+          </div>
+          <figcaption><span>ÚLTIMA CONEXIÓN</span><span>HACE 72 HORAS <span class="amber">▮</span></span></figcaption>
+        </figure>
+
+        <div class="cover-content">
+          <p class="eyebrow"><span class="tiny-line"></span> UN ESCAPE ROOM DE EXPRESIONES REGULARES</p>
+          <h1 id="title"><span class="title-pre">EL SECRETO DEL</span><span>DOCTOR</span><span class="title-last">GRINBERG<span class="title-period">.</span></span></h1>
+          <p class="tagline">Toda desaparición deja un rastro.<br>La suya dejó un patrón.</p>
+          <div class="entry-block">
+            <div class="entry-heading"><span class="amber">01 /</span><span>IDENTIFÍCATE PARA ENTRAR</span></div>
+            <form id="entry-form" novalidate>
+              <label for="alias">Tu nombre o alias</label>
+              <div class="input-frame"><span aria-hidden="true">&gt;_</span><input id="alias" name="alias" type="text" maxlength="24" autocomplete="off" spellcheck="false" required aria-describedby="alias-help alias-error" placeholder="¿Cómo debemos llamarte?"><span class="input-cursor" aria-hidden="true">▮</span></div>
+              <p id="alias-help" class="field-help">Este será tu nombre en el muro cuando descubras el secreto.</p>
+              <p id="alias-error" class="field-error" role="alert" hidden></p>
+              <button class="primary-button" type="submit"><span>ACCEDER AL LABORATORIO</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+            </form>
+            <div class="entry-footnote"><span class="small-square" aria-hidden="true"></span> PREPARA TU INGENIO. TODO LO DEMÁS ESTÁ DENTRO.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="intro" class="intro" aria-labelledby="scene-text" hidden>
+        <div class="intro-top"><span>TRANSMISIÓN RECUPERADA</span><span id="scene-count">01 / 06</span></div>
+        <div class="cinema-frame">
+          <span class="cinema-corner corner-tl" aria-hidden="true"></span><span class="cinema-corner corner-br" aria-hidden="true"></span>
+          <div id="scene" class="scene">
+            <p id="scene-kicker" class="eyebrow">REGISTRO 001 · LA AUSENCIA</p>
+            <h2 id="scene-text" tabindex="-1" aria-live="polite" aria-atomic="true"></h2>
+            <p id="scene-note" class="scene-note"></p>
+          </div>
+          <div class="transmission" aria-hidden="true"><span>REC</span><div class="waveform">▁▂▁▃▅▂▁▂▆▃▁▂▁▅▃▂▁▃▂▁▂▅▁</div><span>GR / 001</span></div>
+        </div>
+        <div class="story-progress" aria-label="Progreso de la introducción"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="intro-controls"><button id="skip" class="text-button">Saltar introducción ↗</button><div><button id="pause" class="text-button" aria-pressed="false">Pausar</button><button id="next" class="text-button next-button">Siguiente →</button></div></div>
+      </section>
+
+      <section id="arrival" class="arrival" aria-labelledby="arrival-title" hidden>
+        <div class="door-illustration" aria-hidden="true"><pre>
+          ___________________
+         |  _______________  |
+         | |               | |
+         | |    ARCHIVO    | |
+         | |      001      | |
+         | |               | |
+         | |   [ ^ . $ ]   | |
+         | |               | |
+         | |           [o] | |
+         | |               | |
+         |_|_______________|_|
+        /_____________________\
+        </pre><span class="door-light"></span></div>
+        <div class="arrival-copy"><p class="eyebrow amber">IDENTIDAD CONFIRMADA / PRÓLOGO COMPLETADO</p><h2 id="arrival-title" tabindex="-1">Te estábamos<br>esperando, <span id="player-name"></span>.</h2><p class="arrival-quote">«La primera puerta no se abre con una llave.<br>Se abre con una pregunta bien escrita».</p><div class="preview-note"><span class="amber">CONTINUARÁ_</span><p>Has llegado al final de esta primera versión.<br>Las salas y el muro de escapistas llegarán en la próxima fase.</p></div><div class="arrival-actions"><button id="replay" class="primary-button"><span>REPETIR INTRODUCCIÓN</span><span aria-hidden="true">↺</span></button><button id="back" class="text-button">← Volver a la portada</button></div></div>
+      </section>
+    </main>
+
+    <footer class="footer"><span><span class="footer-mark" aria-hidden="true">[ .* ]</span> ENCUENTRA EL PATRÓN. DESCUBRE EL SECRETO.</span><span>UNA HISTORIA DE FICCIÓN <span class="footer-divider">/</span> PRÓLOGO 00</span></footer>
+    <noscript><p class="noscript-note">Activa JavaScript para escribir tu alias y reproducir la introducción.</p></noscript>
+  </div>
+</body>
+</html>

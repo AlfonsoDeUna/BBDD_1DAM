@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 650">
+  <defs>
+    <linearGradient id="coat" x2="1" y2="1"><stop stop-color="#777"/><stop offset=".55" stop-color="#aaa"/><stop offset="1" stop-color="#333"/></linearGradient>
+    <linearGradient id="skin"><stop stop-color="#888"/><stop offset=".45" stop-color="#eee"/><stop offset="1" stop-color="#777"/></linearGradient>
+    <linearGradient id="hair" x2=".7" y2="1"><stop stop-color="#eee"/><stop offset="1" stop-color="#777"/></linearGradient>
+    <radialGradient id="beard"><stop stop-color="#ccc"/><stop offset="1" stop-color="#777"/></radialGradient>
+  </defs>
+  <rect width="600" height="650" fill="black"/>
+  <g fill="none" stroke="#555" stroke-width="1.4"><circle cx="300" cy="290" r="236"/><circle cx="300" cy="290" r="218" stroke-dasharray="2 9"/><ellipse cx="300" cy="290" rx="278" ry="112" transform="rotate(-37 300 290)"/><path d="M300 34V77M300 502v46M48 290h45M506 290h46"/></g>
+  <g fill="#999"><circle cx="114" cy="135" r="2"/><circle cx="478" cy="151" r="2"/><circle cx="480" cy="420" r="2"/><circle cx="85" cy="393" r="1.5"/><circle cx="375" cy="44" r="1"/><circle cx="179" cy="64" r="1"/></g>
+  <!-- Original fictional scientist, drawn for this game. -->
+  <path fill="url(#coat)" d="M70 619l18-69q11-40 67-61l70-27 75 22 76-22 69 27q56 21 67 61l18 69z"/>
+  <path fill="#242424" d="M221 459l79 25 78-25-22 160H247z"/>
+  <path fill="#c8c8c8" d="M222 455l78 49-47 77-66-68 28-15-30-12zM378 455l-78 49 48 77 66-68-28-15 29-12z"/>
+  <path fill="#444" d="M281 505h38l-8 28 18 86h-58l18-86z"/>
+  <path fill="url(#skin)" d="M257 408h86l14 64-57 34-56-34z"/>
+  <path fill="#777" d="M188 249q-21-14-24 14-2 44 29 66l8-53zM412 249q21-14 24 14 2 44-29 66l-8-53z"/>
+  <path fill="url(#skin)" d="M199 179q21-68 101-68t101 68l10 101-17 83q-12 70-94 96-82-26-94-96l-17-83z"/>
+  <path fill="url(#hair)" d="M179 277l-13-59 11-22-10-31 30-14-2-25 34-12 7-29 38 8 31-20 25 18 36-3 17 26 34 9-1 26 22 24-15 19 11 40-16 49-18-52-5-35-18-21-20 6-13-18-24 10-18-18-19 14-29-3-10 20-29 2-9 36-4 42z"/>
+  <path fill="none" stroke="#666" stroke-width="5" d="M199 169l32-27 29-6M215 120l37-13 25 9M294 98l25 23 32 3M361 138l28 19 11 31M181 209l15-21M411 214l-12-17"/>
+  <path fill="#777" d="M199 216q35-20 73-1l-3 10q-38-10-70 2zM327 215q38-18 74 1v11q-38-12-70-2z"/>
+  <g fill="#c4c4c4" stroke="#222" stroke-width="7"><circle cx="238" cy="259" r="40"/><circle cx="361" cy="259" r="40"/></g>
+  <g fill="none" stroke="#555" stroke-width="2"><circle cx="238" cy="259" r="33"/><circle cx="361" cy="259" r="33"/></g>
+  <path fill="none" stroke="#222" stroke-width="7" d="M279 254q21-17 41 0M196 251l-17-8M403 251l18-8"/>
+  <path fill="#555" d="M214 259q24-16 47 0-24-4-47 0M338 259q24-16 47 0-24-4-47 0"/>
+  <ellipse cx="239" cy="259" rx="6" ry="8" fill="#222"/><ellipse cx="360" cy="259" rx="6" ry="8" fill="#222"/>
+  <path fill="none" stroke="#777" stroke-width="4" d="M301 262l-13 57q9 10 24 1M211 310l24 7M366 317l23-9M260 196q39-12 78 0M269 181q31-8 64 0"/>
+  <path fill="url(#beard)" d="M203 311l23 28 28 9 18-9 28 6 26-7 29 10 25-13 17-24-3 69-18 49-36 38-40 18-40-18-36-38-18-49z"/>
+  <path fill="#555" d="M249 358q24-21 51-10 26-12 52 10l-24 17-28-9-27 9z"/>
+  <path fill="#282828" d="M270 382q30 12 61-1l-9 12-23 4-22-4z"/>
+  <g stroke="#ddd" stroke-width="2" fill="none"><path d="M222 365l9 35M235 384l14 39M255 406l16 33M278 416l12 44M314 416l-5 44M336 405l-14 36M356 381l-13 42M377 356l-9 38"/></g>
+  <g stroke="#666" stroke-width="2" fill="none"><path d="M242 361l9 22M268 382l5 23M291 407l5 24M328 382l-6 22M354 360l-7 22M230 408l16 25M363 410l-16 23"/></g>
+  <path stroke="#555" stroke-width="3" fill="none" d="M156 520l-30 92M445 520l28 92M380 559h58v42h-58zM391 558v-27M405 558v-21"/>
+  <path stroke="#333" stroke-width="2" fill="none" d="M105 578l36-18M461 562l36 18M167 587l27 17M418 604l26-17"/>
+  <path stroke="black" stroke-width="2" stroke-dasharray="1 5" d="M64 624h475M62 631h478M72 638h457"/>
+</svg>
