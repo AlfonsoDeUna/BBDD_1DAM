@@ -69,7 +69,7 @@ globalThis.GrinbergRooms = [
     ready:'El transmisor está preparado. Ya puedes enviar la respuesta.',openAction:'TRANSMITIR RESPUESTA',
     successTitle:'El silencio\nacaba de responder.',successPersonal:'has restablecido el enlace con el laboratorio.',
     fragmentTitle:'FRAGMENTO 03 / EL ORIGEN DE LA SEÑAL',fragment:'«La llamada nunca salió del edificio.\nEl doctor transmitió desde el laboratorio interior».',
-    nextText:'Has completado las tres salas de esta demo.\nEl laboratorio interior y el muro quedan para la siguiente fase.',nextAction:null,
+    nextText:'La señal te conduce al laboratorio interior.\nSus muestras guardan la siguiente parte del secreto.',nextAction:'ENTRAR EN EL LABORATORIO',
     challenges:[
       {kicker:'UNA LONGITUD EXACTA',title:'Cinco dígitos de señal.',description:'Selecciona los identificadores de canal que tienen exactamente cinco dígitos. Los ceros iniciales cuentan. Los puntos · representan espacios.',source:'RECEPTOR / FILTRO DE CANALES',label:'PAQUETES RECIBIDOS',
         records:['04217','00001','93108','4217','042170','04A17','04217 ','CANAL04217'],expected:'^[0-9]{5}$',
@@ -79,6 +79,63 @@ globalThis.GrinbergRooms = [
         records:['E17','E042!','E2500','E01!','E7','E12345','E12!!','X12'],expected:'^E[0-9]{2,4}!?$',
         probes:['E00','E9999!','E123','E0000','E12','E123!','E1234!','E1!','E12345!','E!','E','e12','XE12','E12X',' E12','E12 ','E12!X','E12?','E!12','E1A',''],
         hints:['Hay tres piezas: una E fija, una cantidad limitada de dígitos y un signo que puede aparecer una vez o ninguna.','{2,4} significa entre dos y cuatro repeticiones. ? vuelve opcional el carácter anterior; !? admite cero o un signo !.','Prueba ^E[0-9]{2,4}!?$. Las dos anclas impiden que se cuele texto adicional.'],success:'PROTOCOLO RESTAURADO. El transmisor está listo para responder.'}
+    ]
+  },
+  {
+    title:'El laboratorio',chapter:'DOS CAMINOS, UN MISMO ORIGEN',scene:'laboratory',location:'LABORATORIO INTERIOR / PLANTA 03',
+    welcomeKicker:'LA INVESTIGACIÓN SIGUE VIVA',welcomeTitle:'Dos líneas de trabajo.',
+    welcome:['Frascos, códigos y anotaciones cubren la mesa. El doctor trabajaba con muestras de dos proyectos distintos.','Selecciona las muestras auténticas. Después, el lector del servidor te pedirá reconocer el formato de las credenciales del equipo.'],
+    noteTitle:'«Agrupa las alternativas».',note:['Mis muestras empiezan por BIO o por NEU, siempre en mayúsculas. Después llevan un guion y exactamente dos dígitos.','La barra vertical | permite elegir entre alternativas. Los paréntesis agrupan esas opciones para que compartan el resto de la regla.','Una muestra auténtica tiene exactamente ese formato. No debe llevar texto adicional.'],
+    terminalName:'MUESTRAS',terminalAction:'IDENTIFICAR PROYECTOS',terminalSolved:'MUESTRAS AUTÉNTICAS',doorName:'LECTOR DNI',doorLocked:'CREDENCIALES BLOQUEADAS',doorReady:'VALIDAR FORMATO DNI',doorSolved:'SERVIDOR DISPONIBLE',
+    art:['    __       __       __','   |  |     |  |     |  |','   |  |     |  |     |  |','  /    \\   /    \\   /    \\',' | BIO? | | NEU? | | ???  |',' | ~~~~ | | ~~~~ | | ~~~~ |',' |______| |______| |______|','  ______________________'],
+    solvedArt:['    __       __       __','   |  |     |  |     |  |','   |  |     |  |     |  |','  /    \\   /    \\   /    \\',' | BIO  | | NEU  | |  --  |',' |  OK  | |  OK  | |  --  |',' |______| |______| |______|','  ______________________'],
+    doorArt:[' .---------------.',' | SERVIDOR / 05 |',' |---------------|',' |  .---------.  |',' |  | DNI     |  |',' |  | ????????|  |',' |  | + LETRA |  |',' |  \'---------\'  |',' |      [o]      |',' |_______________|'],
+    lockedTitle:'Faltan las credenciales.',locked:['El lector no se activa hasta identificar las muestras de los dos proyectos.','Consulta la nota y usa la mesa de muestras para reconstruir su formato.'],
+    evidence:'Proyectos BIO / NEU',access:'Credenciales reconocidas',recoveredTitle:'PROTOCOLO DE ACCESO / FORMATO DE DNI',
+    recovered:'«El DNI del equipo tiene ocho dígitos y una letra mayúscula de esta lista: TRWAGMYFPDXBNJZSQVHLCKE. Este lector comprueba el formato; no calcula si la letra corresponde al número. Usa solo los datos de ejemplo».',
+    ready:'El lector reconoce el formato de las credenciales. El servidor central queda accesible.',openAction:'ABRIR EL SERVIDOR CENTRAL',
+    successTitle:'Las piezas\nempiezan a encajar.',successPersonal:'has identificado las muestras y las credenciales del equipo.',
+    fragmentTitle:'FRAGMENTO 04 / LA ÚLTIMA REGLA',fragment:'«El archivo puede recuperarse.\nPero antes debes proteger los datos que van a entrar».',
+    nextText:'Solo queda el servidor central.\nConvierte un patrón en una restricción de la base de datos.',nextAction:'ENTRAR EN EL SERVIDOR',
+    challenges:[
+      {kicker:'GRUPOS Y ALTERNATIVAS',title:'BIO o NEU. Tú eliges.',description:'Acepta códigos que empiecen por BIO o NEU, seguidos de un guion y exactamente dos dígitos. Valida el código completo.',source:'MESA / MUESTRAS DE INVESTIGACIÓN',label:'CÓDIGOS DE LAS MUESTRAS',
+        lesson:{title:'ASÍ FUNCIONAN LAS ALTERNATIVAS',code:'^(SOL|LUNA)$',text:'Este ejemplo acepta exactamente SOL o LUNA. ( ) agrupa las opciones y | significa «o». Después del grupo puedes añadir una parte común. Mantén las anclas fuera del grupo.'},
+        records:['BIO-07','NEU-42','BIO-00','NEU-99','QUI-12','BIO-7','BIO-007','XBIO-07'],expected:'^(BIO|NEU)-[0-9]{2}$',
+        probes:['BIO-12','NEU-00','NEU-01','BIO','NEU','SOL-07','LUNA-42','bio-07','neu-42','NEU-7','NEU-007','BIOX07','NEU.07','BIO-0A','BIO-07X','XNEU-07','BIO-07 ',' BIO-07','BIO-07NEU-12',''],
+        hints:['Las dos alternativas comparten el guion y los dos dígitos. Agrupa primero los nombres de proyecto.','Empieza con (BIO|NEU). Después añade - y [0-9]{2}. Recuerda encerrar el código completo entre ^ y $.','Una solución es ^(BIO|NEU)-[0-9]{2}$.'],success:'MUESTRAS IDENTIFICADAS. Aparece el protocolo de credenciales del equipo.'},
+      {kicker:'FORMATOS ESPAÑOLES / DNI',title:'Ocho dígitos y una letra.',description:'Acepta el formato de DNI: ocho dígitos y una letra mayúscula de TRWAGMYFPDXBNJZSQVHLCKE. No se usan I, Ñ, O ni U. Solo comprobamos el formato, no la correspondencia entre número y letra.',source:'LECTOR / CREDENCIALES DE EJEMPLO',label:'DATOS FICTICIOS DE PRUEBA',
+        lesson:{title:'FORMATO, NO CÁLCULO DE LA LETRA',code:'8 dígitos + 1 letra permitida\nTRWAGMYFPDXBNJZSQVHLCKE',text:'Una clase [ ] elige un carácter de la lista. {8} repite ocho veces la clase anterior. El cálculo real de la letra es una operación adicional.',url:'https://www.interior.gob.es/opencms/en/servicios-al-ciudadano/tramites-y-gestiones/dni/calculo-del-digito-de-control-del-nif-nie/index.html',link:'Referencia: letras del DNI'},
+        records:['12345678Z','00000000T','87654321A','1234567Z','12345678I','12345678O','12345678U','12345678z'],expected:'^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$',
+        probes:[...'ABCDEFGHIJKLMNOPQRSTUVWXYZÑ'.split('').map((letter) => '11111111' + letter),'99999999E','12345678Ñ','123456789Z','X12345678Z','12345678ZA',' 12345678Z','12345678Z ','1234A678Z','123456789','00000000',''],
+        hints:['Divide el formato en dos piezas: ocho dígitos y una letra de la lista. No necesitas calcular el resto de ninguna división.','Usa [0-9]{8} para los dígitos y una clase con las letras permitidas para la última posición.','Una solución es ^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$.'],success:'FORMATO VERIFICADO. Las credenciales permiten llegar al servidor central.'}
+    ]
+  },
+  {
+    title:'El servidor central',chapter:'LA REGLA QUE LO PROTEGE TODO',scene:'server',location:'NÚCLEO / ACCESO FINAL',
+    welcomeKicker:'LA ÚLTIMA DECISIÓN',welcomeTitle:'Protege el archivo.',
+    welcome:['El archivo ORIGEN está listo para recuperarse. Solo falta impedir que entren códigos mal formados en su base de datos.','Esta es la última misión: escribe un patrón y conviértelo en un CHECK. La terminal te enseñará la sintaxis que necesitas.'],
+    noteTitle:'«Del patrón a la regla».',note:['La columna codigo admite GR- seguido de exactamente cuatro dígitos, por ejemplo GR-0042. Se distingue entre mayúsculas y minúsculas.','Primero comprueba tu patrón. Después úsalo dentro de CHECK (REGEXP_LIKE(columna, \'patrón\', \'c\')).','REGEXP_LIKE lleva una P. El nombre de la columna no va entre comillas; el patrón y el parámetro c sí llevan comillas simples.'],
+    terminalName:'VALIDADOR',terminalAction:'PREPARAR EL PATRÓN',terminalSolved:'PATRÓN COMPROBADO',doorName:'BASE DE DATOS',doorLocked:'RESTRICCIÓN PENDIENTE',doorReady:'ESCRIBIR EL CHECK',doorSolved:'ARCHIVO PROTEGIDO',
+    art:[' .----------------------.',' | ORIGEN / SERVIDOR    |',' |----------------------|',' | [===]  o  o  o      |',' | [===]  o  o  o      |',' | [===]  o  o  o      |',' |----------------------|',' |  VALIDACIÓN: ---    |'," '----------------------'"],
+    solvedArt:[' .----------------------.',' | ORIGEN / SERVIDOR    |',' |----------------------|',' | [===]  +  +  +      |',' | [===]  +  +  +      |',' | [===]  +  +  +      |',' |----------------------|',' |  VALIDACIÓN: OK     |'," '----------------------'"],
+    doorArt:['    .---------.','   /   DATOS   \\','   \\___________/','   |           |','   |   CHECK   |','   |    ???    |','   |           |','   |  ORIGEN   |','   \\___________/'],
+    lockedTitle:'Necesitas un patrón.',locked:['Antes de crear la restricción, comprueba la regla de la columna codigo en el validador.','Después se habilitará el editor del CHECK con su plantilla y un ejemplo.'],
+    evidence:'Patrón del código GR',access:'Restricción de integridad',recoveredTitle:'PATRÓN COMPROBADO / SIGUIENTE PASO: CHECK',
+    recovered:'Tu patrón ya reconoce los códigos válidos. Ahora escríbelo dentro de una restricción CHECK para la columna codigo. El editor de la base de datos incluye la sintaxis y un ejemplo resuelto con otra columna.',
+    ready:'El CHECK acepta los códigos correctos y rechaza los incorrectos. El archivo ORIGEN ya está protegido.',openAction:'REVELAR EL SECRETO',
+    successTitle:'Has descubierto\nel secreto de Grinberg.',successPersonal:'has recuperado ORIGEN y protegido su base de datos.',
+    fragmentTitle:'ARCHIVO FINAL / CARTA DEL DOCTOR',fragment:'«No desaparecí. Me aislé para proteger ORIGEN: el archivo que conserva nuestra investigación. Dejé esta ruta para que alguien pudiera recuperarlo sin volver a corromperlo.\n\nLo has conseguido. — G.»',
+    nextText:'La puerta exterior se abre. La investigación está a salvo.\nHas completado las cinco salas. Fin del juego.',nextAction:null,
+    challenges:[
+      {kicker:'PRUEBA FINAL / 1. EL PATRÓN',title:'La regla del archivo.',description:'Construye un patrón para la columna codigo: GR- seguido de exactamente cuatro dígitos. Acepta solo el código completo y distingue las mayúsculas.',source:'SERVIDOR / VALIDACIÓN DEL CÓDIGO',label:'VALORES DE LA COLUMNA codigo',
+        records:['GR-0042','GR-0000','GR-1984','GR-042','GR-00042','gr-0042','GR-00A2','XGR-0042'],expected:'^GR-[0-9]{4}$',
+        probes:['GR-9999','GR-1234','GR-0001','GR-12345','GR-','GR0042','GR_0042','GR-0042X',' GR-0042','GR-0042 ',''],
+        hints:['El prefijo GR- es literal. Después necesitas cuatro dígitos y ninguna posición adicional.','Usa [0-9]{4} para la parte numérica y añade ^ y $ para validar toda la columna.','Una solución es ^GR-[0-9]{4}$. En el siguiente paso lo pondrás entre comillas simples dentro de REGEXP_LIKE.'],success:'PATRÓN COMPROBADO. Ya puedes convertirlo en un CHECK.'},
+      {kind:'sql',column:'codigo',kicker:'PRUEBA FINAL / 2. EL CHECK',title:'Escribe la última regla.',description:'Escribe el CHECK completo para la columna codigo: GR- y cuatro dígitos. Usa REGEXP_LIKE y el parámetro \'c\' para distinguir mayúsculas. La columna ya tiene NOT NULL; aquí solo debes comprobar el formato.',source:'BASE DE DATOS / EDITOR DEL CHECK',label:'PRUEBAS DE INSERCIÓN / codigo',
+        lesson:{title:'SINTAXIS ORACLE · PUEDES CONSULTARLA',code:"CHECK (REGEXP_LIKE(columna, 'patrón', 'c'))\n\nEjemplo con OTRA columna:\nCHECK (REGEXP_LIKE(grupo, '^(A|B)$', 'c'))",text:'Sustituye columna por codigo y patrón por tu expresión. CHECK rodea la condición; REGEXP_LIKE comprueba el texto. Usa comillas simples para el patrón y para c. En este ejercicio incluye el parámetro c.',url:'https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Pattern-matching-Conditions.html',link:'Consultar la sintaxis en Oracle'},
+        records:['GR-0042','GR-0000','GR-1984','GR-042','GR-00042','gr-0042','GR-00A2','XGR-0042'],expected:'^GR-[0-9]{4}$',
+        probes:['GR-9999','GR-1234','GR-0001','GR-12345','GR-','GR0042','GR_0042','GR-0042X',' GR-0042','GR-0042 ',''],
+        hints:["La estructura es CHECK (REGEXP_LIKE(codigo, 'TU_PATRÓN', 'c')). Cambia TU_PATRÓN por la expresión que acabas de probar.","Se escribe REGEXP_LIKE, con P. codigo va sin comillas; el patrón y c van entre comillas simples. Recuerda cerrar los dos paréntesis.","Una solución es CHECK (REGEXP_LIKE(codigo, '^GR-[0-9]{4}$', 'c'))."],success:'CHECK CORRECTO. Has restaurado la protección de la base de datos.'}
     ]
   }
 ];

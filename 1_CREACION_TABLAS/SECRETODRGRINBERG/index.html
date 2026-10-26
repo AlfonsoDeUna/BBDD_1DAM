@@ -8,9 +8,9 @@
   <title>El secreto del doctor Grinberg</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2310110f'/%3E%3Ctext x='8' y='44' fill='%23eeb26b' font-family='monospace' font-size='40'%3E[G%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="stylesheet" href="room.css?v=5">
-  <script defer src="room-data.js?v=4"></script>
-  <script defer src="room.js?v=4"></script>
+  <link rel="stylesheet" href="room.css?v=6">
+  <script defer src="room-data.js?v=6"></script>
+  <script defer src="room.js?v=6"></script>
   <script defer src="app.js?v=4"></script>
 </head>
 <body>
@@ -97,13 +97,13 @@
          |_|_______________|_|
         /_____________________\
         </pre><span class="door-light"></span></div>
-        <div class="arrival-copy"><p class="eyebrow amber">IDENTIDAD CONFIRMADA / PRÓLOGO COMPLETADO</p><h2 id="arrival-title" tabindex="-1">Te estábamos<br>esperando, <span id="player-name"></span>.</h2><p class="arrival-quote">«La primera puerta no se abre con una llave.<br>Se abre con una pregunta bien escrita».</p><div class="preview-note"><span class="amber">TRES SALAS / UNA INVESTIGACIÓN</span><p>Recepción. Archivo de identidades. Comunicaciones.<br>Continúa donde dejaste tu investigación.</p></div><div class="arrival-actions"><button id="enter-room" class="primary-button"><span>CONTINUAR INVESTIGACIÓN</span><span aria-hidden="true">→</span></button><button id="replay" class="text-button">Repetir introducción</button><button id="back" class="text-button">← Volver a la portada</button></div></div>
+        <div class="arrival-copy"><p class="eyebrow amber">IDENTIDAD CONFIRMADA / PRÓLOGO COMPLETADO</p><h2 id="arrival-title" tabindex="-1">Te estábamos<br>esperando, <span id="player-name"></span>.</h2><p class="arrival-quote">«La primera puerta no se abre con una llave.<br>Se abre con una pregunta bien escrita».</p><div class="preview-note"><span class="amber">CINCO SALAS / UN SECRETO</span><p>De la recepción al servidor central.<br>Continúa donde dejaste tu investigación.</p></div><div class="arrival-actions"><button id="enter-room" class="primary-button"><span>CONTINUAR INVESTIGACIÓN</span><span aria-hidden="true">→</span></button><button id="replay" class="text-button">Repetir introducción</button><button id="back" class="text-button">← Volver a la portada</button></div></div>
       </section>
 
       <section id="room" class="room" aria-labelledby="room-title" hidden>
         <div id="room-play">
           <div class="room-heading"><div><p id="room-chapter" class="eyebrow amber">CAPÍTULO 01 / EL PRIMER RASTRO</p><h2 id="room-title" tabindex="-1"><span id="room-title-label">La recepción</span><span class="amber">.</span></h2></div><div class="room-identity"><span id="room-alias"></span><span id="room-progress">0 / 2 PRUEBAS</span></div></div>
-          <ol class="room-route" aria-label="Recorrido de la investigación"><li>01 / Recepción</li><li>02 / Identidades</li><li>03 / Comunicaciones</li></ol>
+          <ol class="room-route" aria-label="Recorrido de la investigación"><li>01 / Recepción</li><li>02 / Identidades</li><li>03 / Comunicaciones</li><li>04 / Laboratorio</li><li>05 / Servidor</li></ol>
           <div class="room-layout">
             <div class="room-left">
               <div class="room-scene" aria-label="Objetos de la recepción. Pulsa uno para investigarlo.">
@@ -147,8 +147,9 @@
               <div id="locked-panel" class="inspection-panel" hidden><p class="eyebrow">ACCESO / SIN SINCRONIZAR</p><h3 tabindex="-1">La puerta no responde.</h3><p id="locked-first"></p><p id="locked-second"></p><button id="locked-to-terminal" class="primary-button"><span>IR A LA TERMINAL</span><span aria-hidden="true">→</span></button></div>
               <div id="challenge-panel" class="inspection-panel challenge-panel" hidden>
                 <p id="challenge-kicker" class="eyebrow"></p><h3 id="challenge-title" tabindex="-1"></h3><p id="challenge-description" class="challenge-description"></p>
+                <aside id="lesson" class="lesson" aria-label="Ayuda de sintaxis" hidden><p id="lesson-title" class="eyebrow"></p><pre><code id="lesson-code"></code></pre><p id="lesson-text"></p><a id="lesson-reference" target="_blank" rel="noopener noreferrer" hidden></a></aside>
                 <div class="record-heading"><span id="record-label">REGISTROS RECUPERADOS</span><span id="match-count">SIN FILTRAR</span></div><ul id="records" class="records" aria-label="Registros de prueba"></ul>
-                <form id="pattern-form" novalidate><label for="pattern">Tu expresión regular</label><div class="input-frame pattern-frame"><span aria-hidden="true">&gt;_</span><input id="pattern" name="pattern" maxlength="120" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="pattern-help pattern-feedback" placeholder="Escribe un patrón…"></div><p id="pattern-help" class="field-help">Escribe solo el patrón, sin comillas ni barras / /.</p><button id="test-pattern" class="primary-button" type="submit"><span>PROBAR PATRÓN</span><span aria-hidden="true">↵</span></button></form>
+                <form id="pattern-form" novalidate><div id="regex-entry"><label for="pattern">Tu expresión regular</label><div class="input-frame pattern-frame"><span aria-hidden="true">&gt;_</span><input id="pattern" name="pattern" maxlength="120" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="pattern-help pattern-feedback" placeholder="Escribe un patrón…"></div></div><div id="sql-entry" hidden><div class="sql-context"><span>TABLA: archivo_origen</span><code>codigo VARCHAR2(7) NOT NULL</code></div><p class="previous-pattern">Tu patrón comprobado: <code id="previous-pattern"></code></p><label for="sql-check">Tu restricción CHECK completa</label><textarea id="sql-check" name="sql-check" rows="5" maxlength="1200" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="pattern-help pattern-feedback" placeholder="CHECK (REGEXP_LIKE(...))"></textarea></div><p id="pattern-help" class="field-help">Escribe solo el patrón, sin comillas ni barras / /.</p><button id="test-pattern" class="primary-button" type="submit"><span>PROBAR PATRÓN</span><span aria-hidden="true">↵</span></button></form>
                 <div id="pattern-feedback" class="pattern-feedback" role="status" aria-live="polite" hidden></div>
                 <div id="recovered-message" class="recovered-message" hidden><p class="eyebrow">TRANSMISIÓN AUTÉNTICA / RECUPERADA</p><p id="recovered-text"></p><button id="message-to-door" class="primary-button"><span>IR A LA CERRADURA</span><span aria-hidden="true">→</span></button></div>
                 <div id="door-ready" class="recovered-message" hidden><p id="ready-text">Oyes un clic. El indicador cambia a verde.</p><button id="open-door" class="primary-button"><span>ABRIR LA PUERTA</span><span aria-hidden="true">→</span></button></div>
@@ -157,11 +158,11 @@
             </div>
           </div>
         </div>
-        <div id="room-success" class="room-success" hidden><p id="success-chapter" class="eyebrow amber">SALA 01 / SUPERADA</p><div class="success-seal" aria-hidden="true">[ ✓ ]</div><h2 id="room-success-title" tabindex="-1">Has encontrado el primer rastro.</h2><p class="success-personal" id="success-personal"></p><div class="success-stats"><span>PRUEBAS<strong>2 / 2</strong></span><span>INTENTOS<strong id="success-attempts"></strong></span><span>PISTAS CONSULTADAS<strong id="success-hints"></strong></span></div><div class="file-fragment"><span id="fragment-title"></span><p id="fragment-text"></p></div><p id="success-next" class="success-next"></p><div class="success-actions"><button id="next-room" class="primary-button"><span>CONTINUAR</span><span aria-hidden="true">→</span></button><button id="room-replay" class="text-button">Volver a jugar esta sala</button><button id="success-cover" class="text-button">← Volver a la portada</button></div></div>
+        <div id="room-success" class="room-success" hidden><p id="success-chapter" class="eyebrow amber">SALA 01 / SUPERADA</p><div class="success-seal" aria-hidden="true">[ ✓ ]</div><h2 id="room-success-title" tabindex="-1">Has encontrado el primer rastro.</h2><p class="success-personal" id="success-personal"></p><div class="success-stats"><span>PRUEBAS<strong id="success-tests">2 / 2</strong></span><span>INTENTOS<strong id="success-attempts"></strong></span><span>PISTAS CONSULTADAS<strong id="success-hints"></strong></span></div><div class="file-fragment"><span id="fragment-title"></span><p id="fragment-text"></p></div><p id="success-next" class="success-next"></p><div class="success-actions"><button id="next-room" class="primary-button"><span>CONTINUAR</span><span aria-hidden="true">→</span></button><button id="room-replay" class="text-button">Volver a jugar esta sala</button><button id="success-cover" class="text-button">← Volver a la portada</button></div></div>
       </section>
     </main>
 
-    <footer class="footer"><span><span class="footer-mark" aria-hidden="true">[ .* ]</span> ENCUENTRA EL PATRÓN. DESCUBRE EL SECRETO.</span><span>UNA HISTORIA DE FICCIÓN <span class="footer-divider">/</span> SALAS 01 — 03</span></footer>
+    <footer class="footer"><span><span class="footer-mark" aria-hidden="true">[ .* ]</span> ENCUENTRA EL PATRÓN. DESCUBRE EL SECRETO.</span><span>UNA HISTORIA DE FICCIÓN <span class="footer-divider">/</span> CINCO SALAS · UN SECRETO</span></footer>
     <noscript><p class="noscript-note">Activa JavaScript para escribir tu alias y reproducir la introducción.</p></noscript>
   </div>
 </body>

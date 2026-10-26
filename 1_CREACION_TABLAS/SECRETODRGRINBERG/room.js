@@ -3,6 +3,7 @@
   const $ = (id) => document.getElementById(id);
   const panels = ['welcome-panel','note-panel','locked-panel','challenge-panel'];
   const configs = window.GrinbergRooms;
+  const memoryStates = new Map();
   let roomIndex = 0;
   let config = configs[0];
   let player = '';
@@ -15,17 +16,20 @@
   let resetTimeout = null;
 
   function freshState() { return {note:false, solved:[false,false], escaped:false, patterns:['',''], attempts:0, hints:[0,0]}; }
+  function isSql() { return config.challenges[stage]?.kind === 'sql'; }
+  function entry() { return $(isSql() ? 'sql-check' : 'pattern'); }
   function storageKey() { return 'grinberg.room' + (roomIndex + 1) + '.v1.' + player; }
-  function save() { try { localStorage.setItem(storageKey(), JSON.stringify(state)); } catch { /* Optional persistence. */ } }
+  function stored(key) { try { return localStorage.getItem(key) || memoryStates.get(key); } catch { return memoryStates.get(key); } }
+  function save() { const value = JSON.stringify(state); memoryStates.set(storageKey(),value); try { localStorage.setItem(storageKey(), value); } catch { /* Optional persistence. */ } }
   function load() {
     state = freshState();
     try {
-      const saved = JSON.parse(localStorage.getItem(storageKey()));
+      const saved = JSON.parse(stored(storageKey()));
       if (!saved || typeof saved !== 'object') return;
       state.note = saved.note === true;
       state.solved = [saved.solved?.[0] === true, saved.solved?.[0] === true && saved.solved?.[1] === true];
       state.escaped = state.solved[1] && saved.escaped === true;
-      state.patterns = [0,1].map((i) => typeof saved.patterns?.[i] === 'string' ? saved.patterns[i].slice(0,120) : '');
+      state.patterns = [0,1].map((i) => typeof saved.patterns?.[i] === 'string' ? saved.patterns[i].slice(0,configs[roomIndex].challenges[i].kind === 'sql' ? 1200 : 120) : '');
       state.attempts = Number.isSafeInteger(saved.attempts) ? Math.max(0, saved.attempts) : 0;
       state.hints = [0,1].map((i) => Number.isInteger(saved.hints?.[i]) ? Math.max(0,Math.min(3,saved.hints[i])) : 0);
     } catch { /* Ignore damaged saved data. */ }
@@ -35,7 +39,7 @@
     worker = null;
     clearTimeout(deadline);
     $('test-pattern').disabled = false;
-    $('test-pattern').firstElementChild.textContent = 'PROBAR PATRÓN';
+    $('test-pattern').firstElementChild.textContent = isSql() ? 'COMPROBAR CHECK' : 'PROBAR PATRÓN';
     $('pattern-form').removeAttribute('aria-busy');
   }
   function cancelReset() { clearTimeout(resetTimeout); resetPending = false; $('room-reset').textContent = 'Reiniciar sala'; }
@@ -46,7 +50,7 @@
     $('room-title-label').textContent = config.title;
     $('room-location').textContent = config.location;
     $('wall-number').textContent = number;
-    document.querySelector('.room-scene').setAttribute('aria-label','Objetos de ' + config.title.toLowerCase() + '. Pulsa uno para investigarlo.');
+    document.querySelector('.room-scene').setAttribute('aria-label','Escena: ' + config.title + '. Pulsa un objeto para investigarlo.');
     document.querySelectorAll('.room-route li').forEach((item,i) => {
       item.classList.toggle('route-current',i === roomIndex);
       item.classList.toggle('route-done',i < roomIndex);
@@ -69,10 +73,10 @@
     $('locked-panel').querySelector('h3').textContent = config.lockedTitle;
     $('locked-first').textContent = config.locked[0];
     $('locked-second').textContent = config.locked[1];
-    $('locked-to-terminal').firstElementChild.textContent = 'IR A ' + config.terminalName;
+    $('locked-to-terminal').firstElementChild.textContent = 'EXAMINAR: ' + config.terminalName;
     $('recovered-message').querySelector('.eyebrow').textContent = config.recoveredTitle;
     $('recovered-text').textContent = config.recovered;
-    $('message-to-door').firstElementChild.textContent = 'IR A ' + config.doorName;
+    $('message-to-door').firstElementChild.textContent = 'EXAMINAR: ' + config.doorName;
     $('ready-text').textContent = config.ready;
     $('open-door').firstElementChild.textContent = config.openAction;
   }
@@ -147,9 +151,21 @@
     $('challenge-title').textContent = challenge.title;
     $('challenge-description').textContent = challenge.description;
     $('record-label').textContent = challenge.label;
-    $('pattern').value = state.patterns[stage];
-    $('pattern').disabled = state.solved[stage];
-    $('pattern').removeAttribute('aria-invalid');
+    $('lesson').hidden = !challenge.lesson;
+    if (challenge.lesson) {
+      $('lesson-title').textContent = challenge.lesson.title;
+      $('lesson-code').textContent = challenge.lesson.code;
+      $('lesson-text').textContent = challenge.lesson.text;
+      $('lesson-reference').hidden = !challenge.lesson.url;
+      if (challenge.lesson.url) { $('lesson-reference').href = challenge.lesson.url; $('lesson-reference').textContent = challenge.lesson.link; }
+    }
+    $('regex-entry').hidden = isSql();
+    $('sql-entry').hidden = !isSql();
+    $('pattern-help').textContent = isSql() ? 'Escribe solo el CHECK. Puedes añadir CONSTRAINT nombre delante. No hace falta CREATE TABLE.' : 'Escribe solo el patrón, sin comillas ni barras / /.';
+    $('previous-pattern').textContent = state.patterns[0];
+    entry().value = state.patterns[stage];
+    entry().disabled = state.solved[stage];
+    entry().removeAttribute('aria-invalid');
     $('pattern-form').hidden = state.solved[stage];
     $('pattern-feedback').hidden = true;
     $('notebook').hidden = state.solved[stage];
@@ -170,8 +186,8 @@
   function runTest(event) {
     event.preventDefault();
     if (state.solved[stage] || worker) return;
-    const pattern = $('pattern').value;
-    if (!pattern.trim()) { showFeedback('La terminal está esperando un patrón. Escribe uno antes de probar.'); $('pattern').focus(); return; }
+    const pattern = entry().value;
+    if (!pattern.trim()) { showFeedback(isSql() ? 'Escribe tu CHECK completo siguiendo la plantilla.' : 'La terminal está esperando un patrón. Escribe uno antes de probar.'); entry().focus(); return; }
     state.patterns[stage] = pattern;
     state.attempts++;
     save();
@@ -181,7 +197,7 @@
     $('pattern-form').setAttribute('aria-busy','true');
     const evaluatingStage = stage;
     try {
-      worker = new Worker('regex-worker.js?v=4');
+      worker = new Worker('regex-worker.js?v=6');
       worker.onmessage = ({data}) => {
         if (data.ready) {
           clearTimeout(deadline);
@@ -191,11 +207,11 @@
         }
         stopTest();
         if (data.error) {
-          $('pattern').setAttribute('aria-invalid','true');
-          showFeedback('La expresión no se puede interpretar. Revisa si hay paréntesis o corchetes sin cerrar.');
+          entry().setAttribute('aria-invalid','true');
+          showFeedback(data.message || 'La expresión no se puede interpretar. Revisa si hay paréntesis o corchetes sin cerrar.');
           return;
         }
-        $('pattern').removeAttribute('aria-invalid');
+        entry().removeAttribute('aria-invalid');
         paintRecords(data.rows);
         if (data.passed) {
           state.solved[evaluatingStage] = true; save(); updateRoom();
@@ -220,7 +236,9 @@
     stopTest();
     state.escaped = true; save();
     $('room-play').hidden = true; $('room-success').hidden = false;
-    $('success-chapter').textContent = 'SALA 0' + (roomIndex + 1) + ' / SUPERADA';
+    const final = roomIndex === configs.length - 1;
+    $('room-success').classList.toggle('game-finished',final);
+    $('success-chapter').textContent = final ? 'INVESTIGACIÓN COMPLETADA / ARCHIVO RESTAURADO' : 'SALA 0' + (roomIndex + 1) + ' / SUPERADA';
     $('room-success-title').textContent = config.successTitle;
     $('success-personal').textContent = player + ', ' + config.successPersonal;
     $('fragment-title').textContent = config.fragmentTitle;
@@ -228,8 +246,20 @@
     $('success-next').textContent = config.nextText;
     $('next-room').hidden = !config.nextAction;
     $('next-room').firstElementChild.textContent = config.nextAction || 'CONTINUAR';
-    $('success-attempts').textContent = state.attempts;
-    $('success-hints').textContent = state.hints.reduce((a,b) => a+b,0);
+    let attempts = state.attempts;
+    let hints = state.hints.reduce((a,b) => a+b,0);
+    if (final) {
+      for (let index=0;index<roomIndex;index++) {
+        try {
+          const saved = JSON.parse(stored('grinberg.room' + (index + 1) + '.v1.' + player));
+          if (Number.isSafeInteger(saved?.attempts)) attempts += Math.max(0,saved.attempts);
+          for (const value of saved?.hints || []) if (Number.isInteger(value)) hints += Math.max(0,Math.min(3,value));
+        } catch { /* The game can finish without persistent browser storage. */ }
+      }
+    }
+    $('success-tests').textContent = final ? (configs.length * 2) + ' / ' + (configs.length * 2) : '2 / 2';
+    $('success-attempts').textContent = attempts;
+    $('success-hints').textContent = hints;
     $('room-success-title').focus({preventScroll:true});
     window.scrollTo({top:0,behavior:'instant'});
   }
@@ -244,10 +274,10 @@
   ['object-terminal','note-to-terminal','locked-to-terminal'].forEach((id) => $(id).addEventListener('click',() => inspectChallenge(0)));
   ['object-door','message-to-door'].forEach((id) => $(id).addEventListener('click',() => inspectChallenge(1)));
   $('pattern-form').addEventListener('submit',runTest);
-  $('pattern').addEventListener('input',() => {
-    stopTest(); state.patterns[stage] = $('pattern').value; save();
-    $('pattern').removeAttribute('aria-invalid'); $('pattern-feedback').hidden = true; paintRecords();
-  });
+  ['pattern','sql-check'].forEach((id) => $(id).addEventListener('input',() => {
+    stopTest(); state.patterns[stage] = entry().value; save();
+    entry().removeAttribute('aria-invalid'); $('pattern-feedback').hidden = true; paintRecords();
+  }));
   $('hint-button').addEventListener('click',() => { if (!state.hints[stage]) revealHint(); else $('hint-body').hidden = !$('hint-body').hidden; });
   $('next-hint').addEventListener('click',revealHint);
   $('open-door').addEventListener('click',completeRoom);
