@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10130f"><title>Tablón de la investigación | Grinberg</title>
+  <link rel="stylesheet" href="tablon.css?v=1">
+  <script defer src="online.js?v=1"></script><script defer src="tablon.js?v=1"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><a class="brand" href="./"><b>[G]</b><span>ARCHIVO GRINBERG<small>EL SECRETO DEL DOCTOR</small></span></a><nav><a id="play-link" href="./">Ir al juego ↗</a><button id="fullscreen" type="button">Pantalla completa</button></nav></header>
+    <section class="heading"><div><p class="eyebrow">SEGUIMIENTO DE LA INVESTIGACIÓN</p><h1>El tablón<span>.</span></h1><p class="subtitle">Cada puerta abierta deja un rastro.</p></div><div class="signal"><span id="connection-dot"></span><p id="connection-status" role="status">ELIGE UNA PARTIDA</p></div></section>
+    <div id="demo-banner" class="demo" hidden>DEMOSTRACIÓN · Los nombres y resultados de esta vista son ficticios.</div>
+    <section id="setup" class="setup">
+      <form id="view-form"><label for="view-code">Ver una partida</label><div class="input-row"><input id="view-code" placeholder="Código de 8 caracteres" maxlength="8" autocomplete="off" spellcheck="false"><button class="primary" type="submit">ABRIR TABLÓN →</button></div></form>
+      <form id="create-form"><label for="class-name">Preparar una nueva partida</label><div class="input-row"><input id="class-name" placeholder="Ej.: 1º DAM · Grupo A" maxlength="60" required><button id="create-button" class="secondary" type="submit">CREAR PARTIDA +</button></div><p class="help">Cada partida comienza desde cero y tiene su propio código.</p></form>
+    </section>
+    <p id="board-error" role="alert" class="error" hidden></p>
+    <section id="board" hidden>
+      <div class="session-strip"><div><p class="eyebrow">PARTIDA DEL AULA</p><h2 id="session-title"></h2><span id="session-state">EN CURSO</span></div><div class="join"><span>CÓDIGO PARA ENTRAR</span><strong id="session-code"></strong><button id="copy-invite" type="button">Copiar enlace para alumnos ↗</button></div></div>
+      <div class="metrics"><article><span>PARTICIPANTES</span><strong id="total-count">0</strong><small>en esta investigación</small></article><article><span>EN CAMINO</span><strong id="playing-count">0</strong><small>resolviendo el misterio</small></article><article class="finished"><span>HAN DESCUBIERTO EL SECRETO</span><strong id="finished-count">0</strong><small>las cinco salas completadas</small></article></div>
+      <section class="ranking"><div class="ranking-heading"><h2>La investigación, en directo</h2><span id="updated">ACTUALIZA CADA 5 S</span></div><div class="table-scroll"><table><thead><tr><th>POS.</th><th>INVESTIGADOR/A</th><th>UBICACIÓN</th><th>PROGRESO</th><th>TIEMPO</th><th>ESTADO</th></tr></thead><tbody id="participants"></tbody></table></div><div id="empty" class="empty" hidden><pre aria-hidden="true">[ _ _ _ _ _ _ _ _ _ _ ]</pre><h3>La investigación está a punto de empezar.</h3><p>Comparte el código o el enlace. Los participantes aparecerán aquí al entrar.</p></div></section>
+      <div class="board-foot"><p>Orden: más pruebas superadas; en empate, quien alcanzó ese avance primero.<br>Al terminar, cuenta el orden de llegada. El tiempo se mide desde la entrada de cada participante.</p><div><button id="change-session" type="button">Cambiar partida</button><button id="close-session" type="button" hidden>Cerrar partida</button></div></div>
+    </section>
+    <footer><span>[ .* ] CADA PATRÓN ABRE UNA PUERTA.</span><span>5 SALAS / 10 PRUEBAS</span></footer>
+  </main>
+</body>
+</html>
