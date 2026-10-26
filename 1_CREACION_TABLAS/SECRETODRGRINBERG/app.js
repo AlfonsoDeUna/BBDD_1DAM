@@ -26,6 +26,7 @@
   ];
 
   try { aliasInput.value = localStorage.getItem(storageKey) || ''; } catch { /* The prologue also works without storage. */ }
+  $('session-code-input').value = window.GrinbergOnline.normalize(new URLSearchParams(location.search).get('partida'));
 
   function showScreen(nextScreen) {
     clearTimeout(timer);
@@ -101,8 +102,10 @@
     else { sceneIndex += 1; renderScene(); }
   }
 
-  $('entry-form').addEventListener('submit', (event) => {
+  $('entry-form').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const button = $('entry-form').querySelector('button[type="submit"]');
+    if (button.disabled) return;
     const value = aliasInput.value.normalize('NFC').trim().replace(/\s+/g, ' ');
     const valid = /^[\p{L}\p{M}\p{N} ._-]{2,24}$/u.test(value);
     if (!valid) {
@@ -117,7 +120,23 @@
     try { localStorage.setItem(storageKey, alias); } catch { /* Storage is optional. */ }
     $('alias-error').hidden = true;
     aliasInput.removeAttribute('aria-invalid');
-    startIntro();
+    button.disabled = true;
+    button.firstElementChild.textContent = 'CONECTANDO…';
+    try {
+      await window.GrinbergSync.join(alias, $('session-code-input').value);
+      const code = window.GrinbergOnline.normalize($('session-code-input').value);
+      const address = new URL(location.href);
+      if (code) address.searchParams.set('partida', code);
+      else address.searchParams.delete('partida');
+      history.replaceState(null, '', address);
+      startIntro();
+    } catch (error) {
+      $('alias-error').textContent = error.message;
+      $('alias-error').hidden = false;
+    } finally {
+      button.disabled = false;
+      button.firstElementChild.textContent = 'ACCEDER AL LABORATORIO';
+    }
   });
   aliasInput.addEventListener('input', () => { $('alias-error').hidden = true; aliasInput.removeAttribute('aria-invalid'); });
   $('next').addEventListener('click', advanceScene);

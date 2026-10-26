@@ -18,9 +18,24 @@
   function freshState() { return {note:false, solved:[false,false], escaped:false, patterns:['',''], attempts:0, hints:[0,0]}; }
   function isSql() { return config.challenges[stage]?.kind === 'sql'; }
   function entry() { return $(isSql() ? 'sql-check' : 'pattern'); }
-  function storageKey() { return 'grinberg.room' + (roomIndex + 1) + '.v1.' + player; }
+  function storageKey(index = roomIndex) { return 'grinberg.room' + (index + 1) + '.v1.' + window.GrinbergSync.suffix(player); }
   function stored(key) { try { return localStorage.getItem(key) || memoryStates.get(key); } catch { return memoryStates.get(key); } }
-  function save() { const value = JSON.stringify(state); memoryStates.set(storageKey(),value); try { localStorage.setItem(storageKey(), value); } catch { /* Optional persistence. */ } }
+  function save() { const value = JSON.stringify(state); memoryStates.set(storageKey(),value); try { localStorage.setItem(storageKey(), value); } catch { /* Optional persistence. */ } syncProgress(); }
+  function syncProgress() {
+    let solved = 0, attempts = 0, hints = 0, finished = false;
+    for (let i = 0; i < configs.length; i++) {
+      let saved;
+      try { saved = i === roomIndex ? state : JSON.parse(stored(storageKey(i))); } catch { continue; }
+      if (!saved) continue;
+      solved += (saved.solved?.[0] === true ? 1 : 0) + (saved.solved?.[0] === true && saved.solved?.[1] === true ? 1 : 0);
+      if (Number.isSafeInteger(saved.attempts)) attempts += Math.max(0, saved.attempts);
+      for (const value of saved.hints || []) if (Number.isInteger(value)) hints += Math.max(0, Math.min(3, value));
+      if (i === configs.length - 1) finished = saved.escaped === true;
+    }
+    $('overall-progress').textContent = solved + ' / 10 PRUEBAS TOTALES';
+    $('overall-progress-bar').value = solved;
+    window.GrinbergSync.update({p_solved:solved,p_room:roomIndex+1,p_attempts:Math.min(attempts,100000),p_hints:Math.min(hints,30),p_finished:finished && solved===10});
+  }
   function load() {
     state = freshState();
     try {
@@ -251,7 +266,7 @@
     if (final) {
       for (let index=0;index<roomIndex;index++) {
         try {
-          const saved = JSON.parse(stored('grinberg.room' + (index + 1) + '.v1.' + player));
+          const saved = JSON.parse(stored(storageKey(index)));
           if (Number.isSafeInteger(saved?.attempts)) attempts += Math.max(0,saved.attempts);
           for (const value of saved?.hints || []) if (Number.isInteger(value)) hints += Math.max(0,Math.min(3,value));
         } catch { /* The game can finish without persistent browser storage. */ }
@@ -291,6 +306,7 @@
       stopTest(); roomIndex = index; config = configs[index]; load(); cancelReset(); activeObject = '';
       $('room-alias').textContent = player;
       applyRoom();
+      syncProgress();
       $('room-play').hidden = false; $('room-success').hidden = true; updateRoom();
       if (state.escaped) { completeRoom(); return; }
       else if (state.solved[0]) inspectChallenge(1);

@@ -38,7 +38,7 @@
       else{lastSent=JSON.stringify(snapshot);status('Partida '+session.code+' · Progreso enviado al tablón');}
     } catch(error) {
       if(active===session){pending=pending||snapshot;status('Sin conexión con el tablón · El avance sigue guardado en este navegador.');timer=setTimeout(flush,10000);}
-    } finally {busy=false;if(pending && active===session && !closed && !timer)timer=setTimeout(flush,800);}
+    } finally {busy=false;if(pending && active && !closed && !timer)timer=setTimeout(flush,800);}
   }
   window.GrinbergSync={
     async join(alias,rawCode) {

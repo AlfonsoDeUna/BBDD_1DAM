@@ -3,7 +3,7 @@
   const $=id=>document.getElementById(id), api=window.GrinbergOnline;
   const rooms=['Recepción','Archivo de identidades','Comunicaciones','Laboratorio','Servidor central'];
   const params=new URLSearchParams(location.search),demo=params.get('demo')==='1';
-  let code='',owner='',poll=null,inFlight=false,lastData=null,createToken=null;
+  let code='',owner='',poll=null,inFlight='',lastData=null,createToken=null;
   const err=text=>{ $('board-error').textContent=text||'';$('board-error').hidden=!text; };
   function connection(text,ok){$('connection-status').textContent=text;document.querySelector('.signal').classList.toggle('live',ok);}
   function time(seconds){const m=Math.floor(seconds/60),s=Math.floor(seconds%60);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
@@ -37,10 +37,10 @@
     $('updated').textContent=demo?'VISTA DE DEMOSTRACIÓN':'ACTUALIZADO '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }
   async function refresh(){
-    if(inFlight || !code || demo)return;inFlight=true;
-    try{const data=await api.rpc('grinberg_board',{p_code:code});paint(data);err('');connection(data.active?'ACTUALIZA CADA 5 S':'PARTIDA CERRADA',true);}
-    catch(error){err(error.message);connection(lastData?'SIN CONEXIÓN · DATOS ANTERIORES':'NO SE HA PODIDO CONECTAR',false);}
-    finally{inFlight=false;}
+    if(inFlight===code || !code || demo)return;const requested=code;inFlight=requested;
+    try{const data=await api.rpc('grinberg_board',{p_code:requested});if(code!==requested)return;paint(data);err('');history.replaceState(null,'','?partida='+code);api.put('grinberg.board.last',code);connection(data.active?'ACTUALIZA CADA 5 S':'PARTIDA CERRADA',true);}
+    catch(error){if(code!==requested)return;err(error.message);connection(lastData?'SIN CONEXIÓN · DATOS ANTERIORES':'NO SE HA PODIDO CONECTAR',false);}
+    finally{if(inFlight===requested)inFlight='';}
   }
   async function open(raw){
     const next=api.normalize(raw);if(!/^[A-F0-9]{8}$/.test(next)){err('Escribe el código de 8 caracteres que aparece en el tablón.');return;}
