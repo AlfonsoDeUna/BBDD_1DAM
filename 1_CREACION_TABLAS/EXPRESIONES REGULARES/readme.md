@@ -1,3 +1,3 @@
 # Restricciones CHECK en MySQL: REGEXP y más
 
-[🌐 Abrir la actividad en la web](https://pulsofit-check-sql-actividad.elated-crane-7802.chatgpt.site/)
+[🌐 Abrir la actividad en la web](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EXPRESIONES%20REGULARES/)
