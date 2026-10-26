@@ -56,7 +56,10 @@
     void $('scene').offsetWidth;
     $('scene').classList.add('animate');
     remaining = data.duration;
-    document.querySelectorAll('.story-progress span').forEach((step, i) => {
+    const steps = document.querySelectorAll('.story-progress span');
+    steps.forEach((step) => { step.className = ''; });
+    void document.querySelector('.story-progress').offsetWidth;
+    steps.forEach((step, i) => {
       step.className = i < sceneIndex ? 'complete' : i === sceneIndex ? 'active' : '';
       step.style.setProperty('--duration', data.duration + 'ms');
     });
