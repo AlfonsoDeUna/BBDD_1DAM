@@ -205,7 +205,7 @@
       sizeArt();
     } catch { /* The fallback is already visible. */ }
   };
-  portraitImage.src = 'portrait.svg';
+  portraitImage.src = 'portrait.svg?v=2';
   if (window.ResizeObserver) new ResizeObserver(sizeArt).observe(stage);
   else window.addEventListener('resize', sizeArt);
   sizeArt();
