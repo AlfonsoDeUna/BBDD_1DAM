@@ -2,15 +2,9 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const panels = ['welcome-panel','note-panel','locked-panel','challenge-panel'];
-  const records = [
-    ['CANAL_04 / SIN SEÑAL','ORIGEN / TRANSMISIÓN 01','SENSOR / PUERTA CERRADA','CANAL_07 > ORIGEN','origen / señal de prueba','PAQUETE_ORIGEN_03','OR1GEN / DATO CORRUPTO'],
-    ['ORIGEN','ORIGEN_2','FALSO_ORIGEN','ORIGEN_COPIA','origen',' ORIGEN','ORIGEN ']
-  ];
-  const hints = [
-    ['Un patrón puede encontrar un texto dentro de otro. Busca la marca que el doctor escribió en su nota.', 'Para buscar una palabra tal cual, basta con escribir sus letras. Las mayúsculas cuentan.', 'Prueba ORIGEN. Seleccionará los registros que contienen esas seis letras, estén donde estén.'],
-    ['Buscar una palabra dentro de un código no garantiza que sea el código completo. Necesitas marcar sus límites.', '^ marca el inicio y $ marca el final. Coloca la palabra entre las dos anclas.', 'Prueba ^ORIGEN$. Así no queda espacio para caracteres antes ni después de la palabra.']
-  ];
-  const storagePrefix = 'grinberg.room1.v1.';
+  const configs = window.GrinbergRooms;
+  let roomIndex = 0;
+  let config = configs[0];
   let player = '';
   let state = freshState();
   let stage = 0;
@@ -21,11 +15,12 @@
   let resetTimeout = null;
 
   function freshState() { return {note:false, solved:[false,false], escaped:false, patterns:['',''], attempts:0, hints:[0,0]}; }
-  function save() { try { localStorage.setItem(storagePrefix + player, JSON.stringify(state)); } catch { /* Optional persistence. */ } }
+  function storageKey() { return 'grinberg.room' + (roomIndex + 1) + '.v1.' + player; }
+  function save() { try { localStorage.setItem(storageKey(), JSON.stringify(state)); } catch { /* Optional persistence. */ } }
   function load() {
     state = freshState();
     try {
-      const saved = JSON.parse(localStorage.getItem(storagePrefix + player));
+      const saved = JSON.parse(localStorage.getItem(storageKey()));
       if (!saved || typeof saved !== 'object') return;
       state.note = saved.note === true;
       state.solved = [saved.solved?.[0] === true, saved.solved?.[0] === true && saved.solved?.[1] === true];
@@ -44,20 +39,57 @@
     $('pattern-form').removeAttribute('aria-busy');
   }
   function cancelReset() { clearTimeout(resetTimeout); resetPending = false; $('room-reset').textContent = 'Reiniciar sala'; }
+  function applyRoom() {
+    const number = String(roomIndex + 1).padStart(2,'0');
+    $('room').dataset.scene = config.scene;
+    $('room-chapter').textContent = 'CAPÍTULO ' + number + ' / ' + config.chapter;
+    $('room-title-label').textContent = config.title;
+    $('room-location').textContent = config.location;
+    $('wall-number').textContent = number;
+    document.querySelector('.room-scene').setAttribute('aria-label','Objetos de ' + config.title.toLowerCase() + '. Pulsa uno para investigarlo.');
+    document.querySelectorAll('.room-route li').forEach((item,i) => {
+      item.classList.toggle('route-current',i === roomIndex);
+      item.classList.toggle('route-done',i < roomIndex);
+      if (i === roomIndex) item.setAttribute('aria-current','step'); else item.removeAttribute('aria-current');
+    });
+    $('object-terminal').querySelector('.object-index').textContent = '02 / ' + config.terminalName;
+    $('object-door').querySelector('.object-index').textContent = '03 / ' + config.doorName;
+    $('object-door').querySelector('pre').textContent = config.doorArt.join('\n');
+    $('welcome-panel').querySelector('.eyebrow').textContent = config.welcomeKicker;
+    $('welcome-panel').querySelector('h3').textContent = config.welcomeTitle;
+    $('welcome-first').textContent = config.welcome[0];
+    $('welcome-second').textContent = config.welcome[1];
+    $('note-panel').querySelector('h3').textContent = config.noteTitle;
+    $('note-content').replaceChildren();
+    config.note.forEach((text,i) => {
+      if (i) $('note-content').append(document.createElement('br'),document.createElement('br'));
+      $('note-content').append(document.createTextNode(text));
+    });
+    $('note-to-terminal').firstElementChild.textContent = 'INVESTIGAR: ' + config.terminalName;
+    $('locked-panel').querySelector('h3').textContent = config.lockedTitle;
+    $('locked-first').textContent = config.locked[0];
+    $('locked-second').textContent = config.locked[1];
+    $('locked-to-terminal').firstElementChild.textContent = 'IR A ' + config.terminalName;
+    $('recovered-message').querySelector('.eyebrow').textContent = config.recoveredTitle;
+    $('recovered-text').textContent = config.recovered;
+    $('message-to-door').firstElementChild.textContent = 'IR A ' + config.doorName;
+    $('ready-text').textContent = config.ready;
+    $('open-door').firstElementChild.textContent = config.openAction;
+  }
   function updateRoom() {
     const total = state.solved.filter(Boolean).length;
     $('room-progress').textContent = total + ' / 2 PRUEBAS';
-    $('room-door-status').textContent = state.solved[1] ? 'ACCESO AUTORIZADO' : state.solved[0] ? 'LECTOR ACTIVADO' : 'ACCESO CERRADO';
+    $('room-door-status').textContent = state.solved[1] ? 'ACCESO AUTORIZADO' : state.solved[0] ? 'SISTEMA ACTIVADO' : 'ACCESO CERRADO';
     $('room-door-status').classList.toggle('unlocked-label', state.solved[1]);
     $('object-terminal').classList.toggle('solved-object', state.solved[0]);
     $('object-door').classList.toggle('solved-object', state.solved[1]);
-    $('terminal-object-status').textContent = state.solved[0] ? 'TRANSMISIÓN RECUPERADA ✓' : 'BUSCAR TRANSMISIÓN ↗';
-    $('door-object-status').textContent = state.solved[1] ? 'PUERTA DESBLOQUEADA ↗' : state.solved[0] ? 'ACTIVAR CERRADURA ↗' : 'CERRADURA BLOQUEADA';
-    $('object-terminal').querySelector('pre').textContent = '  .--------------------.\n  | >_                 |\n  |   ' + (state.solved[0] ? 'SEÑAL RECUPERADA ' : 'SEÑAL PERDIDA    ') + ' |\n  |                    |\n  \'--------------------\'\n          |    |\n       ___|____|___\n  ____/____________\\____';
+    $('terminal-object-status').textContent = (state.solved[0] ? config.terminalSolved + ' ✓' : config.terminalAction + ' ↗');
+    $('door-object-status').textContent = state.solved[1] ? config.doorSolved + ' ↗' : state.solved[0] ? config.doorReady + ' ↗' : config.doorLocked;
+    $('object-terminal').querySelector('pre').textContent = (state.solved[0] ? config.solvedArt : config.art).join('\n');
     const found = [];
-    if (state.note) found.push('Nota de G.');
-    if (state.solved[0]) found.push('Transmisión ORIGEN');
-    if (state.solved[1]) found.push('Acceso al archivo');
+    if (state.note) found.push(roomIndex === 2 ? 'Nota de Mara' : 'Nota de G.');
+    if (state.solved[0]) found.push(config.evidence);
+    if (state.solved[1]) found.push(config.access);
     $('inventory-content').textContent = found.length ? found.join('  /  ') : '— Todavía no has recogido ninguna pista.';
   }
   function showPanel(id, source, focus = true) {
@@ -70,7 +102,7 @@
     if (focus && matchMedia('(max-width: 850px)').matches) $('inspection').scrollIntoView({behavior:'instant',block:'start'});
   }
   function readNote() {
-    state.note = true; activeObject = 'note'; save(); updateRoom(); showPanel('note-panel','DOCUMENTO 01 / NOTA DE G.');
+    state.note = true; activeObject = 'note'; save(); updateRoom(); showPanel('note-panel',roomIndex === 2 ? 'MANTENIMIENTO / NOTA DE MARA' : 'DOCUMENTO 01 / NOTA DE G.');
   }
   function showFeedback(text, kind = 'error') {
     $('pattern-feedback').hidden = false;
@@ -79,7 +111,7 @@
   }
   function paintRecords(rows) {
     $('records').replaceChildren();
-    const data = rows || records[stage].map((text) => ({text,matched:null}));
+    const data = rows || config.challenges[stage].records.map((text) => ({text,matched:null}));
     data.forEach((row) => {
       const item = document.createElement('li');
       const code = document.createElement('code');
@@ -101,19 +133,20 @@
     const n = state.hints[stage];
     $('hint-body').hidden = n === 0;
     $('hint-button').textContent = n ? 'CUADERNO DEL DOCTOR / PISTA ' + n + ' DE 3' : '+ Consultar el cuaderno del doctor';
-    $('hint-text').textContent = n ? hints[stage][n - 1] : '';
+    $('hint-text').textContent = n ? config.challenges[stage].hints[n - 1] : '';
     $('next-hint').hidden = n === 3;
   }
   function revealHint() { if (state.hints[stage] < 3) state.hints[stage]++; save(); updateHints(); }
   function inspectChallenge(nextStage) {
     stage = nextStage;
     activeObject = stage === 0 ? 'terminal' : 'door';
-    if (stage === 1 && !state.solved[0]) { showPanel('locked-panel','PUERTA 02 / LECTOR'); return; }
-    showPanel('challenge-panel', stage === 0 ? 'TERMINAL / FILTRO DE TRANSMISIONES' : 'PUERTA 02 / CONTROL DE ACCESO', false);
-    $('challenge-kicker').textContent = stage === 0 ? 'PRUEBA 01 / ENCONTRAR LA MARCA' : 'PRUEBA 02 / LOS LÍMITES DEL CÓDIGO';
-    $('challenge-title').textContent = stage === 0 ? 'Una señal entre el ruido.' : 'Una palabra. Nada más.';
-    $('challenge-description').textContent = stage === 0 ? 'Selecciona todos los registros que contienen la marca del doctor, esté donde esté. Si no sabes cuál es, lee la nota de la mesa.' : 'La transmisión dice: «Solo ORIGEN. Ni un carácter delante. Ni uno detrás». Acepta el código auténtico y rechaza todas las copias. Los puntos · representan espacios.';
-    $('record-label').textContent = stage === 0 ? 'REGISTROS DE LA TERMINAL' : 'CÓDIGOS DEL LECTOR';
+    if (stage === 1 && !state.solved[0]) { showPanel('locked-panel',config.doorName + ' / SIN SINCRONIZAR'); return; }
+    const challenge = config.challenges[stage];
+    showPanel('challenge-panel',challenge.source,false);
+    $('challenge-kicker').textContent = 'PRUEBA 0' + (stage + 1) + ' / ' + challenge.kicker;
+    $('challenge-title').textContent = challenge.title;
+    $('challenge-description').textContent = challenge.description;
+    $('record-label').textContent = challenge.label;
     $('pattern').value = state.patterns[stage];
     $('pattern').disabled = state.solved[stage];
     $('pattern').removeAttribute('aria-invalid');
@@ -124,11 +157,11 @@
     $('door-ready').hidden = !(stage === 1 && state.solved[1]);
     if (state.solved[stage]) {
       $('inspection-state').textContent = '[ RESUELTO ]';
-      paintRecords(records[stage].map((text) => {
-        const matched = stage === 0 ? text.includes('ORIGEN') : text === 'ORIGEN';
-        return {text,matched,start:matched ? text.indexOf('ORIGEN') : -1,length:matched ? 6 : 0};
+      paintRecords(challenge.records.map((text) => {
+        const match = new RegExp(challenge.expected).exec(text);
+        return {text,matched:!!match,start:match ? match.index : -1,length:match ? match[0].length : 0};
       }));
-      showFeedback(stage === 0 ? 'FILTRO RESTAURADO. Has recuperado la transmisión del doctor.' : 'CERRADURA RESTAURADA. Solo el código auténtico obtiene acceso.','success');
+      showFeedback(challenge.success,'success');
     } else paintRecords();
     updateHints();
     $('challenge-title').focus({preventScroll:true});
@@ -148,8 +181,14 @@
     $('pattern-form').setAttribute('aria-busy','true');
     const evaluatingStage = stage;
     try {
-      worker = new Worker('regex-worker.js?v=3');
+      worker = new Worker('regex-worker.js?v=4');
       worker.onmessage = ({data}) => {
+        if (data.ready) {
+          clearTimeout(deadline);
+          deadline = setTimeout(() => { stopTest(); showFeedback('El patrón tarda demasiado en responder. Prueba una expresión más sencilla.'); },800);
+          worker.postMessage({pattern,stage,room:roomIndex});
+          return;
+        }
         stopTest();
         if (data.error) {
           $('pattern').setAttribute('aria-invalid','true');
@@ -163,7 +202,7 @@
           $('pattern-form').hidden = true;
           $('notebook').hidden = true;
           $('inspection-state').textContent = '[ RESUELTO ]';
-          showFeedback(stage === 0 ? 'TRANSMISIÓN RECUPERADA. El doctor ha dejado un mensaje para ti.' : 'ACCESO AUTORIZADO. La cerradura se ha desbloqueado.','success');
+          showFeedback(config.challenges[stage].success,'success');
           $('recovered-message').hidden = stage !== 0;
           $('door-ready').hidden = stage !== 1;
           $(stage === 0 ? 'message-to-door' : 'open-door').focus({preventScroll:true});
@@ -173,8 +212,7 @@
         }
       };
       worker.onerror = () => { stopTest(); showFeedback('No se ha podido iniciar el lector. Vuelve a intentarlo o recarga la página; tu avance está guardado.'); };
-      deadline = setTimeout(() => { stopTest(); showFeedback('El patrón tarda demasiado en responder. Prueba una expresión más sencilla.'); }, 1200);
-      worker.postMessage({pattern,stage});
+      deadline = setTimeout(() => { stopTest(); showFeedback('El lector no ha terminado de cargar. Comprueba la conexión y vuelve a intentarlo.'); },10000);
     } catch { stopTest(); showFeedback('No se ha podido iniciar el lector en este navegador. Prueba con una versión actual de Chrome, Edge o Firefox.'); }
   }
   function completeRoom() {
@@ -182,7 +220,14 @@
     stopTest();
     state.escaped = true; save();
     $('room-play').hidden = true; $('room-success').hidden = false;
-    $('success-personal').textContent = player + ', la puerta del archivo se ha abierto.';
+    $('success-chapter').textContent = 'SALA 0' + (roomIndex + 1) + ' / SUPERADA';
+    $('room-success-title').textContent = config.successTitle;
+    $('success-personal').textContent = player + ', ' + config.successPersonal;
+    $('fragment-title').textContent = config.fragmentTitle;
+    $('fragment-text').textContent = config.fragment;
+    $('success-next').textContent = config.nextText;
+    $('next-room').hidden = !config.nextAction;
+    $('next-room').firstElementChild.textContent = config.nextAction || 'CONTINUAR';
     $('success-attempts').textContent = state.attempts;
     $('success-hints').textContent = state.hints.reduce((a,b) => a+b,0);
     $('room-success-title').focus({preventScroll:true});
@@ -206,21 +251,33 @@
   $('hint-button').addEventListener('click',() => { if (!state.hints[stage]) revealHint(); else $('hint-body').hidden = !$('hint-body').hidden; });
   $('next-hint').addEventListener('click',revealHint);
   $('open-door').addEventListener('click',completeRoom);
+  $('next-room').addEventListener('click',() => { if (state.escaped && roomIndex < configs.length - 1) selectRoom(roomIndex + 1); });
   $('room-replay').addEventListener('click',restart);
   $('room-reset').addEventListener('click',() => {
     if (resetPending) restart();
     else { resetPending = true; $('room-reset').textContent = 'Confirmar reinicio'; resetTimeout = setTimeout(cancelReset,6000); }
   });
-  window.GrinbergRoom = {
-    enter(alias) {
-      player = alias; load(); cancelReset(); activeObject = '';
-      $('room-alias').textContent = alias;
+  function selectRoom(index) {
+      stopTest(); roomIndex = index; config = configs[index]; load(); cancelReset(); activeObject = '';
+      $('room-alias').textContent = player;
+      applyRoom();
       $('room-play').hidden = false; $('room-success').hidden = true; updateRoom();
       if (state.escaped) { completeRoom(); return; }
       else if (state.solved[0]) inspectChallenge(1);
       else if (state.note) inspectChallenge(0);
       else showPanel('welcome-panel','EXPLORACIÓN',false);
       $('room-title').focus({preventScroll:true});
+      window.scrollTo({top:0,behavior:'instant'});
+  }
+  window.GrinbergRoom = {
+    enter(alias) {
+      player = alias;
+      let next = 0;
+      for (let i = 0; i < configs.length; i++) {
+        roomIndex = i; load(); next = i;
+        if (!state.escaped) break;
+      }
+      selectRoom(next);
     },
     leave() { stopTest(); cancelReset(); }
   };

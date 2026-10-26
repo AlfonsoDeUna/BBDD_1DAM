@@ -1,24 +1,25 @@
-/* Isolated execution keeps a slow expression from blocking the room controls. */
+/* User expressions run in an isolated, disposable reader. */
+importScripts('room-data.js?v=4');
 self.onmessage = ({data}) => {
-  const {pattern, stage} = data;
-  if (typeof pattern !== 'string' || pattern.length === 0 || pattern.length > 120 || ![0,1].includes(stage)) {
+  const {pattern,stage,room = 0} = data;
+  const challenge = globalThis.GrinbergRooms[room]?.challenges[stage];
+  if (typeof pattern !== 'string' || !pattern.length || pattern.length > 120 || !challenge) {
     self.postMessage({error:'empty'});
     return;
   }
   let regex;
   try { regex = new RegExp(pattern); } catch { self.postMessage({error:'syntax'}); return; }
-  const visible = stage === 0
-    ? ['CANAL_04 / SIN SEÑAL', 'ORIGEN / TRANSMISIÓN 01', 'SENSOR / PUERTA CERRADA', 'CANAL_07 > ORIGEN', 'origen / señal de prueba', 'PAQUETE_ORIGEN_03', 'OR1GEN / DATO CORRUPTO']
-    : ['ORIGEN', 'ORIGEN_2', 'FALSO_ORIGEN', 'ORIGEN_COPIA', 'origen', ' ORIGEN', 'ORIGEN '];
-  const probes = [...visible, '', 'ORIGE', 'ORIGENN', 'ORIGENORIGEN', 'XORIGEN', 'ORIGENX', 'PRE ORIGEN POST', '_ORIGEN_', 'ORIGEN.', '.ORIGEN', 'ORIGEN/17', '0ORIGEN0', 'ORIGEN-2026', 'Origen', 'RUIDO', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!'];
-  for (const prefix of ['','A','57','[', 'RECIBIDO: ']) {
-    for (const suffix of ['','Z','93',']',' / FIN']) probes.push(prefix + 'ORIGEN' + suffix);
+  const expected = new RegExp(challenge.expected);
+  const probes = [...challenge.records,...challenge.probes];
+  for (const sample of challenge.records.filter((text) => expected.test(text))) {
+    for (const edge of ['X','0',' ','_','.']) probes.push(edge + sample,sample + edge);
   }
-  const expected = (text) => stage === 0 ? text.includes('ORIGEN') : text === 'ORIGEN';
+  probes.push('A'.repeat(60) + '!');
   const results = probes.map((text) => {
     const match = regex.exec(text);
-    return {text, matched:!!match, start:match ? match.index : -1, length:match ? match[0].length : 0, expected:expected(text)};
+    return {text, matched:!!match, start:match ? match.index : -1, length:match ? match[0].length : 0, expected:expected.test(text)};
   });
   const failed = results.find((result) => result.matched !== result.expected);
-  self.postMessage({rows:results.slice(0,visible.length), passed:!failed, failed:failed || null});
+  self.postMessage({rows:results.slice(0,challenge.records.length), passed:!failed, failed:failed || null});
 };
+self.postMessage({ready:true});
