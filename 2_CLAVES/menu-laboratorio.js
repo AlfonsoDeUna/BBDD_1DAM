@@ -11,6 +11,7 @@
     ['08', 'Integridad referencial interactiva', 'integridad-referencial.html'],
     ['09', 'Todo en SQL', 'sql-claves-integridad.html'],
     ['09B', 'Ejercicios de SQL', 'ejercicios-sql-completo.html'],
+    ['09C', 'Ejercicios de integridad referencial', 'ejercicios-integridad-referencial.html'],
     ['10', 'Relaciones 1:N, N:M y 1:1', 'relaciones-entre-tablas.html'],
     ['11', 'Actividad evaluable', 'actividad-evaluable.html']
   ];
