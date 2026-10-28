@@ -44,6 +44,6 @@ ADD CONSTRAINT fk_entregas_pedido
     FOREIGN KEY (id_pedido)
     REFERENCES pedidos(id_pedido)
     ON DELETE RESTRICT
-    ON UPDATE CASCADE;</code></pre></details></article><footer><a href="sql-claves-integridad.html">← Volver a todo en SQL</a><a href="relaciones-entre-tablas.html" style="background:#2358d9;color:white;padding:10px 18px;border-radius:7px;font-weight:650">10 · Relaciones entre tablas →</a></footer></main><script>
+    ON UPDATE CASCADE;</code></pre></details></article><footer><a href="sql-claves-integridad.html">← Volver a todo en SQL</a><a href="ejercicios-integridad-referencial.html" style="background:#2358d9;color:white;padding:10px 18px;border-radius:7px;font-weight:650">09C · Ejercicios de integridad referencial →</a></footer></main><script>
 document.querySelectorAll('.editor').forEach(editor=>{const key='mysql-lab:'+location.pathname+':'+editor.id;const status=document.querySelector('[data-save="'+editor.id+'"]');try{const saved=localStorage.getItem(key);if(saved!==null){editor.value=saved;status.textContent='Borrador recuperado en este navegador.';}}catch{}editor.addEventListener('input',()=>{try{localStorage.setItem(key,editor.value);status.textContent='Borrador guardado en este navegador.';}catch{status.textContent='El guardado local no está disponible.';}});document.querySelector('[data-reset="'+editor.id+'"]').addEventListener('click',()=>{editor.value='';try{localStorage.removeItem(key);}catch{}status.textContent='Respuesta borrada.';editor.focus();});});
 </script></body></html>
