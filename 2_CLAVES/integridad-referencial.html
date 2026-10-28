@@ -48,12 +48,6 @@ opcion_referencial:
 </tbody></table></div>
 <p class="intro" style="margin-top:12px"><strong>Diferencia:</strong> <code>RESTRICT</code> comprueba de inmediato; <code>NO ACTION</code> puede aplazar la comprobación hasta el <code>COMMIT</code> si el sistema admite comprobaciones diferidas.</p>
 <aside class="default"><p><strong>Para recordar:</strong> <code>SET NULL</code> exige que todas las columnas de la FK admitan <code>NULL</code>: no pueden ser <code>NOT NULL</code>. Omitir <code>ON DELETE</code> o <code>ON UPDATE</code> aplica <code>NO ACTION</code> para esa operación. <code>NO ACTION</code> no significa «permitir referencias inválidas».</p></aside>
-<details><summary><strong>Matices de la documentación oficial</strong></summary>
-<ul>
-<li><strong>Cascadas:</strong> las acciones en cascada de las claves foráneas no activan triggers.</li>
-<li><strong>Relaciones en ambos sentidos:</strong> si dos tablas se referencian mutuamente, la cascada de borrado o de actualización debe definirse en ambas FK para que esa operación en cascada tenga éxito.</li>
-<li><strong>Evita cascadas de actualización solapadas:</strong> entre dos tablas no definas varias cláusulas <code>ON UPDATE CASCADE</code> que actúen sobre la misma columna del padre o de la hija.</li>
-</ul></details>
 <p class="source">Resumen y traducción del <a href="https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html" target="_blank" rel="noopener noreferrer">Manual oficial de MySQL 8.4 · Acciones referenciales</a>.</p>
 </section>
 <footer><a href="ejercicios-foreign-key.html">← Volver a los ejercicios de FOREIGN KEY</a><a href="sql-claves-integridad.html" style="background:#2358d9;color:white;padding:10px 18px;border-radius:7px;font-weight:650">Continuar: 09 · Todo en SQL →</a></footer></main><script>
