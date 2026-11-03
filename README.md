@@ -2,6 +2,12 @@
 
 Materiales y actividades para aprender a crear tablas, definir restricciones y trabajar con bases de datos.
 
+## Práctica: LaLiga y bases de datos
+
+Presentación guiada para 1.º DAM: tablas `equipo` y `jugador`, relación 1:N, restricciones `CHECK`, obtención de datos con IA y consultas `SELECT`.
+
+**[Abrir práctica de LaLiga (página web)](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PR%C3%81CTICA_LIGA_FUTBOL/)** · [Ver archivos e instrucciones](1_CREACION_TABLAS/PR%C3%81CTICA_LIGA_FUTBOL/)
+
 ## Ejercicios guiados: claves primarias y foráneas
 
 Presentación interactiva para 1.º DAM con 6 ejercicios y 49 diapositivas. Análisis del enunciado, diagramas de tablas y soluciones SQL reveladas paso a paso.
