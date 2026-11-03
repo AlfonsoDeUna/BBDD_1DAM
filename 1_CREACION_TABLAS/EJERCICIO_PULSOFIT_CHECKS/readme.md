@@ -35,6 +35,16 @@ Se reutiliza un único proyecto Supabase y el mismo esquema se puede ampliar con
 - El profesor ve una matriz de alumnos por pregunta, porcentaje de aciertos, distribución A/B/C/D y quién sigue sin responder. La pantalla se actualiza automáticamente cada **6 segundos**.
 - El profesor puede cerrar cada control y decidir si muestra la solución. El CSV incluye respuestas individuales.
 
+### Reiniciar resultados desde el dashboard
+
+El botón **Reiniciar resultados** permite repetir la actividad con los mismos alumnos. Antes del reinicio, conviene **exportar el CSV** si se quieren conservar las respuestas anteriores.
+
+- El botón solo está disponible en el dashboard del profesor autorizado.
+- Muestra una advertencia y exige escribir `REINICIAR` antes de ejecutar la acción.
+- Borra las respuestas y calificaciones de **todos los grupos de la actividad seleccionada**, pero no de otras actividades.
+- Conserva los alumnos registrados, las 15 preguntas y las soluciones privadas.
+- Deja todos los controles cerrados y las soluciones ocultas. Para empezar otra vez, abre el control 1.
+
 ### Privacidad y limitaciones
 
 Los nombres introducidos por alumnos no constituyen una identificación verificada. Las sesiones anónimas se conservan en ese navegador; si un estudiante borra sus datos o cambia de dispositivo puede aparecer como otra sesión. En un entorno educativo, hay que establecer previamente la base jurídica y los criterios de conservación y eliminación de los datos de alumnado.
