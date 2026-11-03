@@ -31,3 +31,9 @@ La clasificación prioriza las pruebas superadas; en los empates cuenta quién l
 El progreso local se conserva en el mismo navegador. Reiniciar una sala permite practicar de nuevo, pero no reduce el avance ya publicado en esa partida. El tablón es una ayuda para la dinámica de clase; el juego comprueba las respuestas en el navegador.
 
 [Ver una demostración con datos ficticios](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/SECRETODRGRINBERG/tablon.html?demo=1).
+
+## PulsoFit · Restricciones CHECK
+
+Presentación HTML con 15 ejercicios de SQL y corrección progresiva.
+
+[**Abrir la práctica guiada de PulsoFit**](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/)
