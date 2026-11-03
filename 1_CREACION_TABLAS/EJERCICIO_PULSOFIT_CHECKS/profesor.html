@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<title>PulsoFit · Panel del profesor</title><link rel="stylesheet" href="site.css"></head>
+<body>
+<header class="top"><div class="brand"><span>PF</span> Dashboard · Profesor</div><div class="small light">Solo personal autorizado · Inicio de sesión protegido</div></header>
+<main class="wide">
+  <h1>Evaluación formativa en directo</h1>
+  <p class="lead">Abre los controles, consulta quién ha respondido y detecta dificultades mientras se desarrolla la clase.</p>
+  <div id="notice" class="notice" role="status">Preparando el panel…</div>
+  <section id="authPanel" class="card hidden">
+    <h2>Acceso del profesor</h2>
+    <form id="authForm" class="formrow" autocomplete="on">
+      <div class="field"><label for="email">Correo del profesor</label><input id="email" type="email" required autocomplete="username"></div>
+      <div class="field"><label for="password">Contraseña de acceso a Supabase Auth</label><input id="password" type="password" required autocomplete="current-password"></div>
+      <div class="field" style="display:flex;align-items:end"><button id="loginBtn" type="submit">Entrar al dashboard</button></div>
+    </form>
+  </section>
+  <div id="dashboardPanel" class="hidden">
+    <div class="card">
+      <div class="toolbar"><div><b id="teacherLabel">Profesor</b><div class="small light">Actualización automática cada 6 segundos</div></div><div class="actions"><button id="refreshBtn" class="outline">Actualizar</button><button id="csvBtn" class="outline">Exportar CSV</button><button id="logoutBtn" class="outline">Salir</button></div></div>
+      <div class="formrow">
+        <div class="field"><label for="activity">Actividad</label><select id="activity"></select></div>
+        <div class="field"><label for="group">Grupo</label><select id="group"><option value="">Todos los grupos</option></select></div>
+      </div>
+      <div id="metrics" class="metrics"></div>
+    </div>
+    <section class="card"><h2>Gestionar controles</h2><p class="small light">Al abrir un bloque permites responder. Las soluciones permanecen ocultas hasta que decidas publicarlas.</p><div id="controls"></div></section>
+    <section class="card"><h2>Resultados por alumno</h2><p class="small light">✓ Correcta · ✕ Incorrecta · — Sin respuesta. Cada celda muestra la opción elegida al pasar el cursor.</p><div class="table-wrap" id="matrix"></div></section>
+    <section class="card"><h2>Resultados por pregunta</h2><p class="small light">Distribución de respuestas A, B, C y D, porcentaje de acierto y opción correcta.</p><div id="questionStats" class="question-stats"></div></section>
+  </div>
+</main>
+<footer class="footer">Solo se muestra información de alumnos después de autenticar al profesor y comprobar su autorización en Supabase.</footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
+<script src="profesor.js" defer></script>
+</body></html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>PulsoFit · Responde los controles</title>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="top"><div class="brand"><span>PF</span> PulsoFit · Comprobaciones</div><div class="small light">1.º DAM · Bases de Datos</div></header>
+<main>
+  <h1>¿Qué has aprendido?</h1>
+  <p class="lead">Responde tres preguntas después de cada bloque de ejercicios. Las respuestas son individuales y tu profesor verá el progreso de la clase.</p>
+  <div id="notice" class="notice" role="status">Preparando la actividad…</div>
+  <section id="loginPanel" class="card hidden" aria-labelledby="introTitle">
+    <h2 id="introTitle">Identifícate para empezar</h2>
+    <p class="light">Tu nombre se utilizará solamente para identificar tus respuestas en la actividad.</p>
+    <form id="joinForm">
+      <div class="formrow">
+        <div class="field"><label for="studentName">Nombre y apellidos</label><input id="studentName" maxlength="60" minlength="2" required autocomplete="name" placeholder="Ej.: Laura García"></div>
+        <div class="field"><label for="groupName">Grupo</label><input id="groupName" maxlength="30" required placeholder="Ej.: 1DAM A" value="1DAM"></div>
+      </div>
+      <button id="joinBtn" type="submit">Entrar a los controles</button>
+    </form>
+  </section>
+  <section id="studentPanel" class="hidden">
+    <div class="toolbar"><div><b id="welcome"></b><div class="small light" id="progress"></div></div><button id="refreshBtn" class="outline" type="button">Actualizar</button></div>
+    <div id="blocks"></div>
+  </section>
+</main>
+<footer class="footer">Las respuestas solo se registran una vez por pregunta. Espera a que el profesor abra cada control.</footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
+<script src="alumnos.js" defer></script>
+</body>
+</html>

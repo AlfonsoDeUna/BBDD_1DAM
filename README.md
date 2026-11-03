@@ -32,8 +32,11 @@ El progreso local se conserva en el mismo navegador. Reiniciar una sala permite 
 
 [Ver una demostración con datos ficticios](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/SECRETODRGRINBERG/tablon.html?demo=1).
 
-## PulsoFit · Restricciones CHECK
+## PulsoFit · Evaluación formativa en clase
 
-Presentación HTML con 15 ejercicios de SQL y corrección progresiva.
+- [Presentación para el proyector](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/)
+- [Web del alumnado: responder los controles](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/alumnos.html)
+- [Dashboard privado del profesor](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/profesor.html)
+- [Instrucciones de instalación y seguridad](1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/readme.md)
 
-[**Abrir la práctica guiada de PulsoFit**](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/)
+**Conexión con Supabase pendiente de activar:** las páginas web están preparadas, pero aún requieren el SQL privado y la clave publicable.

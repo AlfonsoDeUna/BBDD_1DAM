@@ -209,6 +209,12 @@ pre,code{font-family:var(--mono)}
  .visual{min-height:100px}.node-code{font-size:15pt!important}
  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.checkpoint{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px;text-align:center;max-width:950px;margin:auto;}
+.checkpoint-num{letter-spacing:.12em;border-radius:999px;color:#2457c5;background:#eaf1ff;font-size:23px;font-weight:800;padding:14px 27px;}
+.checkpoint p{font-size:clamp(26px,3vw,40px);font-weight:650;line-height:1.3;margin:0;}
+.checkpoint-url{border:2px solid #a3b8d4;background:#f3f8ff;border-radius:16px;padding:20px;font-family:ui-monospace,monospace;font-size:clamp(15px,1.35vw,22px);overflow-wrap:anywhere;max-width:100%;}
+.checkpoint .checkpoint-hint{font-size:clamp(20px,2vw,26px);color:#53677d;font-weight:400;}
+
 </style>
 </head>
 <body>
@@ -312,8 +318,6 @@ const EXERCISES = [
         "lead": "Cuatro dígitos y final del texto."
       }
     ],
-    "q": "¿Se acepta PF-12345?",
-    "a": "No. Contiene cinco dígitos, y el patrón exige exactamente cuatro.",
     "error": "Olvidar ^ y $ permitiría coincidencias parciales.",
     "originalSolved": true,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -382,8 +386,6 @@ const EXERCISES = [
         "lead": "Añade exactamente una letra mayúscula."
       }
     ],
-    "q": "¿Es válido 12345678a?",
-    "a": "No. La letra final debe estar en mayúscula; el modificador c distingue mayúsculas y minúsculas.",
     "error": "La regla verifica el formato, no la letra matemática correspondiente al DNI.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -464,8 +466,6 @@ const EXERCISES = [
         "lead": "Completa hasta nueve dígitos en total."
       }
     ],
-    "q": "¿Es válido 512345678?",
-    "a": "No. Tiene nueve dígitos, pero empieza por 5.",
     "error": "La columna admite NULL: un CHECK no la convierte en obligatoria.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -577,8 +577,6 @@ const EXERCISES = [
         "lead": "Última alternativa y tres dígitos finales."
       }
     ],
-    "q": "¿Se aceptan 53001 y 05001?",
-    "a": "53001 no: 53 supera 52. 05001 sí: 05 está en el intervalo permitido.",
     "error": "El patrón [0-5][0-9] dejaría pasar 00 y valores de 53 a 59.",
     "originalSolved": false,
     "planHint": "Divide los dos primeros dígitos en tres intervalos; después añade los tres restantes.",
@@ -647,8 +645,6 @@ const EXERCISES = [
         "lead": "Añade la cantidad permitida."
       }
     ],
-    "q": "¿Es válido maria25?",
-    "a": "No. Contiene números y el patrón solo admite letras minúsculas.",
     "error": "Confundir {4,15} con exactamente cuatro o exactamente quince.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -721,8 +717,6 @@ const EXERCISES = [
         "lead": "Completa el conjunto permitido de consonantes."
       }
     ],
-    "q": "¿Es válida 1234ABC?",
-    "a": "No. La A es una vocal y está excluida del conjunto admitido.",
     "error": "[A-Z]{3} es demasiado amplio: admitiría vocales y Q.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -783,8 +777,6 @@ const EXERCISES = [
         "lead": "Incluye los tres valores de la lista."
       }
     ],
-    "q": "¿Sería válido 'FAMILIAR'?",
-    "a": "No. No aparece entre los tres tipos permitidos.",
     "error": "La comparación de mayúsculas y minúsculas con IN depende de la intercalación de la columna.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -860,8 +852,6 @@ const EXERCISES = [
         "lead": "Completa los dos límites."
       }
     ],
-    "q": "¿Son válidas las cuotas de 20 € y 90 €?",
-    "a": "Sí. BETWEEN incluye ambos extremos.",
     "error": "Usar >20 y <90 excluiría por error los extremos.",
     "originalSolved": true,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -942,8 +932,6 @@ const EXERCISES = [
         "lead": "Segundo caso: la cuota respeta el máximo."
       }
     ],
-    "q": "¿Puede un socio PREMIUM pagar 60 €?",
-    "a": "Sí. Este CHECK solo impone el máximo de 35 € a ESTUDIANTE; los otros límites proceden del CHECK general de cuota.",
     "error": "CHECK (cuota <= 35) impondría ese máximo a todos los socios.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1027,8 +1015,6 @@ const EXERCISES = [
         "lead": "Segunda alternativa: orden cronológico correcto."
       }
     ],
-    "q": "¿Puede registrarse una baja anterior al alta?",
-    "a": "No. Si fecha_baja existe, debe ser igual o posterior a fecha_alta.",
     "error": "NULL no se compara con = NULL: se comprueba mediante IS NULL.",
     "originalSolved": true,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1102,8 +1088,6 @@ const EXERCISES = [
         "lead": "Completa la condición para el final."
       }
     ],
-    "q": "¿Son válidos ' Ana' y 'A'?",
-    "a": "Ninguno. El primero empieza con espacio y el segundo tiene menos de dos caracteres.",
     "error": "Necesitas las tres condiciones unidas por AND.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1159,8 +1143,6 @@ const EXERCISES = [
         "lead": "Compara ahora con tu propuesta autónoma."
       }
     ],
-    "q": "¿Se permite 'EXPERTO'?",
-    "a": "No. No forma parte de los niveles permitidos.",
     "error": "IN comprueba alternativas, no una conjunción de igualdades.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1219,8 +1201,6 @@ const EXERCISES = [
         "lead": "Compara ahora con tu propuesta autónoma."
       }
     ],
-    "q": "¿Se permite 'D'?",
-    "a": "No. Domingo no aparece en la lista de valores permitidos.",
     "error": "X representa miércoles en la codificación de esta práctica.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1326,8 +1306,6 @@ const EXERCISES = [
         "lead": "Corrección: el inicio debe preceder al fin."
       }
     ],
-    "q": "¿Sería válida una clase de 10:00 a 09:00?",
-    "a": "No. Las dos horas están dentro de los límites, pero el inicio no es anterior al fin.",
     "error": "Comprobar solo el intervalo general sin relacionar inicio y fin deja pasar horarios incorrectos.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1407,8 +1385,6 @@ const EXERCISES = [
         "lead": "Corrección: segundo requisito, ocupadas no supera aforo."
       }
     ],
-    "q": "¿Puede una clase tener aforo 20 y 25 plazas ocupadas?",
-    "a": "No. 25 supera el aforo de 20, aunque el aforo esté dentro del intervalo 1–30.",
     "error": "Las dos condiciones deben unirse con AND. plazas_ocupadas ya es UNSIGNED.",
     "originalSolved": false,
     "planHint": "¿En cuántas partes se puede dividir la regla?",
@@ -1533,7 +1509,7 @@ function independentPrompt(e){
 
 // Portada e instrucciones de funcionamiento.
 addSlide(null,'Inicio','',`<div class="cover"><div class="overline">Bases de datos · 1.º DAM</div><h1>PulsoFit:<br>restricciones CHECK<br>paso a paso</h1><p class="subtitle">15 ejercicios para interpretar, representar, resolver y comprobar reglas SQL.</p><div class="tags"><span>MySQL 8.0.16 o posterior</span><span>Presentación de aula</span><span>Sin conexión</span></div></div>`,'PulsoFit · Práctica de recuperación','cover-slide');
-addSlide(null,'Metodología','Cómo trabajaremos',`<div class="pill-row"><div class="pill">PLANTEAR</div><span class="arrow-inline">→</span><div class="pill">ANALIZAR</div><span class="arrow-inline">→</span><div class="pill">REPRESENTAR</div><span class="arrow-inline">→</span><div class="pill">RESOLVER</div><span class="arrow-inline">→</span><div class="pill">COMPROBAR</div></div><div class="think-box"><strong>Primero piensa y responde.</strong> Después utiliza la flecha derecha para mostrar el siguiente paso. Las ayudas van desapareciendo en los últimos ejercicios.</div><div class="context-note">Navegación: ← y → cambian de diapositiva; Inicio y Fin van a los extremos. El índice superior salta al comienzo de un ejercicio. Pantalla completa e impresión disponibles arriba.</div>`,'Una diapositiva = una decisión o un paso significativo.');
+addSlide(null,'Metodología','Cómo trabajaremos',`<div class="pill-row"><div class="pill">PLANTEAR</div><span class="arrow-inline">→</span><div class="pill">ANALIZAR</div><span class="arrow-inline">→</span><div class="pill">REPRESENTAR</div><span class="arrow-inline">→</span><div class="pill">RESOLVER</div><span class="arrow-inline">→</span><div class="pill">COMPROBAR</div></div><div class="think-box"><strong>Primero piensa y responde.</strong> Después utiliza la flecha derecha para mostrar el siguiente paso. Las ayudas van desapareciendo en los últimos ejercicios.</div><div class="context-note">Navegación: ← y → cambian de diapositiva; Inicio y Fin van a los extremos. El índice superior salta al comienzo de un ejercicio. Pantalla completa e impresión disponibles arriba.</div>`,'El alumnado responde los controles desde su propia web, no desde el proyector.');
 const SRC_SOCIOS_A=SOURCE_SQL_SOCIOS.split('\n').slice(0,11).join('\n');
 const SRC_SOCIOS_B=SOURCE_SQL_SOCIOS.split('\n').slice(11).join('\n');
 addSlide(null,'Contexto','Código inicial · socios (1 de 2)',`<div class="two-col"><pre class="schema-code">${escapeHTML(SRC_SOCIOS_A)}</pre><div class="schema-aside"><b>Es el código facilitado en la práctica original.</b><br><br>La sentencia <code>CREATE TABLE socios</code> continúa en la diapositiva siguiente.<br><br>Ambos fragmentos forman una única sentencia: no se ejecutan por separado.</div></div>`,'Primer fragmento del código inicial.');
@@ -1574,8 +1550,14 @@ EXERCISES.forEach(e=>{
     addSlide(e,'Resolver',codeStageTitle,`<div class="code-sentence">${escapeHTML(step.lead)}</div>${codePanel(e,step,final)}${final?'<div class="solution-note">Compara la condición completa con el requisito del enunciado.</div>':'<div class="solution-note">La sentencia todavía es un borrador. Piensa qué parte falta antes de continuar.</div>'}`,
       final?'Solución completa: puedes contrastar tu archivo .sql.':'Los elementos recién incorporados aparecen resaltados.');
   });
-  addSlide(e,'Comprobar','¿Lo has comprendido?',`<div class="check-panel"><div class="question-card"><div class="qmark">?</div><div class="question-text">${escapeHTML(e.q)}</div></div><div class="quiet-card"><b>Antes de avanzar</b><p>Responde en voz alta o por escrito e indica exactamente qué parte del CHECK justifica tu respuesta.</p></div></div>`,'Comprueba primero tu razonamiento.');
-  addSlide(e,'Comprobar','Corrección y error habitual',`<div class="answer-card"><div class="small-cap">Respuesta razonada</div><p class="answer">${escapeHTML(e.a)}</p></div><div class="error-card"><b>Error a evitar:</b> ${escapeHTML(e.error)}</div>`,'Fin de este ejercicio. Continúa con el siguiente.');
+  // Las preguntas no se proyectan: son exclusivas de la web del alumnado.
+  if(e.n%3===0){
+    const n=e.n/3;
+    const first=e.n-2;
+    addSlide(null,'Control de aprendizaje',`Comprobación ${n} · Ejercicios ${first}–${e.n}`,
+      `<div class="checkpoint"><div class="checkpoint-num">CONTROL ${n} DE 5</div><p>El alumnado responde ahora las tres preguntas del bloque en su web independiente.</p><div class="checkpoint-url">alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/alumnos.html</div><p class="checkpoint-hint">Abre el bloque ${n} en el dashboard del profesor. Espera a que lleguen las respuestas antes de continuar.</p></div>`,
+      'Presentación para el proyector · Las respuestas se envían desde la web del alumnado.','checkpoint-slide');
+  }
 });
 addSlide(null,'Cierre','Lo que debes saber hacer',`<div class="mini-list"><div class="mini">Leer el requisito</div><div class="mini">Separar sus condiciones</div><div class="mini">Elegir los operadores</div><div class="mini">Representar la regla</div><div class="mini">Construir el CHECK</div><div class="mini">Justificar y comprobar</div></div><div class="think-box"><strong>Reto de salida:</strong> explica cómo transformarías un enunciado nuevo en un <code>ALTER TABLE ... ADD CONSTRAINT ... CHECK</code> sin mirar los ejemplos.</div>`,'15 restricciones · 11 para socios · 4 para clases.');
 

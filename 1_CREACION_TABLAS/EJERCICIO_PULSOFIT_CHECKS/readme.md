@@ -1,9 +1,42 @@
-# PulsoFit · Creación de tablas y restricciones CHECK
+# PulsoFit · Evaluación formativa en clase
 
-Presentación didáctica en diapositivas para 1.º DAM. Incluye los 15 ejercicios de PulsoFit, con análisis de enunciados, diagramas, construcción paso a paso del SQL y corrección progresiva.
+Material de **Bases de Datos de 1.º DAM** con 15 ejercicios y cinco controles de aprendizaje de tres preguntas cada uno.
 
-**[Abrir la presentación guiada en la página web](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/)**
+## Tres páginas separadas
 
-También puedes [consultar el archivo HTML](index.html) en este repositorio.
+| Destinatario | Página | Función |
+| --- | --- | --- |
+| Profesor (proyector) | [Presentación de clase](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/) | Explicación y resolución de ejercicios; indica cuándo realizar cada control, sin mostrar las preguntas tipo test ni sus respuestas |
+| Alumnado | [Responder preguntas](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/alumnos.html) | Identificación mediante nombre y grupo; cinco controles de tres preguntas, con cuatro opciones y un intento por pregunta |
+| Profesor (privado) | [Dashboard de resultados](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/profesor.html) | Acceso autenticado, abrir/cerrar controles, ver aciertos, errores, participantes y exportar CSV |
 
-Funciona desde el navegador, con navegación mediante flechas, índice de ejercicios y pantalla completa.
+El enlace al dashboard es público, **pero los resultados no lo son**: necesitan una sesión autorizada del profesor y políticas RLS en Supabase.
+
+## Estado de la conexión
+
+**PENDIENTE DE ACTIVAR SUPABASE.** Se han preparado las tres páginas y el esquema, pero esta publicación todavía no puede recoger respuestas hasta terminar la configuración del proyecto. No hay datos de alumnos reales verificados.
+
+Se reutiliza un único proyecto Supabase y el mismo esquema se puede ampliar con otras actividades. Las respuestas de cada actividad permanecen separadas por identificador.
+
+### Pasos de activación (solo profesor/administrador)
+
+1. **Aplicar el SQL privado de instalación**, entregado al profesor fuera del repositorio. Contiene las 15 claves correctas; **no debe subirse a GitHub**. El archivo [supabase_schema_public.sql](supabase_schema_public.sql) contiene una versión consultable sin esas claves.
+2. En Supabase, activar **Authentication → Providers → Anonymous Sign-ins** para que el alumnado entre sin correo. Valorar CAPTCHA y los límites de registro para evitar altas abusivas.
+3. Crear o identificar un **usuario profesor** en Authentication → Users, y anotar su *User UID*. En SQL Editor, ejecutar `insert into pf_private.teachers(user_id) values ('AQUI_EL_UUID_REAL') on conflict do nothing;`.
+4. En Supabase → Project Settings → API Keys, copiar solo la **clave publicable** (`sb_publishable_...` o la clave pública `anon` heredada). Editar [config.js](config.js) y sustituir `PON_AQUI_LA_CLAVE_PUBLICABLE_DE_SUPABASE`. **No utilizar nunca `service_role`, clave secreta, contraseña de la base de datos ni tokens de administración.**
+5. Entrar al [dashboard](profesor.html) con correo y contraseña del **usuario de Supabase Auth** que se ha autorizado; abrir el control 1 y pedir al alumnado que entre a [su página](alumnos.html).
+6. Comprobar una respuesta de prueba y que el resultado llega al dashboard antes de utilizarlo con una clase real.
+
+### Funcionamiento durante la clase
+
+- La presentación se proyecta. Tras los ejercicios **3, 6, 9, 12 y 15** se muestra una diapositiva de pausa y el enlace de estudiantes.
+- El alumnado nunca necesita la URL de la presentación. Entra solo a `alumnos.html`, escribe su nombre/grupo y responde el control abierto.
+- Cada pregunta tiene **cuatro opciones y un único intento**. La corrección se realiza en la base de datos; el navegador del alumno no recibe las respuestas correctas hasta que el profesor habilita su publicación.
+- El profesor ve una matriz de alumnos por pregunta, porcentaje de aciertos, distribución A/B/C/D y quién sigue sin responder. La pantalla se actualiza automáticamente cada **6 segundos**.
+- El profesor puede cerrar cada control y decidir si muestra la solución. El CSV incluye respuestas individuales.
+
+### Privacidad y limitaciones
+
+Los nombres introducidos por alumnos no constituyen una identificación verificada. Las sesiones anónimas se conservan en ese navegador; si un estudiante borra sus datos o cambia de dispositivo puede aparecer como otra sesión. En un entorno educativo, hay que establecer previamente la base jurídica y los criterios de conservación y eliminación de los datos de alumnado.
+
+La seguridad se basa en autenticación y RLS, no en ocultar la dirección del dashboard. No incluir secretos en el repositorio. Las claves correctas están en el esquema **no expuesto** `pf_private`, no en el código público. El HTML del proyector mantiene las soluciones **SQL del ejercicio original** porque son parte de la enseñanza, pero no revela las opciones de respuesta de los controles.
