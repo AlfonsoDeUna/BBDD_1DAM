@@ -56,6 +56,8 @@ button{cursor:pointer}
 .statement.long{font-size:clamp(22px,2.38vw,36px)}
 .source-label{display:flex;gap:12px;flex-wrap:wrap;font-size:clamp(14px,1.16vw,18px);color:#5c6e84}
 .source-label code{background:#f2f5fa;border:1px solid #e4eaf2;border-radius:6px;padding:3px 7px;font:600 .96em var(--mono);color:#284664}
+.source-label code.ref-table{color:var(--blue)}
+.source-label code.ref-check{color:var(--green)}
 .context-note{font-size:clamp(16px,1.37vw,21px);color:var(--muted);line-height:1.42;max-width:1060px}
 .mark{border-radius:2px;text-decoration-line:underline;text-decoration-style:solid;text-decoration-thickness:.16em;text-underline-offset:.21em;font-weight:700}
 .mark.b{color:#194cbb;text-decoration-color:var(--blue)}
@@ -112,6 +114,7 @@ pre,code{font-family:var(--mono)}
 .code-card pre{margin:0;padding:20px 25px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;line-height:1.59;font-size:clamp(15px,1.56vw,23px);tab-size:4}
 .code-card .new-code{background:#33597e;outline:3px solid rgba(92,155,223,.25);border-radius:3px;color:#fff1a6;font-weight:800}
 .code-card .placeholder{color:#e9c6ad}
+.code-card .sql-check{color:#78e4a3;font-weight:760}
 .code-sentence{font-size:clamp(17px,1.50vw,22px);color:#385273;line-height:1.38}
 .solution-note{font-size:clamp(14px,1.19vw,18px);color:#55708e}
 .check-panel{display:grid;grid-template-columns:1.4fr .7fr;gap:20px;align-items:stretch}
@@ -255,7 +258,7 @@ const EXERCISES = [
       ],
       [
         "codigo",
-        "b"
+        "r"
       ],
       [
         " debe contener el ",
@@ -271,7 +274,7 @@ const EXERCISES = [
       ],
       [
         "exactamente cuatro dígitos",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -325,7 +328,7 @@ const EXERCISES = [
     "parts": [
       [
         "dni",
-        "b"
+        "r"
       ],
       [
         " debe contener ",
@@ -333,7 +336,7 @@ const EXERCISES = [
       ],
       [
         "exactamente ocho dígitos",
-        "r"
+        "g"
       ],
       [
         " seguidos de ",
@@ -399,7 +402,7 @@ const EXERCISES = [
       ],
       [
         "telefono",
-        "b"
+        "r"
       ],
       [
         " debe contener ",
@@ -407,7 +410,7 @@ const EXERCISES = [
       ],
       [
         "nueve dígitos",
-        "r"
+        "g"
       ],
       [
         " y ",
@@ -415,7 +418,7 @@ const EXERCISES = [
       ],
       [
         "empezar por",
-        "r"
+        "g"
       ],
       [
         " ",
@@ -481,7 +484,7 @@ const EXERCISES = [
       ],
       [
         "cp",
-        "b"
+        "r"
       ],
       [
         " debe contener ",
@@ -489,7 +492,7 @@ const EXERCISES = [
       ],
       [
         "cinco dígitos",
-        "r"
+        "g"
       ],
       [
         ". ",
@@ -497,7 +500,7 @@ const EXERCISES = [
       ],
       [
         "Los dos primeros",
-        "b"
+        "g"
       ],
       [
         " deben formar ",
@@ -505,7 +508,7 @@ const EXERCISES = [
       ],
       [
         "un número entre 01 y 52",
-        "r"
+        "g"
       ],
       [
         "; ",
@@ -513,7 +516,7 @@ const EXERCISES = [
       ],
       [
         "los tres restantes",
-        "b"
+        "g"
       ],
       [
         " pueden ser ",
@@ -590,7 +593,7 @@ const EXERCISES = [
     "parts": [
       [
         "usuario",
-        "b"
+        "r"
       ],
       [
         " solo puede contener ",
@@ -606,7 +609,7 @@ const EXERCISES = [
       ],
       [
         "longitud entre 4 y 15 caracteres",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -664,7 +667,7 @@ const EXERCISES = [
       ],
       [
         "matricula",
-        "b"
+        "r"
       ],
       [
         " debe contener ",
@@ -672,7 +675,7 @@ const EXERCISES = [
       ],
       [
         "cuatro dígitos seguidos de tres consonantes mayúsculas",
-        "r"
+        "g"
       ],
       [
         ", ",
@@ -734,7 +737,7 @@ const EXERCISES = [
     "parts": [
       [
         "tipo_cuota",
-        "b"
+        "r"
       ],
       [
         " solo puede ser ",
@@ -808,7 +811,7 @@ const EXERCISES = [
       ],
       [
         "cuota",
-        "b"
+        "r"
       ],
       [
         " debe estar ",
@@ -816,7 +819,7 @@ const EXERCISES = [
       ],
       [
         "entre",
-        "r"
+        "g"
       ],
       [
         " ",
@@ -877,7 +880,7 @@ const EXERCISES = [
       ],
       [
         "tipo_cuota",
-        "b"
+        "r"
       ],
       [
         " es ",
@@ -893,7 +896,7 @@ const EXERCISES = [
       ],
       [
         "cuota",
-        "b"
+        "r"
       ],
       [
         " ",
@@ -901,7 +904,7 @@ const EXERCISES = [
       ],
       [
         "no puede superar 35 euros",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -967,7 +970,7 @@ const EXERCISES = [
       ],
       [
         "fecha_baja",
-        "b"
+        "r"
       ],
       [
         " ",
@@ -983,7 +986,7 @@ const EXERCISES = [
       ],
       [
         "debe ser igual o posterior a",
-        "r"
+        "g"
       ],
       [
         " ",
@@ -991,7 +994,7 @@ const EXERCISES = [
       ],
       [
         "fecha_alta",
-        "b"
+        "r"
       ],
       [
         ".",
@@ -1040,7 +1043,7 @@ const EXERCISES = [
     "parts": [
       [
         "nombre",
-        "b"
+        "r"
       ],
       [
         " debe tener ",
@@ -1048,7 +1051,7 @@ const EXERCISES = [
       ],
       [
         "al menos dos caracteres",
-        "r"
+        "g"
       ],
       [
         " y ",
@@ -1056,7 +1059,7 @@ const EXERCISES = [
       ],
       [
         "no puede empezar ni terminar con un espacio",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -1115,7 +1118,7 @@ const EXERCISES = [
     "parts": [
       [
         "nivel",
-        "b"
+        "r"
       ],
       [
         " solo puede ser ",
@@ -1172,7 +1175,7 @@ const EXERCISES = [
     "parts": [
       [
         "dia_semana",
-        "b"
+        "r"
       ],
       [
         " solo puede ser ",
@@ -1188,7 +1191,7 @@ const EXERCISES = [
       ],
       [
         "de lunes a sábado",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -1232,7 +1235,7 @@ const EXERCISES = [
     "parts": [
       [
         "hora_inicio",
-        "b"
+        "r"
       ],
       [
         " debe ser ",
@@ -1240,7 +1243,7 @@ const EXERCISES = [
       ],
       [
         "igual o posterior a",
-        "r"
+        "g"
       ],
       [
         " ",
@@ -1256,7 +1259,7 @@ const EXERCISES = [
       ],
       [
         "hora_fin",
-        "b"
+        "r"
       ],
       [
         " ",
@@ -1264,7 +1267,7 @@ const EXERCISES = [
       ],
       [
         "igual o anterior a",
-        "r"
+        "g"
       ],
       [
         " ",
@@ -1280,7 +1283,7 @@ const EXERCISES = [
       ],
       [
         "el inicio debe ser anterior al fin",
-        "r"
+        "g"
       ],
       [
         ".",
@@ -1339,7 +1342,7 @@ const EXERCISES = [
     "parts": [
       [
         "aforo",
-        "b"
+        "r"
       ],
       [
         " debe estar ",
@@ -1347,7 +1350,7 @@ const EXERCISES = [
       ],
       [
         "entre 1 y 30, ambos incluidos",
-        "r"
+        "g"
       ],
       [
         ". Además, ",
@@ -1355,14 +1358,6 @@ const EXERCISES = [
       ],
       [
         "plazas_ocupadas",
-        "b"
-      ],
-      [
-        " ",
-        ""
-      ],
-      [
-        "no puede superar",
         "r"
       ],
       [
@@ -1370,8 +1365,16 @@ const EXERCISES = [
         ""
       ],
       [
+        "no puede superar",
+        "g"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
         "aforo",
-        "b"
+        "r"
       ],
       [
         ".",
@@ -1449,7 +1452,7 @@ function addSlide(ex,phase,title,body,note='',style=''){
   slides.push({ex,phase,title,body,note,style});
 }
 function sourceLabels(e){
-  return `<div class="source-label"><span>Tabla: <code>${escapeHTML(e.table)}</code></span><span>Nombre: <code>${escapeHTML(e.name)}</code></span></div>`;
+  return `<div class="source-label"><span>Tabla: <code class="ref-table">${escapeHTML(e.table)}</code></span><span>Restricción CHECK: <code class="ref-check">${escapeHTML(e.name)}</code></span></div>`;
 }
 function getLevel(e){
   if(e.n<=3)return 'MODELADO';
@@ -1459,7 +1462,7 @@ function getLevel(e){
   return 'PRÁCTICA AUTÓNOMA';
 }
 function markedStatement(e,stage){
-  const enabled=stage===1?['b']:stage===2?['b','g']:['b','g','r'];
+  const enabled=stage===1?['b']:stage===2?['b','r']:['b','r','g'];
   return e.parts.map(([txt,k])=>k&&enabled.includes(k)?`<span class="mark ${k}">${escapeHTML(txt)}</span>`:escapeHTML(txt)).join('');
 }
 function statement(e,marked){
@@ -1467,10 +1470,10 @@ function statement(e,marked){
   return `<div class="statement ${e.statement.length>135?'long':''}">${t}</div>`;
 }
 function legend(stage){
-  return `<div class="legend"><span class="legend-b">Azul · columnas/entidades</span>${stage>=2?'<span class="legend-g">Verde · datos/valores</span>':''}${stage>=3?'<span class="legend-r">Rojo · reglas</span>':''}</div>`;
+  return `<div class="legend"><span class="legend-b">Azul · tablas</span>${stage>=2?'<span class="legend-r">Rojo · columnas afectadas</span>':''}${stage>=3?'<span class="legend-g">Verde · condición CHECK</span>':''}</div>`;
 }
-function analysisLabel(stage){return stage===1?'Identificamos los elementos':stage===2?'Localizamos los datos necesarios':'Localizamos las condiciones';}
-function analysisPrompt(stage){return stage===1?'¿Qué columnas aparecen y qué tabla se modifica?':stage===2?'¿Qué valores y características debemos respetar?':'¿Qué debe cumplirse exactamente? Justifica cada parte.';}
+function analysisLabel(stage){return stage===1?'Identificamos las tablas':stage===2?'Localizamos las columnas afectadas':'Interpretamos la condición CHECK';}
+function analysisPrompt(stage){return stage===1?'¿En qué tabla debe añadirse el CHECK?':stage===2?'¿Qué columnas se ven afectadas por el CHECK?':'¿Qué condición deben cumplir esas columnas? Justifica cada parte.';}
 function diagNode(b,index,visible,markNew=false){
   let shown=index<visible;
   return `<div class="node ${shown?(markNew?'new':''):'pending'}"><div class="node-title">${escapeHTML(b.title)}</div><div class="node-code">${shown?escapeHTML(b.value):'¿ ... ?'}</div></div>`;
@@ -1518,7 +1521,7 @@ function formatSQL(e,cond,focus){
  if(focus){let j=cond.indexOf(focus);
    if(j>=0){decorated=escapeHTML(cond.slice(0,j))+`<span class="new-code">${escapeHTML(focus)}</span>`+escapeHTML(cond.slice(j+focus.length));}
  }
- return `<span>ALTER TABLE ${escapeHTML(e.table)}</span>\n    ADD CONSTRAINT ${escapeHTML(e.name)}\n    CHECK (\n        ${decorated}\n    );`;
+ return `<span>ALTER TABLE ${escapeHTML(e.table)}</span>\n    <span class="sql-check">ADD CONSTRAINT ${escapeHTML(e.name)}</span>\n    <span class="sql-check">CHECK</span> (\n        ${decorated}\n    );`;
 }
 function codePanel(e,step,isFinal){
  return `<div class="code-card"><div class="code-head"><span>SQL · ${escapeHTML(e.name)}</span><span class="code-status ${isFinal?'complete':''}">${isFinal?'SOLUCIÓN COMPLETA':'BORRADOR · NO EJECUTAR'}</span></div><pre><code>${formatSQL(e,step.condition,step.focus)}</code></pre></div>`;
