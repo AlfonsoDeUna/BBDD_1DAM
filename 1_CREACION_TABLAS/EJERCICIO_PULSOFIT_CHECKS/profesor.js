@@ -42,6 +42,28 @@
  $('activity').addEventListener('change',()=>{selectedActivity=$('activity').value;$('group').value='';refresh();});
  $('group').addEventListener('change',()=>render());
  $('csvBtn').addEventListener('click',exportCsv);
+ $('resetBtn').addEventListener('click', async () => {
+   if (!authorized || !selectedActivity || loading) return;
+   const currentActivity=activities.find(a=>a.id===selectedActivity);
+   if (!currentActivity) return;
+   const message='Se van a reiniciar las respuestas de TODOS los grupos de '+currentActivity.title+'.\nSe conservarán alumnos y preguntas, pero se cerrarán los controles.\n¿Continuar?';
+   if (!confirm(message)) return;
+   if (prompt('Escribe REINICIAR para confirmar la operación:')!=='REINICIAR') return;
+   const button=$('resetBtn');
+   button.disabled=true;
+   try {
+     const result=await sb.rpc('pf_reset_activity',{p_activity:selectedActivity});
+     if (result.error) throw result.error;
+     if (result.data?.success!==true) throw new Error('No se ha confirmado el reinicio.');
+     await refresh();
+     notice('Reinicio completo. Respuestas retiradas: '+result.data.responses_removed+'. Controles cerrados.','ok');
+   } catch(e){
+     notice('No se ha podido reiniciar: '+errText(e),'error');
+   } finally {
+     button.disabled=false;
+   }
+ });
+
  async function refresh(){
    if(!authorized||loading)return;
    loading=true;
