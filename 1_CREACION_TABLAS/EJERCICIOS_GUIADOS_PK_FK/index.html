@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Creación de tablas y relaciones · Práctica guiada · 1.º DAM</title>
+  <style>
+    :root {
+      --ink: #17263c; --ink-soft: #5a6b80; --line: #d8e1eb;
+      --blue: #1d60d8; --green: #0c8860; --red: #cc3544;
+      --panel: #f5f8fd; --deck-width: 1280px; --deck-height: 720px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { font-family: "Segoe UI", Aptos, Arial, sans-serif; color: var(--ink); background: #edf2f7; }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .36; }
+    button:focus-visible, select:focus-visible, .overview-card:focus-visible { outline: 3px solid #377be7; outline-offset: 3px; }
+    #app { height: 100dvh; min-height: 570px; display: flex; flex-direction: column; }
+    .app-header { height: 65px; flex: 0 0 65px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dce5ee; background: #f8fafc; gap: 20px; }
+    .brand-group { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-icon { height: 36px; width: 36px; border-radius: 10px; color: white; background: #235ec1; font-weight: 800; display: grid; place-items: center; font-size: 20px; box-shadow: 0 4px 14px rgba(35,94,193,.19); }
+    .app-brand { font-size: 16px; font-weight: 780; line-height: 1.2; white-space: nowrap; }
+    .app-subbrand { margin-top: 3px; font-size: 12px; color: #617388; }
+    .app-shortcuts { display: flex; align-items: center; color: #65758b; gap: 8px; font-size: 12px; }
+    .keycap { border: 1px solid #cbd6e2; background: white; padding: 3px 7px; border-radius: 5px; font-weight: 700; color: #3e536b; }
+    #stage-area { flex: 1; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 13px 18px; }
+    #viewport { flex: 0 0 auto; position: relative; filter: drop-shadow(0 18px 28px rgba(40,65,94,.13)); }
+    #deck { position: relative; width: 1280px; height: 720px; transform-origin: top left; border-radius: 16px; }
+    .slide { display: none; position: absolute; inset: 0; width: 1280px; height: 720px; background: #fff; border-radius: 16px; overflow: hidden; }
+    .slide.active { display: block; animation: fade-slide .16s ease-out; }
+    @keyframes fade-slide { from { opacity: .75; } to { opacity: 1; } }
+    .slide::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 11px; background: linear-gradient(180deg,#2563c9 0%,#51a9d6 100%); }
+    .slide-top { position: absolute; left: 76px; right: 76px; top: 43px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .eyebrow { color: #63788e; font-size: 15px; font-weight: 760; letter-spacing: 2px; text-transform: uppercase; }
+    .phase-pill { background: #eaf1fb; border: 1px solid #d9e7fa; border-radius: 100px; color: #1b5cae; padding: 8px 14px; font-size: 13px; letter-spacing: .9px; font-weight: 820; text-transform: uppercase; white-space: nowrap; }
+    .slide-title { position: absolute; top: 95px; left: 76px; right: 76px; margin: 0; color: #172940; font-weight: 800; font-size: 41px; letter-spacing: -.9px; line-height: 1.13; }
+    .slide-subtitle { position: absolute; top: 150px; left: 76px; right: 76px; margin: 0; font-size: 19.5px; color: #63738a; font-weight: 450; }
+    .slide-main { position: absolute; top: 193px; bottom: 83px; left: 76px; right: 76px; }
+    .slide-main.statement-main { display: flex; flex-direction: column; justify-content: center; gap: 17px; padding: 0 12px 0 5px; }
+    .statement-paragraph { margin: 0; font-size: 27.5px; line-height: 1.49; font-weight: 440; letter-spacing: -.2px; color: #20334d; }
+    .statement-main.long .statement-paragraph { font-size: 26px; line-height: 1.43; }
+    .statement-main.extended .statement-paragraph { font-size: 25px; line-height: 1.42; }
+    .mark { border-radius: 3px; text-decoration-line: underline; text-decoration-thickness: 3px; text-underline-offset: 5px; font-weight: 650; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+    .mark.entity { color: #1557bd; text-decoration-color: #3476e4; background: rgba(53,118,228,.07); }
+    .mark.attr { color: #087c55; text-decoration-color: #12a87b; background: rgba(18,168,123,.08); }
+    .mark.rel { color: #bc293e; text-decoration-color: #dd4e61; background: rgba(221,78,97,.07); }
+    .legend { position: absolute; left: 78px; right: 78px; bottom: 85px; display: flex; align-items: center; gap: 23px; font-size: 17px; font-weight: 650; }
+    .legend-chip { display: flex; align-items: center; gap: 8px; }
+    .legend-stroke { width: 28px; height: 4px; border-radius: 3px; }
+    .slide.with-legend .slide-main.statement-main { bottom: 125px; }
+    .slide.with-legend .legend { bottom: 90px; }
+    .slide-footer { position: absolute; bottom: 27px; left: 76px; right: 76px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e7edf4; padding-top: 14px; color: #8694a6; font-size: 13px; font-weight: 620; }
+    .slide-footer strong { color: #627890; }
+    .slide-footer .footer-bar { height: 5px; background: #e5edf7; border-radius: 10px; width: 260px; margin: 0 12px; overflow: hidden; }
+    .slide-footer .footer-fill { height: 100%; border-radius: 10px; background: #3975c7; }
+    .diagram-board { position: relative; width: 1120px; height: 410px; margin: 0 auto; background-image: radial-gradient(circle,#e6edf5 1px,transparent 1px); background-size: 19px 19px; border-radius: 14px; border: 1px solid #e7edf5; background-color: #fbfdff; }
+    .diagram-wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .diagram-wires path { stroke: #5c789c; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+    .diagram-wires text { fill: #2d4f73; font-weight: 800; font-size: 18px; paint-order: stroke; stroke: #fbfdff; stroke-width: 5px; }
+    .db-table { position: absolute; background: white; border: 2px solid #5a7390; border-radius: 8px; box-shadow: 0 7px 17px rgba(21,52,91,.09); overflow: hidden; }
+    .db-title { color: #173b65; height: 43px; display: flex; justify-content: center; align-items: center; background: #dbe9f8; border-bottom: 1px solid #bbd0e5; font-size: 18px; font-weight: 840; letter-spacing: .8px; }
+    .db-labels, .db-row { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(0,.95fr) 52px; align-items: center; padding-left: 10px; padding-right: 8px; column-gap: 4px; }
+    .db-labels { height: 30px; background: #f3f7fc; color: #78879b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border-bottom: 1px solid #e6ecf4; }
+    .db-row { height: 39px; border-bottom: 1px solid #e7edf5; font-size: 15px; }
+    .db-row:last-child { border-bottom: none; }
+    .db-row .field { color: #1d314c; font-weight: 620; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .db-row .datatype { color: #485e77; font-size: 13px; white-space: nowrap; }
+    .db-row .db-key { font-size: 14px; font-weight: 880; text-align: center; }
+    .db-key.pk { color: #1a63c9; }.db-key.fk { color: #c46b1b; }
+    .db-row.unknown .field { color: #a7762a; font-weight: 740; }
+    .db-row.unknown { background: #fffbf0; }
+    .db-table.ghost { border-style: dashed; border-color: #b6c3d3; background: #fbfdff; box-shadow: none; }
+    .db-table.ghost .db-title { background: #f0f4f9; color: #647990; border-bottom-color: #d7e0eb; }
+    .db-table.ghost.unnamed .db-title { color: #b0bac7; }
+    .diagram-caption { margin: 12px 0 0 3px; color: #4b6684; font-size: 18px; font-weight: 550; }
+    .diagram-caption strong { color: #1e62b7; }
+    .diagram-status { position: absolute; left: 12px; bottom: 11px; border: 1px solid #e0e9f3; background: rgba(255,255,255,.92); border-radius: 7px; padding: 7px 10px; font-size: 12px; font-weight: 700; color: #627890; }
+    .code-main { display: flex; gap: 20px; align-items: stretch; }
+    .code-frame { position: relative; background: #102137; border: 1px solid #223d5d; border-radius: 14px; flex: 1 1 auto; min-width: 0; overflow: hidden; color: #eaf1f8; box-shadow: 0 8px 19px rgba(13,31,52,.1); }
+    .code-topbar { position: absolute; left: 0; right: 0; top: 0; height: 35px; border-bottom: 1px solid #2b4663; background: #162e49; display: flex; justify-content: space-between; padding: 0 17px; align-items: center; color: #aac0d7; font-size: 12px; font-weight: 730; letter-spacing: .6px; }
+    .traffic { display: flex; gap: 6px; }.traffic span { width: 8px; height: 8px; border-radius: 50%; background: #496783; }
+    .code-scroll { position: absolute; top: 35px; left: 0; right: 0; bottom: 0; overflow: auto; padding: 14px 0 14px; }
+    .code-line { font-family: Consolas, "Cascadia Code", "SFMono-Regular", monospace; font-size: 20px; line-height: 28px; display: flex; white-space: pre; min-height: 28px; }
+    .code-frame.dense .code-scroll { padding-top: 7px; padding-bottom: 7px; }
+    .code-frame.dense .code-line { font-size: 17px; line-height: 19.6px; min-height: 19.6px; }
+    .code-line.focus { background: rgba(36,164,213,.18); box-shadow: inset 4px 0 #47bfdf; }
+    .code-line .line-no { width: 47px; flex: 0 0 47px; color: #5f7a9a; font-size: .72em; text-align: right; padding-right: 17px; user-select: none; border-right: 1px solid rgba(135,169,201,.16); margin-right: 15px; }
+    .code-line .line-code { display: inline-block; flex: 1; white-space: pre; }
+    .tok-keyword { color: #73b7ff; font-weight: 720; }
+    .tok-type { color: #b6d9ff; }
+    .tok-hole { color: #ffd276; font-weight: 740; background: rgba(236,165,50,.1); border-radius: 3px; }
+    .tok-comment { color: #88a7b9; font-style: italic; }
+    .sql-note { width: 267px; flex: 0 0 267px; padding: 24px 23px; border: 1px solid #dce7f3; border-radius: 14px; background: #f4f8fd; display: flex; flex-direction: column; gap: 16px; }
+    .note-icon { background: #e3effe; color: #1a62ba; border-radius: 12px; width: 45px; height: 45px; display: grid; place-items: center; font-size: 24px; font-weight: 800; }
+    .note-eyebrow { color: #7290b4; text-transform: uppercase; letter-spacing: 1.3px; font-weight: 820; font-size: 12px; }
+    .note-title { font-weight: 800; color: #183a61; font-size: 25px; line-height: 1.18; margin: 0; }
+    .note-text { font-size: 21px; color: #516b86; line-height: 1.42; margin: 0; }
+    .note-rule { margin-top: auto; height: 1px; background: #d9e5f2; }
+    .note-tiny { font-size: 14px; color: #6c839b; }
+    .app-toolbar { flex: 0 0 79px; height: 79px; background: #f8fafc; border-top: 1px solid #dce5ee; display: flex; align-items: center; padding: 0 30px; gap: 12px; }
+    .btn { background: white; border: 1px solid #cdd9e7; color: #2b415d; border-radius: 9px; height: 40px; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 720; white-space: nowrap; }
+    .btn:hover:not(:disabled) { background: #eef4fc; border-color: #acc7e8; }
+    .btn-primary { background: #2367c4; color: white; border-color: #2367c4; box-shadow: 0 2px 8px rgba(25,82,166,.15); }
+    .btn-primary:hover:not(:disabled) { background: #1b58b1; border-color: #1b58b1; }
+    .toolbar-sep { width: 1px; height: 29px; background: #d6e0eb; margin: 0 6px; }
+    .counter { color: #3e536c; font-size: 14px; font-weight: 820; white-space: nowrap; text-align: center; min-width: 65px; font-variant-numeric: tabular-nums; }
+    .global-progress { height: 6px; flex: 1 1 120px; max-width: 230px; min-width: 75px; background: #dbe6f3; border-radius: 100px; overflow: hidden; }
+    .global-progress-fill { height: 100%; width: 0; background: #2c74d7; transition: width .15s ease; }
+    .spacer { margin-left: auto; }
+    .exercise-select { height: 40px; border: 1px solid #cbd8e7; color: #37516c; background: white; border-radius: 9px; padding: 0 28px 0 11px; font-weight: 710; font-size: 14px; max-width: 168px; }
+    .overview { position: fixed; inset: 0; background: rgba(17,35,54,.58); backdrop-filter: blur(5px); z-index: 50; display: none; justify-content: center; align-items: center; padding: 22px; }
+    .overview.open { display: flex; }
+    .overview-panel { background: #fff; border-radius: 20px; max-width: 1000px; width: 100%; padding: 28px; box-shadow: 0 20px 70px rgba(0,0,0,.25); }
+    .overview-title { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .overview-title h2 { margin: 0; font-size: 26px; }
+    .overview-subtitle { color: #687c90; font-size: 15px; margin: 8px 0 20px; }
+    .overview-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 13px; }
+    .overview-card { border: 1px solid #d8e3ef; background: #fbfdff; color: #213b5a; text-align: left; border-radius: 13px; padding: 19px; min-height: 124px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+    .overview-card:hover { border-color: #74a4e4; background: #f0f6ff; }
+    .overview-n { font-size: 13px; color: #2469c8; letter-spacing: 1px; font-weight: 850; }
+    .overview-name { font-size: 18px; font-weight: 810; line-height: 1.25; }
+    .overview-count { font-size: 12px; color: #738398; margin-top: auto; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    @media (max-width: 800px) {
+      .app-header { padding: 0 13px; }
+      .app-toolbar { padding: 0 9px; gap: 6px; }
+      .app-shortcuts, .toolbar-sep, .global-progress, .btn-print, .btn-fullscreen { display: none; }
+      .btn { font-size: 12px; padding: 0 10px; height: 39px; }
+      .exercise-select { font-size: 12px; max-width: 120px; }
+      .counter { font-size: 12px; min-width: 49px; }
+      #stage-area { padding: 8px 5px; }
+      .overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media print {
+      @page { size: 13.333in 7.5in; margin: 0; }
+      html, body, #app { height: auto !important; overflow: visible !important; background: white !important; }
+      .app-header, .app-toolbar, .overview { display: none !important; }
+      #stage-area { display: block !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; height: auto !important; }
+      #viewport { width: 1280px !important; height: auto !important; filter: none !important; }
+      #deck { width: 1280px !important; height: auto !important; transform: none !important; border-radius: 0 !important; }
+      .slide, .slide.active { display: block !important; position: relative !important; height: 720px !important; width: 1280px !important; border-radius: 0 !important; page-break-after: always; break-after: page; animation: none !important; }
+      .slide:last-child { page-break-after: auto; break-after: auto; }
+      .code-frame, .db-table { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-icon">BD</div>
+      <div>
+        <div class="app-brand">De un enunciado a las tablas SQL</div>
+        <div class="app-subbrand">1.º DAM · Práctica guiada · 6 ejercicios</div>
+      </div>
+    </div>
+    <div class="app-shortcuts" aria-hidden="true"><span class="keycap">←</span> <span class="keycap">→</span> Cambiar de diapositiva · <span class="keycap">F</span> Pantalla completa</div>
+  </header>
+  <main id="stage-area" aria-label="Presentación de la práctica guiada">
+    <div id="viewport"><div id="deck" aria-live="polite"></div></div>
+  </main>
+  <nav class="app-toolbar" aria-label="Controles de la presentación">
+    <button class="btn" id="prev" type="button" title="Diapositiva anterior (flecha izquierda)">← Anterior</button>
+    <button class="btn btn-primary" id="next" type="button" title="Diapositiva siguiente (flecha derecha)">Siguiente →</button>
+    <span class="counter" id="counter">1 / 49</span>
+    <div class="global-progress" aria-hidden="true"><div class="global-progress-fill" id="global-progress-fill"></div></div>
+    <div class="spacer"></div>
+    <select class="exercise-select" id="exercise-select" aria-label="Saltar a un ejercicio"></select>
+    <button class="btn" id="overview-btn" type="button" title="Ir al índice (O)">☷ Índice</button>
+    <button class="btn btn-print" id="print-btn" type="button" title="Imprimir todas las diapositivas">⎙ Imprimir</button>
+    <button class="btn btn-fullscreen" id="fullscreen-btn" type="button" title="Pantalla completa (F)">⛶ Proyectar</button>
+  </nav>
+</div>
+<div class="overview" id="overview" role="dialog" aria-modal="true" aria-labelledby="overview-heading">
+  <div class="overview-panel">
+    <div class="overview-title"><h2 id="overview-heading">Ir a un ejercicio</h2><button type="button" class="btn" id="close-overview">✕ Cerrar</button></div>
+    <p class="overview-subtitle">Cada ejercicio empieza con su enunciado sin subrayar. Las soluciones se van descubriendo al avanzar.</p>
+    <div class="overview-grid" id="overview-grid"></div>
+  </div>
+</div>
+<script>
+const APP_DATA = {"exercises":[{"id":1,"title":"Departamentos y empleados","paragraphs":["Una empresa quiere guardar información de sus departamentos y empleados.","De cada departamento se registra su identificador y su nombre. De cada empleado se registra su identificador y su nombre.","Un departamento puede tener varios empleados. Cada empleado pertenece a un único departamento."],"terms":["departamento","departamentos","empleado","empleados"],"tables":[{"name":"DEPARTAMENTO","fields":[["id_departamento","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"EMPLEADO","fields":[["id_empleado","INT","PK"],["nombre","VARCHAR(50)",""],["id_departamento","INT","FK"]]}],"layout":"pair"},{"id":2,"title":"Categorías y productos","paragraphs":["Una tienda quiere organizar sus productos por categorías.","De cada categoría se registra su identificador y su nombre. De cada producto se registra su identificador y su nombre.","Una categoría puede contener varios productos. Cada producto pertenece a una única categoría."],"terms":["categoría","categorías","producto","productos"],"tables":[{"name":"CATEGORIA","fields":[["id_categoria","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"PRODUCTO","fields":[["id_producto","INT","PK"],["nombre","VARCHAR(50)",""],["id_categoria","INT","FK"]]}],"layout":"pair"},{"id":3,"title":"Clientes y pedidos","paragraphs":["Una tienda quiere registrar sus clientes y los pedidos que realizan.","De cada cliente se registra su identificador y su nombre. De cada pedido se registra su identificador y su fecha.","Un cliente puede realizar varios pedidos. Cada pedido pertenece a un único cliente."],"terms":["cliente","clientes","pedido","pedidos"],"tables":[{"name":"CLIENTE","fields":[["id_cliente","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"PEDIDO","fields":[["id_pedido","INT","PK"],["fecha","DATE",""],["id_cliente","INT","FK"]]}],"layout":"pair"},{"id":4,"title":"Departamentos, empleados y tareas","paragraphs":["Una empresa quiere organizar sus departamentos, empleados y tareas.","De cada departamento se registra su identificador y su nombre. De cada empleado se registra su identificador y su nombre. De cada tarea se registra su identificador y su descripción.","Un departamento puede tener varios empleados y cada empleado pertenece a un único departamento.","Un empleado puede tener varias tareas asignadas y cada tarea está asignada a un único empleado."],"terms":["departamento","departamentos","empleado","empleados","tarea","tareas"],"tables":[{"name":"DEPARTAMENTO","fields":[["id_departamento","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"EMPLEADO","fields":[["id_empleado","INT","PK"],["nombre","VARCHAR(50)",""],["id_departamento","INT","FK"]]},{"name":"TAREA","fields":[["id_tarea","INT","PK"],["descripcion","VARCHAR(100)",""],["id_empleado","INT","FK"]]}],"layout":"chain"},{"id":5,"title":"Departamentos, profesores y aulas","paragraphs":["Un centro educativo quiere registrar sus departamentos, profesores y aulas.","De cada departamento se registra su identificador y su nombre. De cada profesor se registra su identificador y su nombre. De cada aula se registra su identificador y su nombre.","Un departamento puede tener varios profesores y cada profesor pertenece a un único departamento.","Un departamento puede tener varias aulas y cada aula pertenece a un único departamento."],"terms":["departamento","departamentos","profesor","profesores","aula","aulas"],"tables":[{"name":"DEPARTAMENTO","fields":[["id_departamento","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"PROFESOR","fields":[["id_profesor","INT","PK"],["nombre","VARCHAR(50)",""],["id_departamento","INT","FK"]]},{"name":"AULA","fields":[["id_aula","INT","PK"],["nombre","VARCHAR(50)",""],["id_departamento","INT","FK"]]}],"layout":"branch"},{"id":6,"title":"Conductores, vehículos y repartos","paragraphs":["Una empresa de transporte quiere registrar sus conductores, vehículos y repartos.","De cada conductor se registra su identificador y su nombre. De cada vehículo se registra su identificador y su matrícula. De cada reparto se registra su identificador y su fecha.","Un conductor puede realizar varios repartos y cada reparto tiene un único conductor.","Un vehículo puede utilizarse en varios repartos y cada reparto se realiza con un único vehículo."],"terms":["conductor","conductores","vehículo","vehículos","reparto","repartos"],"tables":[{"name":"CONDUCTOR","fields":[["id_conductor","INT","PK"],["nombre","VARCHAR(50)",""]]},{"name":"VEHICULO","fields":[["id_vehiculo","INT","PK"],["matricula","VARCHAR(20)",""]]},{"name":"REPARTO","fields":[["id_reparto","INT","PK"],["fecha","DATE",""],["id_conductor","INT","FK"],["id_vehiculo","INT","FK"]]}],"layout":"merge"}],"slides":[{"ex":1,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":1,"kind":"statement","phase":"COMPRENDER","title":"Observa las palabras importantes","subtitle":"Azul: entidades · Verde: atributos · Rojo: relaciones.","mode":"full"},{"ex":1,"kind":"diagram","phase":"DISEÑAR","title":"Un modelo completo de dos tablas","subtitle":"Observa dónde aparece la clave foránea.","stage":"complete","note":"Una relación 1:N: la FK está en el lado N."},{"ex":1,"kind":"sql","phase":"ESCRIBIR SQL","title":"Completa la clave foránea","subtitle":"Hay tres huecos: campo FK, tabla referenciada y PK referenciada.","sql":"1blank","noteTitle":"Tu turno","note":"Identifica el campo de EMPLEADO que apunta a DEPARTAMENTO.","focus":[]},{"ex":1,"kind":"sql","phase":"REVELAR · 1/2","title":"Primero: identifica la FK","subtitle":"El campo ya existe en EMPLEADO. Ahora indícalo en FOREIGN KEY.","sql":"1fk","noteTitle":"Primer paso","note":"La columna id_departamento es la que contiene la referencia.","focus":["FOREIGN KEY (id_departamento)"]},{"ex":1,"kind":"sql","phase":"REVELAR · 2/2","title":"Después: indica a qué apunta","subtitle":"REFERENCES señala la tabla y el campo de destino.","sql":"1full","noteTitle":"Solución completa","note":"FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento).","focus":["FOREIGN KEY (id_departamento)","REFERENCES departamento(id_departamento)"]},{"ex":2,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":2,"kind":"statement","phase":"COMPRENDER","title":"Primera pista: las entidades","subtitle":"Los nombres de las dos entidades ya están marcados.","mode":"entities"},{"ex":2,"kind":"statement","phase":"COMPROBAR","title":"Subrayado completo","subtitle":"Compara tu análisis con las marcas de los tres colores.","mode":"full"},{"ex":2,"kind":"diagram","phase":"DISEÑAR","title":"Un campo queda por descubrir","subtitle":"¿Qué columna de PRODUCTO debe apuntar a CATEGORIA?","stage":"fk-hidden","note":"No cambies la cardinalidad: 1 categoría → N productos."},{"ex":2,"kind":"diagram","phase":"REVELAR","title":"Completa el diagrama","subtitle":"La FK de PRODUCTO referencia a CATEGORIA.","stage":"complete","note":"id_categoria es PK en CATEGORIA y FK en PRODUCTO."},{"ex":2,"kind":"sql","phase":"ESCRIBIR SQL","title":"Completa las referencias","subtitle":"Elige el nombre de la nueva columna y su FOREIGN KEY.","sql":"2blank","noteTitle":"Tu turno","note":"Resuelve primero el nombre del campo que falta.","focus":[]},{"ex":2,"kind":"sql","phase":"REVELAR · 1/2","title":"Añade el campo y la FK","subtitle":"En la tabla PRODUCTO necesitas id_categoria INT.","sql":"2fk","noteTitle":"Primera solución","note":"Ya sabemos qué columna es la FK. Falta indicar su destino.","focus":["id_categoria INT NOT NULL","FOREIGN KEY (id_categoria)"]},{"ex":2,"kind":"sql","phase":"REVELAR · 2/2","title":"Completa REFERENCES","subtitle":"La FK conecta PRODUCTO con la PK de CATEGORIA.","sql":"2full","noteTitle":"Solución completa","note":"Un producto no puede referenciar una categoría inexistente.","focus":["FOREIGN KEY (id_categoria)","REFERENCES categoria(id_categoria)"]},{"ex":3,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":3,"kind":"statement","phase":"COMPROBAR","title":"Comprueba tu subrayado","subtitle":"Identifica sin pistas las entidades, atributos y relaciones.","mode":"full"},{"ex":3,"kind":"diagram","phase":"DISEÑAR","title":"¿Dónde va la clave foránea?","subtitle":"Decide cómo relacionar CLIENTE con PEDIDO.","stage":"fk-hidden","note":"La fecha es un atributo del pedido; no es la FK."},{"ex":3,"kind":"diagram","phase":"REVELAR","title":"Relación CLIENTE → PEDIDO","subtitle":"Un cliente puede tener muchos pedidos.","stage":"complete","note":"PEDIDO necesita id_cliente para saber quién lo realizó."},{"ex":3,"kind":"sql","phase":"ESCRIBIR SQL","title":"Completa los datos y las claves","subtitle":"Ahora faltan identificadores, un tipo DATE y la FK.","sql":"3blank","noteTitle":"Tu turno","note":"Empieza por las PK y por el tipo de dato de fecha.","focus":[]},{"ex":3,"kind":"sql","phase":"REVELAR · 1/2","title":"Resuelve las PK y el tipo DATE","subtitle":"Todavía falta conectar ambos CREATE TABLE.","sql":"3pk","noteTitle":"Primer paso","note":"La fecha no puede identificar de forma única cada pedido.","focus":["id_cliente INT PRIMARY KEY","id_pedido INT PRIMARY KEY","fecha DATE NOT NULL"]},{"ex":3,"kind":"sql","phase":"REVELAR · 2/2","title":"Añade la referencia completa","subtitle":"La tabla PEDIDO queda vinculada a CLIENTE.","sql":"3full","noteTitle":"Solución completa","note":"La FK id_cliente apunta a la PK cliente(id_cliente).","focus":["id_cliente INT NOT NULL","FOREIGN KEY (id_cliente)","REFERENCES cliente(id_cliente)"]},{"ex":4,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":4,"kind":"statement","phase":"COMPROBAR","title":"Comprueba las dos relaciones","subtitle":"¿Detectaste dos relaciones distintas 1:N?","mode":"full"},{"ex":4,"kind":"diagram","phase":"DISEÑAR","title":"Dos FK todavía sin nombrar","subtitle":"Completa las columnas que representan las dos relaciones.","stage":"fk-hidden","note":"Cada tabla del lado N necesita su propia FK."},{"ex":4,"kind":"diagram","phase":"REVELAR · 1/2","title":"DEPARTAMENTO → EMPLEADO","subtitle":"Primera FK resuelta. Falta la que conecta TAREA.","stage":"first-fk","note":"EMPLEADO recibe id_departamento como FK."},{"ex":4,"kind":"diagram","phase":"REVELAR · 2/2","title":"EMPLEADO → TAREA","subtitle":"Las dos claves foráneas ya tienen nombre.","stage":"complete","note":"TAREA recibe id_empleado como FK."},{"ex":4,"kind":"sql","phase":"ESCRIBIR SQL","title":"Completa dos relaciones","subtitle":"Resuelve las dos FOREIGN KEY en el orden correcto.","sql":"4blank","noteTitle":"Tu turno","note":"Se crea DEPARTAMENTO → EMPLEADO → TAREA.","focus":[]},{"ex":4,"kind":"sql","phase":"REVELAR · 1/2","title":"Primera relación SQL","subtitle":"El empleado queda asociado a un departamento.","sql":"4first","noteTitle":"Ya está resuelto","note":"FOREIGN KEY (id_departamento) en EMPLEADO.","focus":["id_departamento INT NOT NULL","FOREIGN KEY (id_departamento)","REFERENCES departamento(id_departamento)"]},{"ex":4,"kind":"sql","phase":"REVELAR · 2/2","title":"Segunda relación SQL","subtitle":"La tarea queda asociada a un empleado.","sql":"4full","noteTitle":"Solución completa","note":"FOREIGN KEY (id_empleado) en TAREA.","focus":["id_empleado INT NOT NULL","FOREIGN KEY (id_empleado)","REFERENCES empleado(id_empleado)"]},{"ex":5,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":5,"kind":"statement","phase":"COMPROBAR","title":"Comprueba lo que has detectado","subtitle":"Dos relaciones diferentes parten de DEPARTAMENTO.","mode":"full"},{"ex":5,"kind":"diagram","phase":"DISEÑAR","title":"Completa los tres recuadros","subtitle":"Solo se facilitan los nombres de tabla y las conexiones.","stage":"skeleton","note":"Deduce los nombres, tipos y claves de cada campo."},{"ex":5,"kind":"diagram","phase":"REVELAR · 1/3","title":"Primero: DEPARTAMENTO","subtitle":"Identifica la tabla que otras dos tendrán que referenciar.","stage":"first-table","note":"La PK de DEPARTAMENTO es id_departamento."},{"ex":5,"kind":"diagram","phase":"REVELAR · 2/3","title":"Después: PROFESOR","subtitle":"Completa su PK y la FK hacia DEPARTAMENTO.","stage":"second-table","note":"Cada profesor pertenece a un único departamento."},{"ex":5,"kind":"diagram","phase":"REVELAR · 3/3","title":"Por último: AULA","subtitle":"Ahora están completas las dos relaciones.","stage":"complete","note":"PROFESOR y AULA tienen su propia FK id_departamento."},{"ex":5,"kind":"sql","phase":"ESCRIBIR SQL","title":"Construye las tres tablas","subtitle":"Aquí casi todo el SQL debe salir de tu diagrama.","sql":"5blank","noteTitle":"Tu turno","note":"Utiliza tu esquema para escribir tipos, PK y FK.","focus":[]},{"ex":5,"kind":"sql","phase":"REVELAR · 1/2","title":"Resuelve DEPARTAMENTO y PROFESOR","subtitle":"Falta crear la tabla AULA con su referencia.","sql":"5first","noteTitle":"Paso intermedio","note":"Comprueba que PROFESOR apunta a DEPARTAMENTO.","focus":["CREATE TABLE profesor (","FOREIGN KEY (id_departamento)","REFERENCES departamento(id_departamento)"]},{"ex":5,"kind":"sql","phase":"REVELAR · 2/2","title":"Completa también AULA","subtitle":"Las dos tablas hijas referencian DEPARTAMENTO.","sql":"5full","noteTitle":"Solución completa","note":"No hay relación directa PROFESOR–AULA en el enunciado.","focus":["CREATE TABLE aula (","id_aula INT PRIMARY KEY","FOREIGN KEY (id_departamento)"]},{"ex":6,"kind":"statement","phase":"LEER","title":"Enunciado original","subtitle":"","mode":"plain"},{"ex":6,"kind":"statement","phase":"COMPROBAR","title":"Solución del subrayado","subtitle":"Contrasta tu identificación de entidades, atributos y relaciones.","mode":"full"},{"ex":6,"kind":"diagram","phase":"DISEÑAR","title":"Diseña el esquema desde cero","subtitle":"No tienes nombres de tablas ni campos. Construye tu propuesta.","stage":"empty","note":"Primero piensa en las entidades. No avances hasta tener un diseño."},{"ex":6,"kind":"diagram","phase":"REVELAR · 1/4","title":"Empieza por las tres entidades","subtitle":"Ya aparecen los nombres de las tablas, todavía sin campos.","stage":"named","note":"CONDUCTOR · VEHICULO · REPARTO."},{"ex":6,"kind":"diagram","phase":"REVELAR · 2/4","title":"Relaciona CONDUCTOR y REPARTO","subtitle":"Un conductor puede realizar varios repartos.","stage":"one-link","note":"La relación es 1:N de CONDUCTOR a REPARTO."},{"ex":6,"kind":"diagram","phase":"REVELAR · 3/4","title":"Relaciona VEHICULO y REPARTO","subtitle":"Un vehículo puede utilizarse en varios repartos.","stage":"two-links","note":"Ambas relaciones terminan en REPARTO, lado N."},{"ex":6,"kind":"diagram","phase":"REVELAR · 4/4","title":"El diagrama completo","subtitle":"REPARTO contiene dos claves foráneas.","stage":"complete","note":"id_conductor e id_vehiculo están en REPARTO."},{"ex":6,"kind":"sql","phase":"ESCRIBIR SQL","title":"Escribe las tres tablas desde cero","subtitle":"En este último ejercicio no hay plantilla.","sql":"6blank","noteTitle":"Trabajo autónomo","note":"Escribe primero las dos tablas que no tienen claves foráneas.","focus":[]},{"ex":6,"kind":"sql","phase":"REVELAR · 1/3","title":"Crea CONDUCTOR y VEHICULO","subtitle":"Estas dos tablas pueden crearse en cualquier orden.","sql":"6parents","noteTitle":"Primer paso","note":"Ambas tablas tienen su propia PK y todavía ninguna FK.","focus":["CREATE TABLE conductor (","CREATE TABLE vehiculo ("]},{"ex":6,"kind":"sql","phase":"REVELAR · 2/3","title":"Añade los campos de REPARTO","subtitle":"Ya están las columnas; faltan las restricciones FOREIGN KEY.","sql":"6partial","noteTitle":"Segundo paso","note":"¿Qué dos columnas referenciarán las tablas anteriores?","focus":["id_conductor INT NOT NULL","id_vehiculo INT NOT NULL"]},{"ex":6,"kind":"sql","phase":"REVELAR · 3/3","title":"Código SQL completo","subtitle":"Comprueba las dos FOREIGN KEY de REPARTO.","sql":"6full","noteTitle":"Solución completa","note":"Cada reparto enlaza con un conductor y un vehículo válidos.","focus":["FOREIGN KEY (id_conductor)","REFERENCES conductor(id_conductor)","FOREIGN KEY (id_vehiculo)","REFERENCES vehiculo(id_vehiculo)"]}],"sql":{"1blank":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","1fk":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n\n    FOREIGN KEY (id_departamento)\n    REFERENCES _____________(_____________)\n);","1full":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);","2blank":"CREATE TABLE categoria (\n    id_categoria INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE producto (\n    id_producto INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    ______________ INT NOT NULL,\n\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","2fk":"CREATE TABLE categoria (\n    id_categoria INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE producto (\n    id_producto INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_categoria INT NOT NULL,\n\n    FOREIGN KEY (id_categoria)\n    REFERENCES _____________(_____________)\n);","2full":"CREATE TABLE categoria (\n    id_categoria INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE producto (\n    id_producto INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_categoria INT NOT NULL,\n\n    FOREIGN KEY (id_categoria)\n    REFERENCES categoria(id_categoria)\n);","3blank":"CREATE TABLE cliente (\n    ______________ INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE pedido (\n    ______________ INT PRIMARY KEY,\n    fecha ____________ NOT NULL,\n    ______________ INT NOT NULL,\n\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","3pk":"CREATE TABLE cliente (\n    id_cliente INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE pedido (\n    id_pedido INT PRIMARY KEY,\n    fecha DATE NOT NULL,\n    ______________ INT NOT NULL,\n\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","3full":"CREATE TABLE cliente (\n    id_cliente INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE pedido (\n    id_pedido INT PRIMARY KEY,\n    fecha DATE NOT NULL,\n    id_cliente INT NOT NULL,\n\n    FOREIGN KEY (id_cliente)\n    REFERENCES cliente(id_cliente)\n);","4blank":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    ______________ INT NOT NULL,\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);\n\nCREATE TABLE tarea (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(100) NOT NULL,\n    ______________ INT NOT NULL,\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","4first":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);\n\nCREATE TABLE tarea (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(100) NOT NULL,\n    ______________ INT NOT NULL,\n    FOREIGN KEY (______________)\n    REFERENCES _____________(_____________)\n);","4full":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE empleado (\n    id_empleado INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);\n\nCREATE TABLE tarea (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(100) NOT NULL,\n    id_empleado INT NOT NULL,\n    FOREIGN KEY (id_empleado)\n    REFERENCES empleado(id_empleado)\n);","5blank":"CREATE TABLE departamento (\n    ________________________________,\n    ________________________________\n);\n\nCREATE TABLE profesor (\n    ________________________________,\n    ________________________________,\n    ________________________________,\n    FOREIGN KEY (__________)\n    REFERENCES __________(__________)\n);\n\nCREATE TABLE aula (\n    ________________________________,\n    ________________________________,\n    ________________________________,\n    FOREIGN KEY (__________)\n    REFERENCES __________(__________)\n);","5first":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE profesor (\n    id_profesor INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);\n\nCREATE TABLE aula (\n    ________________________________,\n    ________________________________,\n    ________________________________,\n    FOREIGN KEY (__________)\n    REFERENCES __________(__________)\n);","5full":"CREATE TABLE departamento (\n    id_departamento INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE profesor (\n    id_profesor INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);\n\nCREATE TABLE aula (\n    id_aula INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL,\n    id_departamento INT NOT NULL,\n    FOREIGN KEY (id_departamento)\n    REFERENCES departamento(id_departamento)\n);","6blank":"-- Escribe aquí las sentencias CREATE TABLE.\n\n\n\n\n\n\n\n\n\n\n\n\n\n-- ¿En qué tabla colocarás las dos claves foráneas?","6parents":"CREATE TABLE conductor (\n    id_conductor INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE vehiculo (\n    id_vehiculo INT PRIMARY KEY,\n    matricula VARCHAR(20) NOT NULL\n);\n\n-- Falta crear la tabla REPARTO.","6partial":"CREATE TABLE conductor (\n    id_conductor INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE vehiculo (\n    id_vehiculo INT PRIMARY KEY,\n    matricula VARCHAR(20) NOT NULL\n);\n\nCREATE TABLE reparto (\n    id_reparto INT PRIMARY KEY,\n    fecha DATE NOT NULL,\n    id_conductor INT NOT NULL,\n    id_vehiculo INT NOT NULL,\n    FOREIGN KEY (_____________)\n    REFERENCES __________(__________),\n    FOREIGN KEY (_____________)\n    REFERENCES __________(__________)\n);","6full":"CREATE TABLE conductor (\n    id_conductor INT PRIMARY KEY,\n    nombre VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE vehiculo (\n    id_vehiculo INT PRIMARY KEY,\n    matricula VARCHAR(20) NOT NULL\n);\n\nCREATE TABLE reparto (\n    id_reparto INT PRIMARY KEY,\n    fecha DATE NOT NULL,\n    id_conductor INT NOT NULL,\n    id_vehiculo INT NOT NULL,\n    FOREIGN KEY (id_conductor)\n    REFERENCES conductor(id_conductor),\n    FOREIGN KEY (id_vehiculo)\n    REFERENCES vehiculo(id_vehiculo)\n);"}};
+const EXERCISES = APP_DATA.exercises;
+const SLIDES = APP_DATA.slides;
+const SQL = APP_DATA.sql;
+let index = 0;
+const deck = document.getElementById('deck');
+const viewport = document.getElementById('viewport');
+const stageArea = document.getElementById('stage-area');
+const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reEsc = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const getEx = n => EXERCISES[n - 1];
+function markupWords(p, ex, mode) {
+  if(mode === 'plain') return escapeHTML(p);
+  const attr = ['identificador','nombre','fecha','descripción','matrícula'];
+  const terms = [...ex.terms].sort((a,b) => b.length-a.length);
+  const all = mode === 'entities' ? terms : [...terms, ...attr].sort((a,b) => b.length-a.length);
+  const rx = new RegExp('(?<![\\p{L}\\p{N}])(?:' + all.map(reEsc).join('|') + ')(?![\\p{L}\\p{N}])', 'giu');
+  return p.split(rx).length === 1
+    ? escapeHTML(p)
+    : p.replace(rx, m => `\u0001${terms.some(x => x.toLocaleLowerCase('es') === m.toLocaleLowerCase('es')) ? 'entity' : 'attr'}\u0002${m}\u0003`)
+        .split(/(\u0001(?:entity|attr)\u0002.*?\u0003)/).map(part => {
+          const hit = part.match(/^\u0001(entity|attr)\u0002(.*?)\u0003$/);
+          return hit ? `<span class="mark ${hit[1]}">${escapeHTML(hit[2])}</span>` : escapeHTML(part);
+        }).join('');
+}
+function statementMarkup(ex, mode) {
+  const ps = ex.paragraphs.map((p, i) => {
+    let body;
+    if(mode === 'full' && i >= 2) body = `<span class="mark rel">${escapeHTML(p)}</span>`;
+    else body = markupWords(p, ex, mode);
+    return `<p class="statement-paragraph">${body}</p>`;
+  }).join('');
+  return ps;
+}
+function legendMarkup() {
+  return `<div class="legend" aria-label="Leyenda del subrayado">
+    <span class="legend-chip"><i class="legend-stroke" style="background:#3476e4"></i><span style="color:#1a61c3">Entidades</span></span>
+    <span class="legend-chip"><i class="legend-stroke" style="background:#12a87b"></i><span style="color:#088158">Atributos</span></span>
+    <span class="legend-chip"><i class="legend-stroke" style="background:#dd4e61"></i><span style="color:#c23446">Relaciones</span></span>
+  </div>`;
+}
+const placements = {
+  pair:[{x:78,y:112,w:420},{x:625,y:112,w:420}],
+  chain:[{x:0,y:105,w:345},{x:387,y:105,w:345},{x:774,y:105,w:345}],
+  branch:[{x:70,y:151,w:386},{x:713,y:17,w:386},{x:713,y:214,w:386}],
+  merge:[{x:62,y:11,w:386},{x:62,y:259,w:386},{x:713,y:111,w:386}]
+};
+const placeholder = () => ['____________','________',''];
+function tableRows(ex, stage, tableIndex) {
+  const base = ex.tables[tableIndex].fields.map(f=>[...f]);
+  if(stage === 'empty' || stage === 'named' || stage === 'one-link' || stage === 'two-links') return [placeholder(),placeholder(),placeholder()];
+  if(stage === 'skeleton') return [placeholder(),placeholder(),placeholder()];
+  if(stage === 'first-table' && tableIndex > 0) return [placeholder(),placeholder(),placeholder()];
+  if(stage === 'second-table' && tableIndex > 1) return [placeholder(),placeholder(),placeholder()];
+  if(stage === 'fk-hidden') return base.map(row => row[2] === 'FK' ? ['____________',row[1],row[2]] : row);
+  if(stage === 'first-fk' && tableIndex === 2) return base.map(row => row[2] === 'FK' ? ['____________',row[1],row[2]] : row);
+  return base;
+}
+function cardMarkup(ex, stage, table, ti, pos) {
+  const unnamed = stage === 'empty';
+  const ghost = ['empty','named','one-link','two-links','skeleton'].includes(stage) || (stage === 'first-table' && ti > 0) || (stage === 'second-table' && ti > 1);
+  const rows = tableRows(ex, stage, ti);
+  const title = unnamed ? '¿TABLA?' : table.name;
+  return `<div class="db-table ${ghost?'ghost':''} ${unnamed?'unnamed':''}" style="left:${pos.x}px;top:${pos.y}px;width:${pos.w}px" aria-label="Tabla ${escapeHTML(title)}">
+     <div class="db-title">${escapeHTML(title)}</div>
+     <div class="db-labels"><span>Nombre del campo</span><span>Tipo</span><span>Clave</span></div>
+     ${rows.map(([name,type,key])=> `<div class="db-row ${name.includes('_') && name.startsWith('___')?'unknown':''}"><span class="field">${escapeHTML(name)}</span><span class="datatype">${escapeHTML(type)}</span><span class="db-key ${key.toLowerCase()}">${escapeHTML(key)}</span></div>`).join('')}
+     </div>`;
+}
+function diagramLinks(ex, stage) {
+  if(stage === 'empty' || stage === 'named') return '';
+  const common = d => `<path d="${d}" fill="none" stroke="#5c789c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const tx = (x,y,v) => `<text x="${x}" y="${y}">${v}</text>`;
+  const foot = (x,y) => `<path d="M${x-10} ${y-11} L${x} ${y} L${x-10} ${y+11}" fill="none" stroke="#5c789c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  let a = '';
+  if(ex.layout === 'pair') {
+    a += common('M498 212 H625') + foot(625,212) + tx(505,196,'1') + tx(603,196,'N');
+  } else if(ex.layout === 'chain') {
+    for(const x of [345,732]) {
+      a += common(`M${x} 199 H${x+42}`) + foot(x+42,199) + tx(x+5,183,'1') + tx(x+23,183,'N');
+    }
+  } else if(ex.layout === 'branch') {
+    a += common('M456 239 H572 V108 H713') + foot(713,108) + tx(465,223,'1') + tx(691,93,'N');
+    a += common('M456 257 H585 V309 H713') + foot(713,343) + tx(465,284,'1') + tx(691,295,'N');
+  } else if(ex.layout === 'merge') {
+    if(['one-link','two-links','complete'].includes(stage)) {
+      a += common('M448 102 H573 V193 H713') + foot(713,193) + tx(454,86,'1') + tx(687,178,'N');
+    }
+    if(['two-links','complete'].includes(stage)) {
+      a += common('M448 348 H573 V290 H713') + foot(713,290) + tx(454,337,'1') + tx(687,276,'N');
+    }
+  }
+  return `<svg class="diagram-wires" viewBox="0 0 1120 410" role="img" aria-label="Conectores de relación uno a muchos">${a}</svg>`;
+}
+function diagramMarkup(ex, slide) {
+  return `<div class="diagram-board">
+    ${diagramLinks(ex,slide.stage)}
+    ${ex.tables.map((t,i)=>cardMarkup(ex,slide.stage,t,i,placements[ex.layout][i])).join('')}
+    <span class="diagram-status" style="${ex.layout==='merge'?'left:468px;top:12px;bottom:auto':''}">PK = primaria · FK = foránea</span>
+  </div><div class="diagram-caption"><strong>Observa:</strong> ${escapeHTML(slide.note||'Completa las relaciones del diagrama.')}</div>`;
+}
+function tokenMarkup(line) {
+  if(line.trim().startsWith('--')) return `<span class="tok-comment">${escapeHTML(line)}</span>`;
+  const tokenRe = /(_{4,}|\b(?:CREATE|TABLE|PRIMARY|FOREIGN|KEY|REFERENCES|NOT|NULL|INT|VARCHAR|DATE)\b)/gi;
+  return line.split(tokenRe).map(token => {
+    if(/^_{4,}$/.test(token)) return `<span class="tok-hole">${token}</span>`;
+    if(/^(CREATE|TABLE|PRIMARY|FOREIGN|KEY|REFERENCES|NOT|NULL)$/i.test(token)) return `<span class="tok-keyword">${token}</span>`;
+    if(/^(INT|VARCHAR|DATE)$/i.test(token)) return `<span class="tok-type">${token}</span>`;
+    return escapeHTML(token);
+  }).join('');
+}
+function sqlMarkup(slide) {
+  const raw = SQL[slide.sql];
+  const lines = raw.split('\n');
+  const dense = lines.length >= 17;
+  const focus = slide.focus||[];
+  return `<div class="code-frame ${dense?'dense':''}">
+    <div class="code-topbar"><span>SQL · CREATE TABLE</span><span class="traffic"><span></span><span></span><span></span></span></div>
+    <div class="code-scroll" aria-label="Fragmento de SQL"><code>${lines.map((line,i)=>`<span class="code-line ${focus.some(p=>line.includes(p))?'focus':''}"><span class="line-no">${i+1}</span><span class="line-code">${tokenMarkup(line)}</span></span>`).join('')}</code></div>
+  </div>
+  <aside class="sql-note">
+    <div class="note-icon">${slide.phase.startsWith('REVELAR')?'✓':'?'}</div>
+    <div class="note-eyebrow">${slide.phase.startsWith('REVELAR')?'Explicación':'Piensa antes de avanzar'}</div>
+    <h3 class="note-title">${escapeHTML(slide.noteTitle||'Tu turno')}</h3>
+    <p class="note-text">${escapeHTML(slide.note||'Resuelve el código antes de mostrar la solución.')}</p>
+    <div class="note-rule"></div>
+    <div class="note-tiny">Cada avance muestra el siguiente paso de la solución.</div>
+  </aside>`;
+}
+function renderSlide(slide,i) {
+  const ex = getEx(slide.ex);
+  const isOriginal = slide.kind==='statement' && slide.mode==='plain';
+  const withLegend = slide.kind==='statement' && slide.mode!=='plain';
+  const long = ex.paragraphs.length>=4 ? (withLegend?'extended':'long') : '';
+  const subtitle = isOriginal ? '' : slide.subtitle;
+  let main, mainClass='';
+  if(slide.kind==='statement') { main=statementMarkup(ex,slide.mode); mainClass=`statement-main ${long}`; }
+  else if(slide.kind==='diagram') { main=diagramMarkup(ex,slide); mainClass='diagram-main'; }
+  else { main=sqlMarkup(slide); mainClass='code-main'; }
+  const title = isOriginal ? `Ejercicio ${ex.id}. ${ex.title}` : slide.title;
+  const exFirst = SLIDES.findIndex(s=>s.ex===ex.id);
+  const exCount = SLIDES.filter(s=>s.ex===ex.id).length;
+  const currentExIndex = i-exFirst+1;
+  return `<section class="slide ${withLegend?'with-legend':''}" id="slide-${i+1}" aria-label="Ejercicio ${ex.id}, diapositiva ${currentExIndex} de ${exCount}">
+    <div class="slide-top"><span class="eyebrow">Ejercicio ${String(ex.id).padStart(2,'0')} / 06 · ${escapeHTML(ex.title)}</span><span class="phase-pill">${escapeHTML(isOriginal?'ENUNCIADO ORIGINAL':slide.phase)}</span></div>
+    <h1 class="slide-title">${escapeHTML(title)}</h1>
+    ${subtitle?`<p class="slide-subtitle">${escapeHTML(subtitle)}</p>`:''}
+    <div class="slide-main ${mainClass}">${main}</div>
+    ${withLegend?legendMarkup():''}
+    <div class="slide-footer"><span><strong>1.º DAM</strong> · Bases de Datos · Andamiaje progresivo</span><span class="footer-bar" aria-hidden="true"><span class="footer-fill" style="display:block;width:${(currentExIndex/exCount)*100}%"></span></span><span>${currentExIndex} / ${exCount} · Ejercicio ${ex.id}</span></div>
+  </section>`;
+}
+deck.innerHTML = SLIDES.map(renderSlide).join('');
+const nodes = Array.from(deck.querySelectorAll('.slide'));
+function fitStage() {
+  const availableW = Math.max(200,stageArea.clientWidth-4);
+  const availableH = Math.max(150,stageArea.clientHeight-4);
+  const scale = Math.min(availableW / 1280, availableH / 720);
+  viewport.style.width = `${1280*scale}px`;
+  viewport.style.height = `${720*scale}px`;
+  deck.style.transform = `scale(${scale})`;
+}
+function goTo(next) {
+  const target = Math.max(0,Math.min(SLIDES.length-1,next));
+  nodes[index].classList.remove('active');
+  index=target;
+  nodes[index].classList.add('active');
+  document.getElementById('counter').textContent = `${index+1} / ${SLIDES.length}`;
+  document.getElementById('prev').disabled = index===0;
+  document.getElementById('next').disabled = index===SLIDES.length-1;
+  document.getElementById('global-progress-fill').style.width = `${100*(index+1)/SLIDES.length}%`;
+  document.getElementById('exercise-select').value = String(SLIDES[index].ex);
+  const codeScroll = nodes[index].querySelector('.code-scroll');
+  if(codeScroll) codeScroll.scrollTop=0;
+  history.replaceState(null,'',`#diapositiva-${index+1}`);
+}
+const firstSlideOf = ex => SLIDES.findIndex(s=>s.ex===ex);
+const selector = document.getElementById('exercise-select');
+selector.innerHTML = EXERCISES.map(ex=>`<option value="${ex.id}">Ejercicio ${ex.id}</option>`).join('');
+selector.addEventListener('change',e=>goTo(firstSlideOf(Number(e.target.value))));
+document.getElementById('prev').addEventListener('click',()=>goTo(index-1));
+document.getElementById('next').addEventListener('click',()=>goTo(index+1));
+document.getElementById('print-btn').addEventListener('click',()=>window.print());
+document.getElementById('fullscreen-btn').addEventListener('click',()=>{
+  if(document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen?.();
+});
+const overview=document.getElementById('overview');
+const overviewGrid=document.getElementById('overview-grid');
+overviewGrid.innerHTML = EXERCISES.map(ex=>{
+  const count=SLIDES.filter(s=>s.ex===ex.id).length;
+  return `<button type="button" class="overview-card" data-go="${ex.id}">
+    <span class="overview-n">EJERCICIO ${String(ex.id).padStart(2,'0')}</span>
+    <span class="overview-name">${escapeHTML(ex.title)}</span>
+    <span class="overview-count">${count} diapositivas · ir al enunciado</span>
+  </button>`;
+}).join('');
+function setOverview(isOpen) { overview.classList.toggle('open',isOpen); if(isOpen) document.getElementById('close-overview').focus(); }
+document.getElementById('overview-btn').addEventListener('click',()=>setOverview(true));
+document.getElementById('close-overview').addEventListener('click',()=>setOverview(false));
+overview.addEventListener('click',e=>{ if(e.target===overview) setOverview(false); });
+overviewGrid.addEventListener('click',e=>{
+ const target=e.target.closest('[data-go]'); if(!target) return;
+ setOverview(false); goTo(firstSlideOf(Number(target.dataset.go)));
+});
+window.addEventListener('keydown',e=>{
+ if(e.altKey||e.ctrlKey||e.metaKey) return;
+ if(overview.classList.contains('open')) { if(e.key==='Escape') {e.preventDefault();setOverview(false);} return; }
+ if(e.target.closest('select,input,textarea')) return;
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();goTo(index+1);}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();goTo(index-1);}
+ else if(e.key==='Home'){e.preventDefault();goTo(0);}
+ else if(e.key==='End'){e.preventDefault();goTo(SLIDES.length-1);}
+ else if(e.key.toLowerCase()==='o'){e.preventDefault();setOverview(true);}
+ else if(e.key.toLowerCase()==='f'){e.preventDefault();document.getElementById('fullscreen-btn').click();}
+});
+let touchX = null, touchY = null;
+stageArea.addEventListener('touchstart',e=>{touchX=e.changedTouches[0].screenX;touchY=e.changedTouches[0].screenY},{passive:true});
+stageArea.addEventListener('touchend',e=>{
+ if(touchX===null) return;
+ const dx=e.changedTouches[0].screenX-touchX;
+ const dy=e.changedTouches[0].screenY-touchY;
+ if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.5) goTo(index+(dx<0?1:-1));
+ touchX=touchY=null;
+},{passive:true});
+window.addEventListener('resize',fitStage);
+window.addEventListener('beforeprint',()=>{ deck.style.transform='none'; });
+window.addEventListener('afterprint',fitStage);
+let initialSlide=Number((location.hash.match(/^#diapositiva-(\d+)$/)||[])[1]||1)-1;
+goTo(initialSlide);
+fitStage();
+</script>
+</body>
+</html>
