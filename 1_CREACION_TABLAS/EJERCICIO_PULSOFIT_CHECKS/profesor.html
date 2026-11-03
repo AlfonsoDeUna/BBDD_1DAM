@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
-<title>PulsoFit · Panel del profesor</title><link rel="stylesheet" href="site.css"></head>
+<title>PulsoFit · Panel del profesor</title><link rel="stylesheet" href="site.css?v=20261103-reset2"></head>
 <body>
 <header class="top"><div class="brand"><span>PF</span> Dashboard · Profesor</div><div class="small light">Solo personal autorizado · Inicio de sesión protegido</div></header>
 <main class="wide">
@@ -33,5 +33,20 @@
 <footer class="footer">Solo se muestra información de alumnos después de autenticar al profesor y comprobar su autorización en Supabase.</footer>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
-<script src="profesor.js" defer></script>
+<script src="profesor.js?v=20261103-reset2" defer></script>
+
+<div id="resetModal" class="reset-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle" aria-describedby="resetDescription">
+  <div class="reset-panel">
+    <h2 id="resetTitle">Reiniciar resultados</h2>
+    <p id="resetDescription">Actividad: <strong id="resetActivityName"></strong></p>
+    <p>Se eliminarán las respuestas y calificaciones de <strong>todos los grupos de esta actividad</strong>. También se cerrarán sus controles y se ocultarán las soluciones. Se conservarán los alumnos y las preguntas.</p>
+    <p class="small light">Si quieres conservar las respuestas actuales, pulsa Cancelar y utiliza antes Exportar CSV.</p>
+    <label for="resetConfirmText">Escribe <strong>REINICIAR</strong> para confirmar:</label>
+    <input id="resetConfirmText" type="text" autocomplete="off" spellcheck="false" placeholder="REINICIAR" aria-required="true">
+    <div class="actions reset-actions">
+      <button id="cancelResetBtn" type="button" class="outline">Cancelar</button>
+      <button id="confirmResetBtn" type="button" class="danger" disabled>Sí, reiniciar resultados</button>
+    </div>
+  </div>
+</div>
 </body></html>
