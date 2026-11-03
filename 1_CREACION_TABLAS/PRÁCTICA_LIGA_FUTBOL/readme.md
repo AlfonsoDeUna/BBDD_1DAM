@@ -1,6 +1,6 @@
 # Práctica: LaLiga y bases de datos (1.º DAM)
 
-**[Abrir la práctica como página web](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PRACTICA_LIGA_FUTBOL/)**
+**[Abrir la práctica como página web](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PR%C3%81CTICA_LIGA_FUTBOL/)**
 
 Presentación interactiva de **9 diapositivas** para proyectar o compartir con el alumnado.
 
@@ -16,5 +16,3 @@ Presentación interactiva de **9 diapositivas** para proyectar o compartir con e
 
 La presentación se encuentra en [`index.html`](index.html) y puede abrirse directamente en GitHub Pages sin instalación ni archivos externos.
 
-
-Enlace alternativo sin tilde para evitar problemas con la ruta web: https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PRACTICA_LIGA_FUTBOL/
