@@ -6,7 +6,7 @@ Materiales y actividades para aprender a crear tablas, definir restricciones y t
 
 Presentación guiada para 1.º DAM: tablas `equipo` y `jugador`, relación 1:N, restricciones `CHECK`, obtención de datos con IA y consultas `SELECT`.
 
-**[Abrir práctica de LaLiga (página web)](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PR%C3%81CTICA_LIGA_FUTBOL/)** · [Ver archivos e instrucciones](1_CREACION_TABLAS/PR%C3%81CTICA_LIGA_FUTBOL/)
+**[Abrir práctica de LaLiga (página web)](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/PRACTICA_LIGA_FUTBOL/)** · [Ver archivos e instrucciones](1_CREACION_TABLAS/PRACTICA_LIGA_FUTBOL/)
 
 ## Ejercicios guiados: claves primarias y foráneas
 
