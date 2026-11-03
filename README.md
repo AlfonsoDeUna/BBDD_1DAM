@@ -39,4 +39,4 @@ El progreso local se conserva en el mismo navegador. Reiniciar una sala permite 
 - [Dashboard privado del profesor](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/profesor.html)
 - [Instrucciones de instalación y seguridad](1_CREACION_TABLAS/EJERCICIO_PULSOFIT_CHECKS/readme.md)
 
-**Conexión con Supabase pendiente de activar:** las páginas web están preparadas, pero aún requieren el SQL privado y la clave publicable.
+**Supabase conectado:** base de datos y 15 preguntas instaladas, clave publicable configurada. Falta habilitar el acceso anónimo del alumnado y registrar/autorizar la cuenta del profesor antes del uso en clase.
