@@ -42,25 +42,60 @@
  $('activity').addEventListener('change',()=>{selectedActivity=$('activity').value;$('group').value='';refresh();});
  $('group').addEventListener('change',()=>render());
  $('csvBtn').addEventListener('click',exportCsv);
- $('resetBtn').addEventListener('click', async () => {
-   if (!authorized || !selectedActivity || loading) return;
-   const currentActivity=activities.find(a=>a.id===selectedActivity);
-   if (!currentActivity) return;
-   const message='Se van a reiniciar las respuestas de TODOS los grupos de '+currentActivity.title+'.\nSe conservarán alumnos y preguntas, pero se cerrarán los controles.\n¿Continuar?';
-   if (!confirm(message)) return;
-   if (prompt('Escribe REINICIAR para confirmar la operación:')!=='REINICIAR') return;
-   const button=$('resetBtn');
-   button.disabled=true;
-   try {
-     const result=await sb.rpc('pf_reset_activity',{p_activity:selectedActivity});
-     if (result.error) throw result.error;
-     if (result.data?.success!==true) throw new Error('No se ha confirmado el reinicio.');
+
+ let resetBusy=false;
+ const resetModal=$('resetModal');
+ const resetInput=$('resetConfirmText');
+ const resetConfirm=$('confirmResetBtn');
+ function closeResetModal(){
+   if(resetBusy)return;
+   resetModal.classList.add('hidden');
+   resetInput.value='';
+   resetConfirm.disabled=true;
+ }
+ $('resetBtn').addEventListener('click',()=>{
+   if(!authorized || !selectedActivity){
+     notice('Debes iniciar sesión como profesor y seleccionar una actividad.','error');
+     return;
+   }
+   const activity=activities.find(item=>item.id===selectedActivity);
+   if(!activity){notice('No se encontró la actividad seleccionada.','error');return;}
+   $('resetActivityName').textContent=activity.title;
+   resetInput.value='';
+   resetConfirm.disabled=true;
+   resetModal.classList.remove('hidden');
+   resetInput.focus();
+ });
+ $('cancelResetBtn').addEventListener('click',closeResetModal);
+ resetModal.addEventListener('click',event=>{
+   if(event.target===resetModal)closeResetModal();
+ });
+ document.addEventListener('keydown',event=>{
+   if(event.key==='Escape' && !resetModal.classList.contains('hidden'))closeResetModal();
+ });
+ resetInput.addEventListener('input',()=>{
+   resetConfirm.disabled=resetBusy || resetInput.value.trim()!=='REINICIAR';
+ });
+ resetConfirm.addEventListener('click',async()=>{
+   if(resetBusy || !authorized || resetInput.value.trim()!=='REINICIAR')return;
+   resetBusy=true;
+   resetConfirm.disabled=true;
+   resetConfirm.textContent='Reiniciando…';
+   const id=selectedActivity;
+   try{
+     const result=await sb.rpc('pf_reset_activity',{p_activity:id});
+     if(result.error)throw result.error;
+     if(result.data?.success!==true || result.data.activity_id!==id)throw new Error('No se pudo verificar el reinicio.');
+     resetBusy=false;
+     closeResetModal();
      await refresh();
-     notice('Reinicio completo. Respuestas retiradas: '+result.data.responses_removed+'. Controles cerrados.','ok');
-   } catch(e){
-     notice('No se ha podido reiniciar: '+errText(e),'error');
-   } finally {
-     button.disabled=false;
+     notice('Resultados reiniciados: '+result.data.responses_removed+' respuestas eliminadas. Abre el control 1 para comenzar.','ok');
+   }catch(error){
+     notice('No se ha podido reiniciar: '+errText(error),'error');
+   }finally{
+     resetBusy=false;
+     resetConfirm.textContent='Sí, reiniciar resultados';
+     resetConfirm.disabled=resetInput.value.trim()!=='REINICIAR';
    }
  });
 
