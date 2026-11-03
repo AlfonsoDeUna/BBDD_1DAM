@@ -2,6 +2,12 @@
 
 Materiales y actividades para aprender a crear tablas, definir restricciones y trabajar con bases de datos.
 
+## Ejercicios guiados: claves primarias y foráneas
+
+Presentación interactiva para 1.º DAM con 6 ejercicios y 49 diapositivas. Análisis del enunciado, diagramas de tablas y soluciones SQL reveladas paso a paso.
+
+**[Abrir práctica guiada de PK y FK](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/EJERCICIOS_GUIADOS_PK_FK/)** · [Ver carpeta en GitHub](1_CREACION_TABLAS/EJERCICIOS_GUIADOS_PK_FK/)
+
 ## El secreto del doctor Grinberg
 
 Escape room de expresiones regulares: cinco salas y diez pruebas, desde los primeros patrones hasta una restricción `CHECK` con `REGEXP_LIKE` en MySQL. La historia es ficticia.
