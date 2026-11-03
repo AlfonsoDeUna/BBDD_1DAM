@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<title>PulsoFit | Presentación guiada de restricciones CHECK · 1.º DAM</title>
+<style>
+:root{
+  --blue:#2457c5; --green:#16803c; --red:#c83134;
+  --ink:#14233a; --muted:#596a7f; --soft:#eef2f7; --line:#dbe3ef;
+  --canvas:#eef3f9; --white:#ffffff; --accent:#264f9f;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--canvas);font-family:var(--font);color:var(--ink)}
+button,select{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-rows:58px minmax(0,1fr) 66px;width:100%;height:100dvh}
+.topbar{background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:18px;padding:0 22px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;white-space:nowrap}
+.brand-badge{background:var(--accent);color:white;font-weight:800;letter-spacing:.05em;border-radius:8px;padding:7px 10px;font-size:13px}
+.brand-text{font-size:14px;font-weight:700;color:#30445c}
+.tools{display:flex;align-items:center;gap:9px;min-width:0}
+.toc-label{font-size:12px;color:var(--muted);white-space:nowrap}
+#toc{max-width:250px;min-width:175px;border:1px solid #cbd5e2;background:#fff;border-radius:8px;padding:7px 9px;color:#1b334f;font-size:13px}
+.tool-btn{background:#fff;color:#20354e;border:1px solid #cbd5e2;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.tool-btn:hover,.tool-btn:focus-visible{border-color:#547bc7;background:#f5f8ff}
+.deck-stage{min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;padding:14px;overflow:hidden}
+.slide{
+  display:none; flex-direction:column; flex-shrink:0;
+  width:min(100%,calc((100dvh - 156px)*16/9),1400px);
+  aspect-ratio:16/9;
+  background:white;
+  box-shadow:0 15px 40px rgba(23,44,78,.10);
+  border:1px solid #e2e9f3;
+  border-radius:14px;
+  padding:2.6% 4% 2.2%;
+  overflow:hidden;
+}
+.slide.active{display:flex}
+.slide-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:12px;flex-shrink:0}
+.eyebrow{color:#526987;font-size:clamp(12px,1.06vw,16px);font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.phase{background:#f2f6fc;border:1px solid #e0e9f7;border-radius:24px;padding:6px 12px;color:#345eaa;font-size:clamp(12px,1.0vw,15px);font-weight:700;white-space:nowrap}
+.ruleline{width:100%;height:2px;background:linear-gradient(90deg,#274d93 0%,#c8d7ed 55%,transparent 100%);flex-shrink:0;margin-bottom:12px}
+.slide-main{display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;gap:18px}
+.slide h1{font-size:clamp(28px,3.2vw,48px);font-weight:800;letter-spacing:-.035em;line-height:1.13;margin:0;color:#112743}
+.slide h2{font-size:clamp(20px,2.1vw,30px);line-height:1.2;margin:0;font-weight:750}
+.slide h3{font-size:clamp(17px,1.6vw,24px);margin:0;color:#19314e}
+.slide p{margin:0}
+.slide-tail{display:flex;justify-content:space-between;align-items:center;gap:20px;border-top:1px solid #edf1f6;padding-top:12px;margin-top:13px;color:var(--muted);font-size:clamp(12px,1vw,15px);flex-shrink:0}
+.slide-tail .exercise-meta{font-weight:700;color:#55708e}
+.statement{font-size:clamp(24px,2.65vw,42px);line-height:1.48;letter-spacing:-.012em;font-weight:500;max-width:1100px;color:#152a42}
+.statement.centered{margin:auto 0}
+.statement.long{font-size:clamp(22px,2.38vw,36px)}
+.source-label{display:flex;gap:12px;flex-wrap:wrap;font-size:clamp(14px,1.16vw,18px);color:#5c6e84}
+.source-label code{background:#f2f5fa;border:1px solid #e4eaf2;border-radius:6px;padding:3px 7px;font:600 .96em var(--mono);color:#284664}
+.context-note{font-size:clamp(16px,1.37vw,21px);color:var(--muted);line-height:1.42;max-width:1060px}
+.mark{border-radius:2px;text-decoration-line:underline;text-decoration-style:solid;text-decoration-thickness:.16em;text-underline-offset:.21em;font-weight:700}
+.mark.b{color:#194cbb;text-decoration-color:var(--blue)}
+.mark.g{color:#117437;text-decoration-color:var(--green)}
+.mark.r{color:#bd292d;text-decoration-color:var(--red)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:clamp(13px,1.16vw,18px)}
+.legend span{padding:4px 7px;border-radius:5px}
+.legend .legend-b{color:var(--blue);border-bottom:3px solid var(--blue)}
+.legend .legend-g{color:var(--green);border-bottom:3px solid var(--green)}
+.legend .legend-r{color:var(--red);border-bottom:3px solid var(--red)}
+.think-box{background:#f5f8fe;border-left:5px solid #557bc2;border-radius:10px;padding:18px 22px;font-size:clamp(18px,1.62vw,25px);line-height:1.45;max-width:1050px}
+.think-box strong{color:#284f9b}
+.small-cap{font-size:clamp(13px,1.10vw,17px);letter-spacing:.07em;font-weight:800;text-transform:uppercase;color:#5c7190}
+.visual{border:1px solid #dce5f1;background:#fbfdff;border-radius:14px;padding:20px 24px;min-height:225px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.v-root{text-align:center;align-self:center;border:1.5px solid #94abc9;border-radius:9px;background:#fff;padding:9px 23px;font-weight:750;font-size:clamp(16px,1.45vw,22px);box-shadow:0 2px 0 #e8eef7}
+.v-down{height:22px;align-self:center;width:2px;background:#8ca2bf;position:relative}
+.v-down:after{content:"";position:absolute;bottom:-1px;left:-5px;border:6px solid transparent;border-top-color:#8ca2bf;transform:translateY(5px)}
+.nodes{display:flex;gap:13px;align-items:stretch;width:100%;justify-content:center}
+.node{min-width:0;flex:1;text-align:center;background:#fff;border:2px solid #bed0e7;border-radius:10px;padding:12px 10px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:105px}
+.node.new{border-color:#6d9bcc;background:#eff5fe;box-shadow:0 0 0 3px rgba(50,113,207,.06)}
+.node.pending{border-style:dashed;background:#fafcff;color:#7c8899}
+.node-title{font-weight:750;color:#4a607c;font-size:clamp(13px,1.2vw,18px)}
+.node-code{font:750 clamp(14px,1.46vw,22px)/1.35 var(--mono);overflow-wrap:anywhere;color:#183759}
+.node.pending .node-code{color:#8393a8}
+.joiner{display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#6380a5;font-weight:800;font-size:clamp(13px,1.13vw,17px);min-width:34px}
+.summary-expression{border-radius:9px;background:#ebf3ff;border:1px solid #bbd1f3;text-align:center;color:#1a438b;font-family:var(--mono);font-size:clamp(14px,1.6vw,23px);font-weight:700;padding:10px 16px;overflow-wrap:anywhere}
+.summary-expression.pending{background:#f9fbfd;border:1px dashed #c6d3e3;color:#71849c}
+.group-visual{border:1px solid #c2d4eb;border-radius:10px;padding:12px;background:#f5f9fe}
+.group-heading{text-align:center;font-size:clamp(13px,1.06vw,16px);font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#456ea7;margin-bottom:9px}
+.group-arrow{text-align:center;font-weight:900;color:#6685b1;font-size:24px}
+.postal-visual{padding:12px 16px;gap:9px;min-height:0}
+.postal-visual .group-visual{padding:10px 13px}
+.postal-visual .node{min-height:75px;padding:7px 8px}
+.postal-visual .node-title{font-size:clamp(12px,1.1vw,16px)}
+.postal-visual .node-code{font-size:clamp(13px,1.35vw,19px)}
+.postal-visual .group-heading{margin-bottom:5px}
+.postal-row{display:grid;grid-template-columns:minmax(170px,.6fr) minmax(0,1.4fr);gap:12px;align-items:stretch}
+.postal-tail{border:1.5px solid #c2d4eb;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px;color:#244c83;background:#f4f8ff;font-size:clamp(14px,1.46vw,21px)}
+.postal-tail b{font-family:var(--mono)}
+.postal-tail.pending{border-style:dashed;color:#8091a7;background:#fff}
+.postal-visual .summary-expression{font-size:clamp(13px,1.35vw,18px);display:flex;justify-content:center;align-items:center}
+
+.branch-root{margin:0 auto;border:2px solid #88a7cb;background:#fff;padding:12px 19px;border-radius:12px;text-align:center;font-weight:750;max-width:500px}
+.branch-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.branch-card{border:2px solid #c4d3e6;border-radius:11px;padding:16px;background:#fff;text-align:center;min-height:105px}
+.branch-card.pending{border-style:dashed;color:#93a3b5;background:#fbfdff}
+.branch-card .branch-tag{font-weight:850;color:#2c6f49;font-size:clamp(14px,1.2vw,18px);margin-bottom:7px}
+.branch-card .branch-code{font:700 clamp(14px,1.38vw,21px) var(--mono);overflow-wrap:anywhere}
+.code-card{background:#13263d;color:#f0f6fd;border:1px solid #1d3b60;border-radius:13px;overflow:hidden;box-shadow:0 6px 12px rgba(17,39,66,.08)}
+.code-head{background:#1d3551;border-bottom:1px solid #395574;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 17px;font-size:clamp(12px,1.1vw,16px);color:#dcecff;font-weight:700}
+.code-status{color:#fbd38b;font-weight:800;font-size:.9em}
+.code-status.complete{color:#b7f6d5}
+pre,code{font-family:var(--mono)}
+.code-card pre{margin:0;padding:20px 25px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;line-height:1.59;font-size:clamp(15px,1.56vw,23px);tab-size:4}
+.code-card .new-code{background:#33597e;outline:3px solid rgba(92,155,223,.25);border-radius:3px;color:#fff1a6;font-weight:800}
+.code-card .placeholder{color:#e9c6ad}
+.code-sentence{font-size:clamp(17px,1.50vw,22px);color:#385273;line-height:1.38}
+.solution-note{font-size:clamp(14px,1.19vw,18px);color:#55708e}
+.check-panel{display:grid;grid-template-columns:1.4fr .7fr;gap:20px;align-items:stretch}
+.question-card{border:1.5px solid #b6cbe8;border-radius:13px;background:#f8fbff;padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:13px}
+.question-card .qmark{width:48px;height:48px;border:2px solid #5880c1;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:900;color:#3c6bb2}
+.question-text{font-size:clamp(22px,2.14vw,33px);line-height:1.3;font-weight:700}
+.quiet-card{border:1px dashed #b9c8da;border-radius:13px;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:9px;background:#fff}
+.quiet-card b{font-size:clamp(16px,1.4vw,21px);color:#39597d}
+.quiet-card p{font-size:clamp(15px,1.28vw,19px);line-height:1.45;color:#5d7087}
+.answer-card{background:#f1f9f4;border:1.5px solid #b2dec1;border-radius:13px;padding:23px 27px;display:flex;flex-direction:column;gap:13px}
+.answer-card .answer{font-size:clamp(20px,1.95vw,29px);font-weight:670;color:#20593a;line-height:1.4}
+.error-card{border:1px solid #e9d5aa;background:#fffaf0;border-radius:10px;padding:16px 20px;color:#79511e;font-size:clamp(16px,1.35vw,20px);line-height:1.42}
+.exercise-start{display:flex;flex-direction:column;gap:26px}
+.challenge-flag{display:inline-flex;align-items:center;gap:8px;width:fit-content;background:#eef5fc;border-radius:999px;color:#3a5b88;padding:8px 12px;font-weight:800;font-size:clamp(14px,1.18vw,18px)}
+.level-high{color:#3c688e}
+.cover{display:flex;flex-direction:column;gap:18px;justify-content:center}
+.cover .overline{font-size:clamp(16px,1.38vw,21px);text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:#4771af}
+.cover h1{font-size:clamp(40px,4.85vw,76px);line-height:1.07;max-width:980px}
+.cover .subtitle{font-size:clamp(21px,2.1vw,32px);color:#54708d;max-width:1000px;line-height:1.35}
+.cover .tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:7px}
+.cover .tags span{background:#f0f5fc;color:#355881;border:1px solid #d5e2f4;padding:8px 13px;border-radius:50px;font-size:clamp(14px,1.19vw,18px);font-weight:650}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1px solid #c7d7ed;background:#f5f8fd;border-radius:8px;padding:13px 15px;font-size:clamp(15px,1.55vw,22px);font-weight:750;color:#31598c}
+.arrow-inline{font-size:24px;color:#8ba5c7;font-weight:900;align-self:center}
+.two-col{display:grid;grid-template-columns:1.1fr .8fr;gap:20px;align-items:center}
+.schema-code{font:clamp(12px,1.23vw,18px)/1.44 var(--mono);background:#12283e;color:#eff7ff;border-radius:12px;padding:17px 19px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.schema-aside{border:1px solid #d4e0f0;border-radius:12px;padding:18px;background:#f5f9ff;color:#3b5779;font-size:clamp(17px,1.57vw,23px);line-height:1.47}
+.schema-aside b{color:#284b7a}
+.mini-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mini{background:#f6f9fe;border:1px solid #d9e4f3;border-radius:10px;text-align:center;padding:16px 12px;font-size:clamp(16px,1.4vw,22px);font-weight:650}
+.autonomous{border:2px solid #c8d6e8;border-radius:13px;background:#fbfdff;padding:28px 30px;display:flex;flex-direction:column;justify-content:center;gap:13px;min-height:250px}
+.autonomous .go{font-size:clamp(25px,2.4vw,37px);font-weight:800;color:#294d84}
+.autonomous .body{font-size:clamp(18px,1.7vw,25px);line-height:1.45;color:#4c647c}
+.space{height:50px;border-bottom:1px dashed #d9e1eb}
+.deck-nav{background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:0 24px}
+.nav-button{background:#f6f9fe;color:#294d80;border:1px solid #c9d8eb;padding:10px 19px;border-radius:9px;font-size:14px;font-weight:800;white-space:nowrap}
+.nav-button.primary{background:#2757ad;color:#fff;border-color:#2757ad}
+.nav-button:hover:not(:disabled){filter:brightness(.97)}
+.nav-button:disabled{opacity:.35;cursor:default}
+.progress-wrap{flex:1;display:flex;align-items:center;gap:14px;min-width:0}
+.progress-rail{height:7px;background:#dfe8f4;border-radius:10px;flex:1;overflow:hidden}
+#progressFill{width:0;background:#4574bd;height:100%;border-radius:10px;transition:width .08s linear}
+#counter{white-space:nowrap;font:750 13px var(--mono);color:#4c688b;min-width:77px;text-align:right}
+#slideLabel{font-size:13px;color:#58708c;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.keyboard-tip{position:fixed;right:12px;bottom:74px;color:#7890aa;font-size:11px;pointer-events:none}
+:focus-visible{outline:3px solid #7eacff;outline-offset:3px}
+@media(max-width:1050px){.brand-text{display:none}.tools{gap:6px}.toc-label{display:none}#toc{min-width:140px;max-width:190px}.slide{padding:2.8% 4.2% 2.5%}.slide-main{gap:11px}.visual{min-height:185px;padding:13px 18px}.node{min-height:82px;padding:10px 8px}.code-card pre{padding:16px 20px}}
+@media(max-height:660px) and (min-width:701px){.slide-main{gap:11px}.slide-top{margin-bottom:8px}.ruleline{margin-bottom:8px}.slide h1{font-size:clamp(26px,2.85vw,40px)}.visual{min-height:165px;padding:11px 15px}.node{min-height:76px}.code-card pre{padding:13px 18px;line-height:1.43}.slide-tail{margin-top:8px;padding-top:8px}.statement{line-height:1.35}.cover{gap:14px}}
+@media(max-width:700px){
+ .app{grid-template-rows:56px minmax(0,1fr) 58px}
+ .topbar{padding:0 8px}.tools{gap:5px} .tool-btn{font-size:12px;padding:7px 6px}
+ .tool-btn span.longlabel{display:none} .brand-badge{font-size:11px;padding:6px 8px}
+ #toc{min-width:90px;width:105px;max-width:105px;font-size:12px;padding:7px 4px}
+ .deck-stage{padding:8px}
+ .slide{width:100%;height:100%;max-height:none;aspect-ratio:auto;overflow-y:auto;padding:18px 20px;border-radius:10px}
+ .slide-top{flex-wrap:wrap;justify-content:flex-start;gap:5px}
+ .slide-top .eyebrow{white-space:normal;max-width:100%;font-size:11px}
+ .slide-top .phase{margin-left:auto;font-size:11px;padding:4px 8px}
+ .slide h1{font-size:clamp(24px,6vw,36px)} .slide h2{font-size:clamp(19px,5vw,28px)}
+ .statement,.statement.long{font-size:clamp(20px,5.2vw,30px);line-height:1.43}
+ .slide-main{flex:1 0 auto;justify-content:center;gap:20px}
+ .slide-main>*{min-width:0;overflow-wrap:anywhere}
+ .postal-row{grid-template-columns:1fr}
+ .postal-visual .nodes{flex-wrap:wrap}
+ .branch-grid{grid-template-columns:1fr}
+ .check-panel>*{min-width:0}
+ .answer-card,.visual,.autonomous{min-width:0;overflow-wrap:anywhere}
+ .slide-tail{font-size:12px}
+ .nodes{flex-wrap:wrap;gap:7px} .node{min-width:40%;min-height:80px}
+ .joiner{min-width:10px;font-size:12px}
+ .visual{padding:12px;min-height:190px}
+ .code-card pre{font-size:clamp(12px,3.25vw,17px);padding:16px;line-height:1.55}
+ .source-label{font-size:13px}
+ .cover h1{font-size:clamp(32px,8vw,54px)} .cover .subtitle{font-size:20px}
+ .check-panel,.two-col{grid-template-columns:1fr}
+ .schema-aside{font-size:16px}
+ .mini-list{grid-template-columns:1fr 1fr}
+ .pill{font-size:13px;padding:10px}.arrow-inline{font-size:13px}
+ .brand{gap:3px}.deck-nav{gap:6px;padding:0 8px}
+ .nav-button{padding:9px;font-size:12px}
+ #slideLabel,.keyboard-tip{display:none}#counter{font-size:11px;min-width:60px}
+}
+@media print{
+ @page{size:A4 landscape;margin:9mm}
+ html,body,.app,.deck-stage{width:100%!important;height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
+ .topbar,.deck-nav,.keyboard-tip{display:none!important}
+ .deck-stage{padding:0!important}
+ .slide{display:flex!important;width:100%!important;height:184mm!important;max-height:none!important;aspect-ratio:auto!important;box-shadow:none!important;border:0!important;border-radius:0!important;margin:0!important;padding:14mm 16mm 11mm!important;overflow:hidden!important;break-after:page;page-break-after:always}
+ .slide:last-child{break-after:auto;page-break-after:auto}
+ .slide h1{font-size:32pt!important}.statement{font-size:23pt!important}.statement.long{font-size:22pt!important}
+ .slide-main{justify-content:center}.code-card pre{font-size:15pt!important}
+ .visual{min-height:100px}.node-code{font-size:15pt!important}
+ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><span class="brand-badge">PF</span><span class="brand-text">PulsoFit · CHECK paso a paso · 1.º DAM</span></div>
+  <div class="tools">
+    <label class="toc-label" for="toc">Índice</label>
+    <select id="toc" aria-label="Ir a un ejercicio"><option value="0">Portada</option></select>
+    <button class="tool-btn" id="fullscreenBtn" title="Pantalla completa">⛶ <span class="longlabel">Pantalla completa</span></button>
+    <button class="tool-btn" id="printBtn" title="Imprimir todas las diapositivas">⎙ <span class="longlabel">Imprimir</span></button>
+  </div>
+</header>
+<main class="deck-stage" id="deck" aria-label="Presentación de ejercicios PulsoFit"></main>
+<footer class="deck-nav">
+  <button class="nav-button" id="prevBtn" aria-label="Diapositiva anterior">← Anterior</button>
+  <div class="progress-wrap">
+    <span id="slideLabel"></span>
+    <div class="progress-rail"><div id="progressFill"></div></div>
+    <span id="counter" aria-live="polite">1 / 1</span>
+  </div>
+  <button class="nav-button primary" id="nextBtn" aria-label="Siguiente diapositiva">Siguiente →</button>
+</footer>
+</div>
+<div class="keyboard-tip">Teclas: ← → · Inicio · Fin</div>
+<script>
+'use strict';
+const EXERCISES = [
+  {
+    "n": 1,
+    "title": "El código del socio",
+    "statement": "En socios, codigo debe contener el prefijo PF- seguido de exactamente cuatro dígitos.",
+    "table": "socios",
+    "name": "chk_socios_codigo",
+    "parts": [
+      [
+        "En ",
+        ""
+      ],
+      [
+        "socios",
+        "b"
+      ],
+      [
+        ", ",
+        ""
+      ],
+      [
+        "codigo",
+        "b"
+      ],
+      [
+        " debe contener el ",
+        ""
+      ],
+      [
+        "prefijo PF-",
+        "g"
+      ],
+      [
+        " seguido de ",
+        ""
+      ],
+      [
+        "exactamente cuatro dígitos",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Texto fijo",
+        "value": "PF-",
+        "hint": "El prefijo se escribe tal cual."
+      },
+      {
+        "title": "Longitud y tipo",
+        "value": "[0-9]{4}",
+        "hint": "Exactamente cuatro dígitos."
+      }
+    ],
+    "relation": "+",
+    "summary": "^PF-[0-9]{4}$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(codigo, '___________', 'c')",
+        "focus": "codigo",
+        "lead": "¿Qué columna y qué función vamos a utilizar?"
+      },
+      {
+        "condition": "REGEXP_LIKE(codigo, '^PF-_______', 'c')",
+        "focus": "^PF-",
+        "lead": "El patrón comienza con un texto fijo."
+      },
+      {
+        "condition": "REGEXP_LIKE(codigo, '^PF-[0-9]{4}$', 'c')",
+        "focus": "[0-9]{4}$",
+        "lead": "Cuatro dígitos y final del texto."
+      }
+    ],
+    "q": "¿Se acepta PF-12345?",
+    "a": "No. Contiene cinco dígitos, y el patrón exige exactamente cuatro.",
+    "error": "Olvidar ^ y $ permitiría coincidencias parciales.",
+    "originalSolved": true,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 2,
+    "title": "El formato del DNI",
+    "statement": "dni debe contener exactamente ocho dígitos seguidos de una letra mayúscula de la A a la Z.",
+    "table": "socios",
+    "name": "chk_socios_dni",
+    "parts": [
+      [
+        "dni",
+        "b"
+      ],
+      [
+        " debe contener ",
+        ""
+      ],
+      [
+        "exactamente ocho dígitos",
+        "r"
+      ],
+      [
+        " seguidos de ",
+        ""
+      ],
+      [
+        "una letra mayúscula de la A a la Z",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Primer bloque",
+        "value": "[0-9]{8}",
+        "hint": "Ocho cifras."
+      },
+      {
+        "title": "Último carácter",
+        "value": "[A-Z]",
+        "hint": "Una letra mayúscula."
+      }
+    ],
+    "relation": "+",
+    "summary": "^[0-9]{8}[A-Z]$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(dni, '___________', 'c')",
+        "focus": "dni",
+        "lead": "Localiza el dato cuyo formato controlas."
+      },
+      {
+        "condition": "REGEXP_LIKE(dni, '^[0-9]{8}___$', 'c')",
+        "focus": "[0-9]{8}",
+        "lead": "El DNI comienza con ocho dígitos."
+      },
+      {
+        "condition": "REGEXP_LIKE(dni, '^[0-9]{8}[A-Z]$', 'c')",
+        "focus": "[A-Z]",
+        "lead": "Añade exactamente una letra mayúscula."
+      }
+    ],
+    "q": "¿Es válido 12345678a?",
+    "a": "No. La letra final debe estar en mayúscula; el modificador c distingue mayúsculas y minúsculas.",
+    "error": "La regla verifica el formato, no la letra matemática correspondiente al DNI.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 3,
+    "title": "El teléfono",
+    "statement": "Cuando tenga valor, telefono debe contener nueve dígitos y empezar por 6, 7, 8 o 9.",
+    "table": "socios",
+    "name": "chk_socios_telefono",
+    "parts": [
+      [
+        "Cuando tenga valor, ",
+        ""
+      ],
+      [
+        "telefono",
+        "b"
+      ],
+      [
+        " debe contener ",
+        ""
+      ],
+      [
+        "nueve dígitos",
+        "r"
+      ],
+      [
+        " y ",
+        ""
+      ],
+      [
+        "empezar por",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "6, 7, 8 o 9",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Primer dígito",
+        "value": "[6-9]",
+        "hint": "Solo 6, 7, 8 o 9."
+      },
+      {
+        "title": "Dígitos restantes",
+        "value": "[0-9]{8}",
+        "hint": "Nueve en total menos uno."
+      }
+    ],
+    "relation": "+",
+    "summary": "^[6-9][0-9]{8}$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(telefono, '________', 'c')",
+        "focus": "telefono",
+        "lead": "Determina la columna y la forma del CHECK."
+      },
+      {
+        "condition": "REGEXP_LIKE(telefono, '^[6-9]____$', 'c')",
+        "focus": "[6-9]",
+        "lead": "Restringe el primer dígito."
+      },
+      {
+        "condition": "REGEXP_LIKE(telefono, '^[6-9][0-9]{8}$', 'c')",
+        "focus": "[0-9]{8}",
+        "lead": "Completa hasta nueve dígitos en total."
+      }
+    ],
+    "q": "¿Es válido 512345678?",
+    "a": "No. Tiene nueve dígitos, pero empieza por 5.",
+    "error": "La columna admite NULL: un CHECK no la convierte en obligatoria.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 4,
+    "title": "El código postal",
+    "statement": "Cuando tenga valor, cp debe contener cinco dígitos. Los dos primeros deben formar un número entre 01 y 52; los tres restantes pueden ser cualquier dígito.",
+    "table": "socios",
+    "name": "chk_socios_cp",
+    "parts": [
+      [
+        "Cuando tenga valor, ",
+        ""
+      ],
+      [
+        "cp",
+        "b"
+      ],
+      [
+        " debe contener ",
+        ""
+      ],
+      [
+        "cinco dígitos",
+        "r"
+      ],
+      [
+        ". ",
+        ""
+      ],
+      [
+        "Los dos primeros",
+        "b"
+      ],
+      [
+        " deben formar ",
+        ""
+      ],
+      [
+        "un número entre 01 y 52",
+        "r"
+      ],
+      [
+        "; ",
+        ""
+      ],
+      [
+        "los tres restantes",
+        "b"
+      ],
+      [
+        " pueden ser ",
+        ""
+      ],
+      [
+        "cualquier dígito",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "01 a 09",
+        "value": "0[1-9]",
+        "hint": "No admite 00."
+      },
+      {
+        "title": "10 a 49",
+        "value": "[1-4][0-9]",
+        "hint": "Decenas de 1 a 4."
+      },
+      {
+        "title": "50 a 52",
+        "value": "5[0-2]",
+        "hint": "Solo 50, 51 y 52."
+      },
+      {
+        "title": "Tres restantes",
+        "value": "[0-9]{3}",
+        "hint": "Cualquier combinación."
+      }
+    ],
+    "relation": "OR +",
+    "summary": "^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(cp, '________', 'c')",
+        "focus": "cp",
+        "lead": "¿Por qué el primer bloque requiere alternativas?"
+      },
+      {
+        "condition": "REGEXP_LIKE(cp, '^(0[1-9]|________)____$', 'c')",
+        "focus": "0[1-9]",
+        "lead": "Primera alternativa: de 01 a 09."
+      },
+      {
+        "condition": "REGEXP_LIKE(cp, '^(0[1-9]|[1-4][0-9]|____)____$', 'c')",
+        "focus": "[1-4][0-9]",
+        "lead": "Segunda alternativa: de 10 a 49."
+      },
+      {
+        "condition": "REGEXP_LIKE(cp, '^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$', 'c')",
+        "focus": "5[0-2]",
+        "lead": "Última alternativa y tres dígitos finales."
+      }
+    ],
+    "q": "¿Se aceptan 53001 y 05001?",
+    "a": "53001 no: 53 supera 52. 05001 sí: 05 está en el intervalo permitido.",
+    "error": "El patrón [0-5][0-9] dejaría pasar 00 y valores de 53 a 59.",
+    "originalSolved": false,
+    "planHint": "Divide los dos primeros dígitos en tres intervalos; después añade los tres restantes.",
+    "diagramKind": "postal"
+  },
+  {
+    "n": 5,
+    "title": "El nombre de usuario",
+    "statement": "usuario solo puede contener letras de la a a la z en minúscula, con una longitud entre 4 y 15 caracteres.",
+    "table": "socios",
+    "name": "chk_socios_usuario",
+    "parts": [
+      [
+        "usuario",
+        "b"
+      ],
+      [
+        " solo puede contener ",
+        ""
+      ],
+      [
+        "letras de la a a la z en minúscula",
+        "g"
+      ],
+      [
+        ", con una ",
+        ""
+      ],
+      [
+        "longitud entre 4 y 15 caracteres",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Caracteres permitidos",
+        "value": "[a-z]",
+        "hint": "Solo letras minúsculas."
+      },
+      {
+        "title": "Número de caracteres",
+        "value": "{4,15}",
+        "hint": "Entre cuatro y quince."
+      }
+    ],
+    "relation": "+",
+    "summary": "^[a-z]{4,15}$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(usuario, '________', 'c')",
+        "focus": "usuario",
+        "lead": "Primero elige el conjunto de caracteres."
+      },
+      {
+        "condition": "REGEXP_LIKE(usuario, '^[a-z]____$', 'c')",
+        "focus": "[a-z]",
+        "lead": "Solo minúsculas en el patrón."
+      },
+      {
+        "condition": "REGEXP_LIKE(usuario, '^[a-z]{4,15}$', 'c')",
+        "focus": "{4,15}",
+        "lead": "Añade la cantidad permitida."
+      }
+    ],
+    "q": "¿Es válido maria25?",
+    "a": "No. Contiene números y el patrón solo admite letras minúsculas.",
+    "error": "Confundir {4,15} con exactamente cuatro o exactamente quince.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 6,
+    "title": "La matrícula",
+    "statement": "Cuando tenga valor, matricula debe contener cuatro dígitos seguidos de tres consonantes mayúsculas, sin vocales, Ñ ni Q.",
+    "table": "socios",
+    "name": "chk_socios_matricula",
+    "parts": [
+      [
+        "Cuando tenga valor, ",
+        ""
+      ],
+      [
+        "matricula",
+        "b"
+      ],
+      [
+        " debe contener ",
+        ""
+      ],
+      [
+        "cuatro dígitos seguidos de tres consonantes mayúsculas",
+        "r"
+      ],
+      [
+        ", ",
+        ""
+      ],
+      [
+        "sin vocales, Ñ ni Q",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Cuatro cifras",
+        "value": "[0-9]{4}",
+        "hint": "Primer bloque."
+      },
+      {
+        "title": "Tres letras admitidas",
+        "value": "[BCDFGHJKLMNPRSTVWXYZ]{3}",
+        "hint": "Sin vocales, Ñ ni Q."
+      }
+    ],
+    "relation": "+",
+    "summary": "^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$",
+    "steps": [
+      {
+        "condition": "REGEXP_LIKE(matricula, '________', 'c')",
+        "focus": "matricula",
+        "lead": "Separa cifras y letras."
+      },
+      {
+        "condition": "REGEXP_LIKE(matricula, '^[0-9]{4}________$', 'c')",
+        "focus": "[0-9]{4}",
+        "lead": "El primer bloque contiene cuatro dígitos."
+      },
+      {
+        "condition": "REGEXP_LIKE(matricula, '^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$', 'c')",
+        "focus": "[BCDFGHJKLMNPRSTVWXYZ]{3}",
+        "lead": "Completa el conjunto permitido de consonantes."
+      }
+    ],
+    "q": "¿Es válida 1234ABC?",
+    "a": "No. La A es una vocal y está excluida del conjunto admitido.",
+    "error": "[A-Z]{3} es demasiado amplio: admitiría vocales y Q.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 7,
+    "title": "Los tipos de cuota",
+    "statement": "tipo_cuota solo puede ser 'BASICA', 'PREMIUM' o 'ESTUDIANTE'.",
+    "table": "socios",
+    "name": "chk_socios_tipo",
+    "parts": [
+      [
+        "tipo_cuota",
+        "b"
+      ],
+      [
+        " solo puede ser ",
+        ""
+      ],
+      [
+        "'BASICA', 'PREMIUM' o 'ESTUDIANTE'",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Valor 1",
+        "value": "'BASICA'",
+        "hint": "Cuota básica."
+      },
+      {
+        "title": "Valor 2",
+        "value": "'PREMIUM'",
+        "hint": "Cuota premium."
+      },
+      {
+        "title": "Valor 3",
+        "value": "'ESTUDIANTE'",
+        "hint": "Cuota estudiante."
+      }
+    ],
+    "relation": "IN",
+    "summary": "tipo_cuota IN ('BASICA', 'PREMIUM', 'ESTUDIANTE')",
+    "steps": [
+      {
+        "condition": "tipo_cuota IN (________)",
+        "focus": "IN",
+        "lead": "¿Qué operador comprueba pertenencia a un conjunto?"
+      },
+      {
+        "condition": "tipo_cuota IN ('BASICA', 'PREMIUM', 'ESTUDIANTE')",
+        "focus": "'BASICA'",
+        "lead": "Incluye los tres valores de la lista."
+      }
+    ],
+    "q": "¿Sería válido 'FAMILIAR'?",
+    "a": "No. No aparece entre los tres tipos permitidos.",
+    "error": "La comparación de mayúsculas y minúsculas con IN depende de la intercalación de la columna.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 8,
+    "title": "La cuota mensual",
+    "statement": "En socios, la columna cuota debe estar entre 20 y 90 euros, ambos incluidos.",
+    "table": "socios",
+    "name": "chk_socios_cuota",
+    "parts": [
+      [
+        "En ",
+        ""
+      ],
+      [
+        "socios",
+        "b"
+      ],
+      [
+        ", la columna ",
+        ""
+      ],
+      [
+        "cuota",
+        "b"
+      ],
+      [
+        " debe estar ",
+        ""
+      ],
+      [
+        "entre",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "20 y 90 euros, ambos incluidos",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Límite inferior",
+        "value": "cuota >= 20",
+        "hint": "20 está incluido."
+      },
+      {
+        "title": "Límite superior",
+        "value": "cuota <= 90",
+        "hint": "90 está incluido."
+      }
+    ],
+    "relation": "AND",
+    "summary": "cuota BETWEEN 20 AND 90",
+    "steps": [
+      {
+        "condition": "cuota BETWEEN __ AND __",
+        "focus": "BETWEEN",
+        "lead": "¿Qué operador incluye los dos extremos?"
+      },
+      {
+        "condition": "cuota BETWEEN 20 AND 90",
+        "focus": "20 AND 90",
+        "lead": "Completa los dos límites."
+      }
+    ],
+    "q": "¿Son válidas las cuotas de 20 € y 90 €?",
+    "a": "Sí. BETWEEN incluye ambos extremos.",
+    "error": "Usar >20 y <90 excluiría por error los extremos.",
+    "originalSolved": true,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 9,
+    "title": "La cuota de estudiante",
+    "statement": "Si tipo_cuota es 'ESTUDIANTE', cuota no puede superar 35 euros.",
+    "table": "socios",
+    "name": "chk_socios_estudiante",
+    "parts": [
+      [
+        "Si ",
+        ""
+      ],
+      [
+        "tipo_cuota",
+        "b"
+      ],
+      [
+        " es ",
+        ""
+      ],
+      [
+        "'ESTUDIANTE'",
+        "g"
+      ],
+      [
+        ", ",
+        ""
+      ],
+      [
+        "cuota",
+        "b"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "no puede superar 35 euros",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "NO es estudiante",
+        "value": "tipo_cuota <> 'ESTUDIANTE'",
+        "hint": "Caso 1: no aplica el límite especial."
+      },
+      {
+        "title": "Sí es estudiante",
+        "value": "cuota <= 35",
+        "hint": "Caso 2: debe cumplir el máximo."
+      }
+    ],
+    "relation": "OR",
+    "summary": "tipo_cuota <> 'ESTUDIANTE' OR cuota <= 35",
+    "steps": [
+      {
+        "condition": "___________________________",
+        "focus": "",
+        "lead": "Convierte «SI ... ENTONCES ...» en una condición lógica."
+      },
+      {
+        "condition": "tipo_cuota <> 'ESTUDIANTE' OR ________",
+        "focus": "tipo_cuota <> 'ESTUDIANTE'",
+        "lead": "Primer caso: no es estudiante."
+      },
+      {
+        "condition": "tipo_cuota <> 'ESTUDIANTE' OR cuota <= 35",
+        "focus": "cuota <= 35",
+        "lead": "Segundo caso: la cuota respeta el máximo."
+      }
+    ],
+    "q": "¿Puede un socio PREMIUM pagar 60 €?",
+    "a": "Sí. Este CHECK solo impone el máximo de 35 € a ESTUDIANTE; los otros límites proceden del CHECK general de cuota.",
+    "error": "CHECK (cuota <= 35) impondría ese máximo a todos los socios.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "branches"
+  },
+  {
+    "n": 10,
+    "title": "La fecha de baja",
+    "statement": "En socios, fecha_baja puede ser NULL. Si existe, debe ser igual o posterior a fecha_alta.",
+    "table": "socios",
+    "name": "chk_socios_fechas",
+    "parts": [
+      [
+        "En ",
+        ""
+      ],
+      [
+        "socios",
+        "b"
+      ],
+      [
+        ", ",
+        ""
+      ],
+      [
+        "fecha_baja",
+        "b"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "puede ser NULL",
+        "g"
+      ],
+      [
+        ". Si existe, ",
+        ""
+      ],
+      [
+        "debe ser igual o posterior a",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "fecha_alta",
+        "b"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Sin fecha de baja",
+        "value": "fecha_baja IS NULL",
+        "hint": "El socio sigue de alta."
+      },
+      {
+        "title": "Con fecha de baja",
+        "value": "fecha_baja >= fecha_alta",
+        "hint": "No puede ser anterior al alta."
+      }
+    ],
+    "relation": "OR",
+    "summary": "fecha_baja IS NULL OR fecha_baja >= fecha_alta",
+    "steps": [
+      {
+        "condition": "fecha_baja IS NULL OR _________",
+        "focus": "fecha_baja IS NULL",
+        "lead": "Primera alternativa: no existe fecha de baja."
+      },
+      {
+        "condition": "fecha_baja IS NULL OR fecha_baja >= fecha_alta",
+        "focus": "fecha_baja >= fecha_alta",
+        "lead": "Segunda alternativa: orden cronológico correcto."
+      }
+    ],
+    "q": "¿Puede registrarse una baja anterior al alta?",
+    "a": "No. Si fecha_baja existe, debe ser igual o posterior a fecha_alta.",
+    "error": "NULL no se compara con = NULL: se comprueba mediante IS NULL.",
+    "originalSolved": true,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 11,
+    "title": "Un nombre sin espacios en los extremos",
+    "statement": "nombre debe tener al menos dos caracteres y no puede empezar ni terminar con un espacio.",
+    "table": "socios",
+    "name": "chk_socios_nombre",
+    "parts": [
+      [
+        "nombre",
+        "b"
+      ],
+      [
+        " debe tener ",
+        ""
+      ],
+      [
+        "al menos dos caracteres",
+        "r"
+      ],
+      [
+        " y ",
+        ""
+      ],
+      [
+        "no puede empezar ni terminar con un espacio",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Longitud mínima",
+        "value": "CHAR_LENGTH(nombre) >= 2",
+        "hint": "Dos o más caracteres."
+      },
+      {
+        "title": "Sin espacio inicial",
+        "value": "LEFT(nombre, 1) <> ' '",
+        "hint": "Revisa el primer carácter."
+      },
+      {
+        "title": "Sin espacio final",
+        "value": "RIGHT(nombre, 1) <> ' '",
+        "hint": "Revisa el último carácter."
+      }
+    ],
+    "relation": "AND",
+    "summary": "CHAR_LENGTH(nombre) >= 2 AND LEFT(nombre, 1) <> ' ' AND RIGHT(nombre, 1) <> ' '",
+    "steps": [
+      {
+        "condition": "CHAR_LENGTH(nombre) >= 2 AND ______",
+        "focus": "CHAR_LENGTH(nombre) >= 2",
+        "lead": "Comprueba primero la longitud."
+      },
+      {
+        "condition": "CHAR_LENGTH(nombre) >= 2 AND LEFT(nombre, 1) <> ' ' AND ______",
+        "focus": "LEFT(nombre, 1)",
+        "lead": "Añade la condición para el inicio."
+      },
+      {
+        "condition": "CHAR_LENGTH(nombre) >= 2 AND LEFT(nombre, 1) <> ' ' AND RIGHT(nombre, 1) <> ' '",
+        "focus": "RIGHT(nombre, 1)",
+        "lead": "Completa la condición para el final."
+      }
+    ],
+    "q": "¿Son válidos ' Ana' y 'A'?",
+    "a": "Ninguno. El primero empieza con espacio y el segundo tiene menos de dos caracteres.",
+    "error": "Necesitas las tres condiciones unidas por AND.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 12,
+    "title": "Los niveles de las clases",
+    "statement": "nivel solo puede ser 'INICIACION', 'MEDIO' o 'AVANZADO'.",
+    "table": "clases",
+    "name": "chk_clases_nivel",
+    "parts": [
+      [
+        "nivel",
+        "b"
+      ],
+      [
+        " solo puede ser ",
+        ""
+      ],
+      [
+        "'INICIACION', 'MEDIO' o 'AVANZADO'",
+        "g"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Iniciación",
+        "value": "'INICIACION'",
+        "hint": "Nivel 1."
+      },
+      {
+        "title": "Medio",
+        "value": "'MEDIO'",
+        "hint": "Nivel 2."
+      },
+      {
+        "title": "Avanzado",
+        "value": "'AVANZADO'",
+        "hint": "Nivel 3."
+      }
+    ],
+    "relation": "IN",
+    "summary": "nivel IN ('INICIACION', 'MEDIO', 'AVANZADO')",
+    "steps": [
+      {
+        "condition": "nivel IN ('INICIACION', 'MEDIO', 'AVANZADO')",
+        "focus": "IN",
+        "lead": "Compara ahora con tu propuesta autónoma."
+      }
+    ],
+    "q": "¿Se permite 'EXPERTO'?",
+    "a": "No. No forma parte de los niveles permitidos.",
+    "error": "IN comprueba alternativas, no una conjunción de igualdades.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 13,
+    "title": "Los días de clase",
+    "statement": "dia_semana solo puede ser 'L', 'M', 'X', 'J', 'V' o 'S': de lunes a sábado.",
+    "table": "clases",
+    "name": "chk_clases_dia",
+    "parts": [
+      [
+        "dia_semana",
+        "b"
+      ],
+      [
+        " solo puede ser ",
+        ""
+      ],
+      [
+        "'L', 'M', 'X', 'J', 'V' o 'S'",
+        "g"
+      ],
+      [
+        ": ",
+        ""
+      ],
+      [
+        "de lunes a sábado",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Días 1–3",
+        "value": "'L', 'M', 'X'",
+        "hint": "Lunes, martes y miércoles."
+      },
+      {
+        "title": "Días 4–6",
+        "value": "'J', 'V', 'S'",
+        "hint": "Jueves, viernes y sábado."
+      }
+    ],
+    "relation": "IN",
+    "summary": "dia_semana IN ('L', 'M', 'X', 'J', 'V', 'S')",
+    "steps": [
+      {
+        "condition": "dia_semana IN ('L', 'M', 'X', 'J', 'V', 'S')",
+        "focus": "IN",
+        "lead": "Compara ahora con tu propuesta autónoma."
+      }
+    ],
+    "q": "¿Se permite 'D'?",
+    "a": "No. Domingo no aparece en la lista de valores permitidos.",
+    "error": "X representa miércoles en la codificación de esta práctica.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 14,
+    "title": "El horario de las clases",
+    "statement": "hora_inicio debe ser igual o posterior a '07:00:00', hora_fin igual o anterior a '22:00:00' y el inicio debe ser anterior al fin.",
+    "table": "clases",
+    "name": "chk_clases_horario",
+    "parts": [
+      [
+        "hora_inicio",
+        "b"
+      ],
+      [
+        " debe ser ",
+        ""
+      ],
+      [
+        "igual o posterior a",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "'07:00:00'",
+        "g"
+      ],
+      [
+        ", ",
+        ""
+      ],
+      [
+        "hora_fin",
+        "b"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "igual o anterior a",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "'22:00:00'",
+        "g"
+      ],
+      [
+        " y ",
+        ""
+      ],
+      [
+        "el inicio debe ser anterior al fin",
+        "r"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Inicio permitido",
+        "value": "hora_inicio >= '07:00:00'",
+        "hint": "Desde las siete."
+      },
+      {
+        "title": "Fin permitido",
+        "value": "hora_fin <= '22:00:00'",
+        "hint": "Hasta las veintidós."
+      },
+      {
+        "title": "Orden válido",
+        "value": "hora_inicio < hora_fin",
+        "hint": "El inicio precede al fin."
+      }
+    ],
+    "relation": "AND",
+    "summary": "hora_inicio >= '07:00:00' AND hora_fin <= '22:00:00' AND hora_inicio < hora_fin",
+    "steps": [
+      {
+        "condition": "hora_inicio >= '07:00:00' AND ______",
+        "focus": "hora_inicio",
+        "lead": "Corrección: límite de la hora de inicio."
+      },
+      {
+        "condition": "hora_inicio >= '07:00:00' AND hora_fin <= '22:00:00' AND ______",
+        "focus": "hora_fin",
+        "lead": "Corrección: límite de la hora de fin."
+      },
+      {
+        "condition": "hora_inicio >= '07:00:00' AND hora_fin <= '22:00:00' AND hora_inicio < hora_fin",
+        "focus": "hora_inicio < hora_fin",
+        "lead": "Corrección: el inicio debe preceder al fin."
+      }
+    ],
+    "q": "¿Sería válida una clase de 10:00 a 09:00?",
+    "a": "No. Las dos horas están dentro de los límites, pero el inicio no es anterior al fin.",
+    "error": "Comprobar solo el intervalo general sin relacionar inicio y fin deja pasar horarios incorrectos.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  },
+  {
+    "n": 15,
+    "title": "El aforo de las clases",
+    "statement": "aforo debe estar entre 1 y 30, ambos incluidos. Además, plazas_ocupadas no puede superar aforo.",
+    "table": "clases",
+    "name": "chk_clases_aforo",
+    "parts": [
+      [
+        "aforo",
+        "b"
+      ],
+      [
+        " debe estar ",
+        ""
+      ],
+      [
+        "entre 1 y 30, ambos incluidos",
+        "r"
+      ],
+      [
+        ". Además, ",
+        ""
+      ],
+      [
+        "plazas_ocupadas",
+        "b"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "no puede superar",
+        "r"
+      ],
+      [
+        " ",
+        ""
+      ],
+      [
+        "aforo",
+        "b"
+      ],
+      [
+        ".",
+        ""
+      ]
+    ],
+    "blocks": [
+      {
+        "title": "Aforo permitido",
+        "value": "aforo BETWEEN 1 AND 30",
+        "hint": "Incluye ambos extremos."
+      },
+      {
+        "title": "Ocupación máxima",
+        "value": "plazas_ocupadas <= aforo",
+        "hint": "Nunca más plazas que el aforo."
+      }
+    ],
+    "relation": "AND",
+    "summary": "aforo BETWEEN 1 AND 30 AND plazas_ocupadas <= aforo",
+    "steps": [
+      {
+        "condition": "aforo BETWEEN 1 AND 30 AND ______",
+        "focus": "BETWEEN",
+        "lead": "Corrección: primer requisito, aforo entre 1 y 30."
+      },
+      {
+        "condition": "aforo BETWEEN 1 AND 30 AND plazas_ocupadas <= aforo",
+        "focus": "plazas_ocupadas <= aforo",
+        "lead": "Corrección: segundo requisito, ocupadas no supera aforo."
+      }
+    ],
+    "q": "¿Puede una clase tener aforo 20 y 25 plazas ocupadas?",
+    "a": "No. 25 supera el aforo de 20, aunque el aforo esté dentro del intervalo 1–30.",
+    "error": "Las dos condiciones deben unirse con AND. plazas_ocupadas ya es UNSIGNED.",
+    "originalSolved": false,
+    "planHint": "¿En cuántas partes se puede dividir la regla?",
+    "diagramKind": "generic"
+  }
+];
+const SOURCE_SQL_SOCIOS = `CREATE DATABASE pulsofit;
+USE pulsofit;
+
+CREATE TABLE socios (
+    id_socio INT AUTO_INCREMENT PRIMARY KEY,
+    codigo CHAR(7) NOT NULL UNIQUE,
+    dni CHAR(9) NOT NULL UNIQUE,
+    nombre VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(80) NOT NULL,
+    email VARCHAR(100),
+    telefono CHAR(9),
+    cp CHAR(5),
+    usuario VARCHAR(15) NOT NULL UNIQUE,
+    matricula CHAR(7),
+    tipo_cuota VARCHAR(10) NOT NULL DEFAULT 'BASICA',
+    cuota DECIMAL(5,2) NOT NULL,
+    fecha_alta DATE NOT NULL,
+    fecha_baja DATE
+);`;
+const SOURCE_SQL_CLASES = `CREATE TABLE clases (
+    id_clase INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(40) NOT NULL,
+    nivel VARCHAR(10) NOT NULL,
+    dia_semana CHAR(1) NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    aforo TINYINT UNSIGNED NOT NULL,
+    plazas_ocupadas TINYINT UNSIGNED NOT NULL DEFAULT 0
+);`;
+const escapeHTML=(s)=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+const number=n=>String(n).padStart(2,'0');
+const slides=[];
+const starts=new Map();
+function addSlide(ex,phase,title,body,note='',style=''){
+  slides.push({ex,phase,title,body,note,style});
+}
+function sourceLabels(e){
+  return `<div class="source-label"><span>Tabla: <code>${escapeHTML(e.table)}</code></span><span>Nombre: <code>${escapeHTML(e.name)}</code></span></div>`;
+}
+function getLevel(e){
+  if(e.n<=3)return 'MODELADO';
+  if(e.n<=6)return 'PRÁCTICA GUIADA';
+  if(e.n<=11)return 'RETIRADA DE AYUDAS';
+  if(e.n<=13)return 'SEMIAUTONOMÍA';
+  return 'PRÁCTICA AUTÓNOMA';
+}
+function markedStatement(e,stage){
+  const enabled=stage===1?['b']:stage===2?['b','g']:['b','g','r'];
+  return e.parts.map(([txt,k])=>k&&enabled.includes(k)?`<span class="mark ${k}">${escapeHTML(txt)}</span>`:escapeHTML(txt)).join('');
+}
+function statement(e,marked){
+  let t=marked||escapeHTML(e.statement);
+  return `<div class="statement ${e.statement.length>135?'long':''}">${t}</div>`;
+}
+function legend(stage){
+  return `<div class="legend"><span class="legend-b">Azul · columnas/entidades</span>${stage>=2?'<span class="legend-g">Verde · datos/valores</span>':''}${stage>=3?'<span class="legend-r">Rojo · reglas</span>':''}</div>`;
+}
+function analysisLabel(stage){return stage===1?'Identificamos los elementos':stage===2?'Localizamos los datos necesarios':'Localizamos las condiciones';}
+function analysisPrompt(stage){return stage===1?'¿Qué columnas aparecen y qué tabla se modifica?':stage===2?'¿Qué valores y características debemos respetar?':'¿Qué debe cumplirse exactamente? Justifica cada parte.';}
+function diagNode(b,index,visible,markNew=false){
+  let shown=index<visible;
+  return `<div class="node ${shown?(markNew?'new':''):'pending'}"><div class="node-title">${escapeHTML(b.title)}</div><div class="node-code">${shown?escapeHTML(b.value):'¿ ... ?'}</div></div>`;
+}
+function genericVisual(e,visible){
+  const full=visible>=e.blocks.length;
+  const pieces=e.blocks.map((b,i)=>`${i?`<div class="joiner">${e.relation==='AND'?'Y':e.relation==='OR'?'O':e.relation==='IN'?'O':'+'}</div>`:''}${diagNode(b,i,visible,i===visible-1 || (full && visible-e.blocks.length>=0 && i>0 && visible!==1))}`).join('');
+  let footer=full?escapeHTML(e.summary):'¿Qué expresión une todas las partes?';
+  return `<div class="visual">
+    <div class="v-root">${escapeHTML(e.table)} · ${escapeHTML(e.name)}</div>
+    <div class="v-down"></div>
+    <div class="nodes">${pieces}</div>
+    <div class="v-down"></div>
+    <div class="summary-expression ${full?'':'pending'}">${footer}</div>
+  </div>`;
+}
+function postalVisual(e,visible){
+  const full=visible>=4;
+  const groups=e.blocks.slice(0,3).map((b,i)=>`${i?'<div class="joiner">O</div>':''}${diagNode(b,i,visible,visible>0 && i===visible-1)}`).join('');
+  return `<div class="visual postal-visual">
+    <div class="group-visual"><div class="group-heading">Primera parte: elegir una de las tres alternativas</div><div class="nodes">${groups}</div></div>
+    <div class="postal-row">
+      <div class="postal-tail ${full?'':'pending'}"><span>+</span><b>${full?'[0-9]{3}':'¿Tres dígitos?'}</b></div>
+      <div class="summary-expression ${full?'':'pending'}">${full?escapeHTML(e.summary):'¿Cómo se unen las cuatro partes?'}</div>
+    </div>
+  </div>`;
+}
+function branchVisual(e,visible){
+   const full=visible>=2;
+   return `<div class="visual">
+     <div class="branch-root">¿El socio tiene la cuota ESTUDIANTE?</div>
+     <div class="v-down"></div>
+     <div class="branch-grid">
+       <div class="branch-card ${visible>=1?'':'pending'}"><div class="branch-tag">NO</div><div class="branch-code">${visible>=1?escapeHTML(e.blocks[0].value):'¿ ... ?'}</div></div>
+       <div class="branch-card ${full?'':'pending'}"><div class="branch-tag">SÍ</div><div class="branch-code">${full?escapeHTML(e.blocks[1].value):'¿ ... ?'}</div></div>
+     </div>
+     <div class="summary-expression ${full?'':'pending'}">${full?escapeHTML(e.summary):'¿Qué operador permite cualquiera de los casos? '}</div>
+   </div>`;
+}
+function visual(e,visible){
+ return e.diagramKind==='postal'?postalVisual(e,visible):e.diagramKind==='branches'?branchVisual(e,visible):genericVisual(e,visible);
+}
+function formatSQL(e,cond,focus){
+ let decorated=escapeHTML(cond);
+ if(focus){let j=cond.indexOf(focus);
+   if(j>=0){decorated=escapeHTML(cond.slice(0,j))+`<span class="new-code">${escapeHTML(focus)}</span>`+escapeHTML(cond.slice(j+focus.length));}
+ }
+ return `<span>ALTER TABLE ${escapeHTML(e.table)}</span>\n    ADD CONSTRAINT ${escapeHTML(e.name)}\n    CHECK (\n        ${decorated}\n    );`;
+}
+function codePanel(e,step,isFinal){
+ return `<div class="code-card"><div class="code-head"><span>SQL · ${escapeHTML(e.name)}</span><span class="code-status ${isFinal?'complete':''}">${isFinal?'SOLUCIÓN COMPLETA':'BORRADOR · NO EJECUTAR'}</span></div><pre><code>${formatSQL(e,step.condition,step.focus)}</code></pre></div>`;
+}
+function originalSolvedTag(e){return e.originalSolved?'<span class="challenge-flag">Ejemplo resuelto en la práctica original</span>':'';}
+function independentPrompt(e){
+ return `<div class="autonomous"><div class="go">Tu turno: resuelve sin ayudas</div><div class="body">Analiza, representa y escribe la sentencia SQL completa. Después, avanza para contrastarla con la corrección.</div><div class="space"></div></div>`;
+}
+
+// Portada e instrucciones de funcionamiento.
+addSlide(null,'Inicio','',`<div class="cover"><div class="overline">Bases de datos · 1.º DAM</div><h1>PulsoFit:<br>restricciones CHECK<br>paso a paso</h1><p class="subtitle">15 ejercicios para interpretar, representar, resolver y comprobar reglas SQL.</p><div class="tags"><span>MySQL 8.0.16 o posterior</span><span>Presentación de aula</span><span>Sin conexión</span></div></div>`,'PulsoFit · Práctica de recuperación','cover-slide');
+addSlide(null,'Metodología','Cómo trabajaremos',`<div class="pill-row"><div class="pill">PLANTEAR</div><span class="arrow-inline">→</span><div class="pill">ANALIZAR</div><span class="arrow-inline">→</span><div class="pill">REPRESENTAR</div><span class="arrow-inline">→</span><div class="pill">RESOLVER</div><span class="arrow-inline">→</span><div class="pill">COMPROBAR</div></div><div class="think-box"><strong>Primero piensa y responde.</strong> Después utiliza la flecha derecha para mostrar el siguiente paso. Las ayudas van desapareciendo en los últimos ejercicios.</div><div class="context-note">Navegación: ← y → cambian de diapositiva; Inicio y Fin van a los extremos. El índice superior salta al comienzo de un ejercicio. Pantalla completa e impresión disponibles arriba.</div>`,'Una diapositiva = una decisión o un paso significativo.');
+const SRC_SOCIOS_A=SOURCE_SQL_SOCIOS.split('\n').slice(0,11).join('\n');
+const SRC_SOCIOS_B=SOURCE_SQL_SOCIOS.split('\n').slice(11).join('\n');
+addSlide(null,'Contexto','Código inicial · socios (1 de 2)',`<div class="two-col"><pre class="schema-code">${escapeHTML(SRC_SOCIOS_A)}</pre><div class="schema-aside"><b>Es el código facilitado en la práctica original.</b><br><br>La sentencia <code>CREATE TABLE socios</code> continúa en la diapositiva siguiente.<br><br>Ambos fragmentos forman una única sentencia: no se ejecutan por separado.</div></div>`,'Primer fragmento del código inicial.');
+addSlide(null,'Contexto','Código inicial · socios (2 de 2)',`<div class="two-col"><pre class="schema-code">${escapeHTML(SRC_SOCIOS_B)}</pre><div class="schema-aside"><b>Conserva intacto el código inicial.</b><br><br>Después de crear las tablas, añade una sentencia por cada CHECK.<br><br>La entrega es un único archivo <code>.sql</code>.</div></div>`,'Segundo fragmento del código inicial.');
+addSlide(null,'Contexto','Código inicial · Tabla clases',`<div class="two-col"><pre class="schema-code">${escapeHTML(SOURCE_SQL_CLASES)}</pre><div class="schema-aside"><b>Dos tablas:</b> <code>socios</code> y <code>clases</code>.<br><br>La práctica original exige <b>11 CHECK de socios y 4 de clases</b>.<br><br>Cada nombre de restricción se mantiene exactamente como aparece en el enunciado.</div></div>`,'No se requieren INSERT ni pruebas con registros.');
+
+EXERCISES.forEach(e=>{
+  starts.set(e.n,slides.length);
+  addSlide(e,'Plantear',e.title,`<div class="exercise-start">${originalSolvedTag(e)}${statement(e)}${sourceLabels(e)}</div>`,'Lee el enunciado original y piensa antes de avanzar.','original');
+  let analysis=[];
+  if(e.n<=3)analysis=[1,2,3];
+  else if(e.n<=6)analysis=[2,3];
+  else if(e.n<=10)analysis=[3];
+  else if(e.n<=13){
+    addSlide(e,'Analizar', 'Primero, identifícalo tú',`<div class="think-box"><strong>Sin subrayados:</strong> indica qué datos intervienen, qué valores se permiten y cuál es la condición que debes imponer.</div>${statement(e)}`,'Justifica tu análisis antes de mostrar la corrección.');
+    analysis=[3];
+  } else {
+    addSlide(e,'Autonomía','Resuelve el ejercicio por tu cuenta',independentPrompt(e),'No se ofrecen plantillas ni pistas antes de la corrección.');
+    analysis=[3];
+  }
+  analysis.forEach(stage=>{
+    addSlide(e,'Analizar',analysisLabel(stage),`${statement(e,markedStatement(e,stage))}${legend(stage)}<div class="think-box"><strong>Pregunta:</strong> ${analysisPrompt(stage)}</div>`,'Los colores aparecen directamente en el enunciado.');
+  });
+  let pStages=[];
+  if(e.n<=4)pStages=[0,1,e.blocks.length];
+  else if(e.n<=11)pStages=[0,e.blocks.length];
+  else pStages=[e.blocks.length];
+  pStages=[...new Set(pStages)];
+  pStages.forEach((v,i)=>{
+    const full=v===e.blocks.length;
+    addSlide(e,'Representar',full?'Planificación resuelta':i===0?'Organiza la información':'Añadimos una parte',
+      `${visual(e,v)}<div class="context-note">${escapeHTML(full?'Compara la representación con la que preparaste.':e.planHint)}</div>`,
+      full?'La representación explica por qué usamos estos operadores.':'Antes de avanzar, decide qué elemento falta.');
+  });
+  e.steps.forEach((step,i)=>{
+    const final=i===e.steps.length-1;
+    const codeStageTitle=final?'Solución SQL completa':`Construimos el CHECK · Paso ${i+1}`;
+    addSlide(e,'Resolver',codeStageTitle,`<div class="code-sentence">${escapeHTML(step.lead)}</div>${codePanel(e,step,final)}${final?'<div class="solution-note">Compara la condición completa con el requisito del enunciado.</div>':'<div class="solution-note">La sentencia todavía es un borrador. Piensa qué parte falta antes de continuar.</div>'}`,
+      final?'Solución completa: puedes contrastar tu archivo .sql.':'Los elementos recién incorporados aparecen resaltados.');
+  });
+  addSlide(e,'Comprobar','¿Lo has comprendido?',`<div class="check-panel"><div class="question-card"><div class="qmark">?</div><div class="question-text">${escapeHTML(e.q)}</div></div><div class="quiet-card"><b>Antes de avanzar</b><p>Responde en voz alta o por escrito e indica exactamente qué parte del CHECK justifica tu respuesta.</p></div></div>`,'Comprueba primero tu razonamiento.');
+  addSlide(e,'Comprobar','Corrección y error habitual',`<div class="answer-card"><div class="small-cap">Respuesta razonada</div><p class="answer">${escapeHTML(e.a)}</p></div><div class="error-card"><b>Error a evitar:</b> ${escapeHTML(e.error)}</div>`,'Fin de este ejercicio. Continúa con el siguiente.');
+});
+addSlide(null,'Cierre','Lo que debes saber hacer',`<div class="mini-list"><div class="mini">Leer el requisito</div><div class="mini">Separar sus condiciones</div><div class="mini">Elegir los operadores</div><div class="mini">Representar la regla</div><div class="mini">Construir el CHECK</div><div class="mini">Justificar y comprobar</div></div><div class="think-box"><strong>Reto de salida:</strong> explica cómo transformarías un enunciado nuevo en un <code>ALTER TABLE ... ADD CONSTRAINT ... CHECK</code> sin mirar los ejemplos.</div>`,'15 restricciones · 11 para socios · 4 para clases.');
+
+const deck=document.getElementById('deck');
+const toc=document.getElementById('toc');
+function renderSlide(s,i){
+ const label=s.ex?`EJERCICIO ${number(s.ex.n)} · ${getLevel(s.ex)}`:'PULSOFIT · 1.º DAM';
+ const title=s.title?`<h1>${escapeHTML(s.title)}</h1>`:'';
+ return `<section class="slide ${s.style||''}" id="slide-${i+1}" aria-label="Diapositiva ${i+1}: ${escapeHTML(s.title||'Portada')}" aria-hidden="true" data-e="${s.ex?s.ex.n:0}">
+     <div class="slide-top"><span class="eyebrow">${escapeHTML(label)}</span><span class="phase">${escapeHTML(s.phase)}</span></div>
+     <div class="ruleline"></div>
+     <div class="slide-main">${title}${s.body}</div>
+     <div class="slide-tail"><span>${escapeHTML(s.note)}</span><span class="exercise-meta">${s.ex?`EJ. ${number(s.ex.n)} / 15`:'PULSOFIT'}</span></div>
+   </section>`;
+}
+deck.innerHTML=slides.map(renderSlide).join('');
+for(const e of EXERCISES){
+ const opt=document.createElement('option');opt.value=String(starts.get(e.n));opt.textContent=`${number(e.n)} · ${e.title}`;toc.appendChild(opt);
+}
+const elements=[...deck.querySelectorAll('.slide')];
+let current=0;
+function jump(to){
+ const next=Math.min(Math.max(0,Number(to)||0),slides.length-1);
+ if(elements[current]){elements[current].classList.remove('active');elements[current].setAttribute('aria-hidden','true');}
+ current=next;
+ elements[current].classList.add('active');elements[current].setAttribute('aria-hidden','false');
+ elements[current].scrollTop=0;
+ const s=slides[current];
+ document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;
+ document.getElementById('progressFill').style.width=`${((current+1)/slides.length)*100}%`;
+ document.getElementById('slideLabel').textContent=s.ex?`Ejercicio ${number(s.ex.n)} · ${s.phase}`:s.phase;
+ document.getElementById('prevBtn').disabled=current===0;
+ document.getElementById('nextBtn').disabled=current===slides.length-1;
+ let n=s.ex?s.ex.n:0;
+ toc.value=String(n?starts.get(n):0);
+}
+document.getElementById('prevBtn').addEventListener('click',()=>jump(current-1));
+document.getElementById('nextBtn').addEventListener('click',()=>jump(current+1));
+toc.addEventListener('change',()=>{jump(Number(toc.value));toc.blur();});
+document.addEventListener('keydown',event=>{
+  if(event.altKey||event.ctrlKey||event.metaKey)return;
+  const t=event.target;
+  if(t && ['SELECT','INPUT','TEXTAREA'].includes(t.tagName))return;
+  if(event.key==='ArrowRight'||event.key==='PageDown'||event.key===' '){event.preventDefault();jump(current+1)}
+  else if(event.key==='ArrowLeft'||event.key==='PageUp'){event.preventDefault();jump(current-1)}
+  else if(event.key==='Home'){event.preventDefault();jump(0)}
+  else if(event.key==='End'){event.preventDefault();jump(slides.length-1)}
+});
+document.getElementById('fullscreenBtn').addEventListener('click',async()=>{
+  try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen();}
+  catch(e){alert('Este navegador no permite activar la pantalla completa desde esta página. Usa F11.');}
+});
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+jump(0);
+// Datos verificables para la revisión del profesor (no visibles en pantalla).
+window.PULSOFIT_DECK_INFO={totalSlides:slides.length,exercises:EXERCISES.length,
+  starts:Object.fromEntries(starts),slugs:EXERCISES.map(e=>e.name),lastSlide:slides.length-1};
+</script>
+</body>
+</html>
