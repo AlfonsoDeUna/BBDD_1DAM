@@ -3,6 +3,6 @@
 // Nunca usar aquí la contraseña de la base de datos ni la service_role/secret key.
 window.PF_CONFIG = Object.freeze({
   url: 'https://icemxcczzopnpsgsuhnq.supabase.co',
-  publishableKey: 'PON_AQUI_LA_CLAVE_PUBLICABLE_DE_SUPABASE',
+  publishableKey: 'sb_publishable_QUumZKZbRbaJ8yK2HCnkjw_oEBrwexT',
   activityId: 'pulsofit-checks-1dam'
 });
