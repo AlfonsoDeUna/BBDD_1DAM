@@ -14,16 +14,16 @@ El enlace al dashboard es público, **pero los resultados no lo son**: necesitan
 
 ## Estado de la conexión
 
-**PENDIENTE DE ACTIVAR SUPABASE.** Se han preparado las tres páginas y el esquema, pero esta publicación todavía no puede recoger respuestas hasta terminar la configuración del proyecto. No hay datos de alumnos reales verificados.
+**SUPABASE CONECTADO Y ESQUEMA INSTALADO.** Las 15 preguntas, sus 15 respuestas correctas privadas y los cinco controles están creados en el proyecto `icemxcczzopnpsgsuhnq`. La web ya utiliza la clave publicable. **PENDIENTE:** habilitar los inicios de sesión anónimos en Supabase Auth y crear/autorizar una cuenta de profesor. Hasta entonces no está listo para utilizarlo con alumnos reales.
 
 Se reutiliza un único proyecto Supabase y el mismo esquema se puede ampliar con otras actividades. Las respuestas de cada actividad permanecen separadas por identificador.
 
 ### Pasos de activación (solo profesor/administrador)
 
-1. **Aplicar el SQL privado de instalación**, entregado al profesor fuera del repositorio. Contiene las 15 claves correctas; **no debe subirse a GitHub**. El archivo [supabase_schema_public.sql](supabase_schema_public.sql) contiene una versión consultable sin esas claves.
-2. En Supabase, activar **Authentication → Providers → Anonymous Sign-ins** para que el alumnado entre sin correo. Valorar CAPTCHA y los límites de registro para evitar altas abusivas.
+1. **Completado:** esquema y preguntas cargados, incluida la corrección en el esquema privado `pf_private`. El SQL con soluciones no debe subirse a GitHub. La versión sin soluciones está en [supabase_schema_public.sql](supabase_schema_public.sql).
+2. **Pendiente:** en [Supabase Auth → Providers](https://supabase.com/dashboard/project/icemxcczzopnpsgsuhnq/auth/providers), activar **Anonymous Sign-ins** para que el alumnado entre sin correo. Valorar CAPTCHA y los límites de registro para evitar altas abusivas.
 3. Crear o identificar un **usuario profesor** en Authentication → Users, y anotar su *User UID*. En SQL Editor, ejecutar `insert into pf_private.teachers(user_id) values ('AQUI_EL_UUID_REAL') on conflict do nothing;`.
-4. En Supabase → Project Settings → API Keys, copiar solo la **clave publicable** (`sb_publishable_...` o la clave pública `anon` heredada). Editar [config.js](config.js) y sustituir `PON_AQUI_LA_CLAVE_PUBLICABLE_DE_SUPABASE`. **No utilizar nunca `service_role`, clave secreta, contraseña de la base de datos ni tokens de administración.**
+4. **Completado:** [config.js](config.js) contiene la clave publicable `sb_publishable_...` de este proyecto. **No utilizar nunca `service_role`, clave secreta, contraseña de la base de datos ni tokens de administración.**
 5. Entrar al [dashboard](profesor.html) con correo y contraseña del **usuario de Supabase Auth** que se ha autorizado; abrir el control 1 y pedir al alumnado que entre a [su página](alumnos.html).
 6. Comprobar una respuesta de prueba y que el resultado llega al dashboard antes de utilizarlo con una clase real.
 
