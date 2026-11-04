@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Índice de laboratorios, prácticas y recursos de creación de tablas y restricciones SQL para Bases de Datos de 1.º DAM.">
+  <title>Laboratorios y prácticas · Creación de tablas · 1.º DAM</title>
+  <style>
+    :root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--ink:#1b2734;--muted:#576477;--line:#d9e0e8;--blue:#2354a7;--pale:#eaf1fc;--warm:#fff8e8}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
+    a{color:var(--blue);text-underline-offset:3px}a:hover{text-decoration-thickness:2px}a:focus-visible{outline:3px solid #f7b34d;outline-offset:4px}
+    .wrap{max-width:1040px;padding:0 22px;margin:auto}header{background:#fff;border-bottom:1px solid var(--line);padding:48px 0 34px}
+    .eyebrow{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--blue)}h1{font-size:clamp(30px,5vw,49px);line-height:1.14;letter-spacing:-.03em;margin:10px 0 12px}header p{max-width:780px;color:var(--muted);font-size:18px;margin:0 0 24px}
+    .toplinks{display:flex;flex-wrap:wrap;gap:10px}.toplinks a{border:1px solid var(--line);padding:8px 12px;border-radius:7px;background:#fff;text-decoration:none;font-weight:700;font-size:14px}
+    main{padding-top:24px;padding-bottom:60px}.info{background:var(--pale);padding:16px 20px;border-radius:9px;margin:16px 0 34px}.info p{margin:0}
+    h2{font-size:25px;margin:34px 0 8px;letter-spacing:-.025em}section>p{color:var(--muted);margin:0 0 17px}.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    article{background:var(--surface);border:1px solid var(--line);padding:21px;border-radius:10px;display:flex;flex-direction:column;gap:9px}
+    article .meta{font-size:13px;font-weight:700;color:#465c79;text-transform:uppercase;letter-spacing:.025em}
+    article h3{font-size:20px;line-height:1.27;margin:0}article p{color:var(--muted);margin:0;flex:1}article .links{margin-top:5px;display:flex;gap:11px;flex-wrap:wrap;font-weight:700;font-size:14px}
+    .resource{padding:12px 0;border-bottom:1px solid var(--line)}.resource:last-child{border-bottom:0}.resource p{margin:2px 0;color:var(--muted)}
+    .warning{background:var(--warm);border-left:4px solid #c08416;padding:14px 18px;border-radius:5px;margin-top:16px}
+    code{font-family:Consolas,monospace;background:#edf0f5;border-radius:4px;padding:2px 4px}
+    footer{border-top:1px solid var(--line);background:#fff;color:var(--muted);padding:22px 0;font-size:14px}
+    @media(max-width:660px){.items{grid-template-columns:1fr}header{padding-top:32px}article{padding:18px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">Bases de Datos · 1.º DAM</div>
+      <h1>Laboratorios y prácticas de creación de tablas</h1>
+      <p>Índice de actividades para aprender claves, relaciones, restricciones, expresiones regulares y SQL. Los materiales están ordenados para facilitar la preparación y el trabajo de clase.</p>
+      <nav class="toplinks" aria-label="Ir a una sección">
+        <a href="#claves">Claves y relaciones</a><a href="#restricciones">Restricciones</a><a href="#aplicacion">Aplicación y repaso</a><a href="#profesor">Recursos de aula</a><a href="#apoyo">Material de apoyo</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <aside class="info"><p><strong>Cómo utilizar este índice:</strong> abre cada actividad con «Ir a la actividad». La numeración propone un recorrido progresivo, pero puedes elegir recursos por tema. No es necesario descargar los archivos HTML.</p></aside>
+    <section id="claves" aria-labelledby="tit-claves">
+      <h2 id="tit-claves">1. Claves y relaciones</h2>
+      <p>De identificar una fila a representar las relaciones entre tablas y escribir el SQL.</p>
+      <div class="items">
+        <article><div class="meta">01 · Laboratorio interactivo</div><h3>Claves primarias y foráneas</h3><p>Aprende PK y FK, relaciones 1:N, N:M y 1:1, mediante predicciones, simulaciones, práctica SQL y cuaderno exportable.</p><div class="links"><a href="laboratorio_claves.html">Ir a la actividad</a><a href="guion_mysql_claves.sql">Guion SQL</a></div></article>
+        <article><div class="meta">02 · Presentación guiada</div><h3>Ejercicios de PK y FK</h3><p>6 ejercicios y 49 diapositivas: leer enunciados, identificar entidades y atributos, diseñar tablas y completar soluciones SQL paso a paso.</p><div class="links"><a href="EJERCICIOS_GUIADOS_PK_FK/">Ir a la actividad</a><a href="EJERCICIOS_GUIADOS_PK_FK/readme.md">Instrucciones</a></div></article>
+      </div>
+    </section>
+    <section id="restricciones" aria-labelledby="tit-restricciones">
+      <h2 id="tit-restricciones">2. Restricciones y validación</h2>
+      <p>Aprender a controlar los datos que admite una tabla, primero con CHECK y después con patrones.</p>
+      <div class="items">
+        <article><div class="meta">03 · Laboratorio interactivo</div><h3>Restricciones CHECK</h3><p>Comparaciones, rangos, NULL, condiciones entre columnas, ALTER TABLE y una zona para probar tablas.</p><div class="links"><a href="laboratorio_check.html">Ir a la actividad</a></div></article>
+        <article><div class="meta">05 · Laboratorio interactivo</div><h3>Expresiones regulares y REGEXP_LIKE</h3><p>11 niveles, desde patrones literales y anclas hasta cuantificadores, formatos españoles y CHECK con REGEXP_LIKE.</p><div class="links"><a href="laboratorio_regexp_like.html">Ir a la actividad</a><a href="SECRETODRGRINBERG/datasheet-regexp-mysql.pdf">Datasheet PDF</a></div></article>
+      </div>
+    </section>
+    <section id="aplicacion" aria-labelledby="tit-aplicacion">
+      <h2 id="tit-aplicacion">3. Prácticas de aplicación y repaso</h2>
+      <p>Trasladar lo aprendido a casos concretos y comprobar que se entiende.</p>
+      <div class="items">
+        <article><div class="meta">04 · Práctica guiada · 9 diapositivas</div><h3>LaLiga → Base de Datos</h3><p>Crear tablas equipo y jugador, relación 1:N, PK, FK y 2 CHECK; generar INSERT y ejecutar consultas SELECT.</p><div class="links"><a href="PR%C3%81CTICA_LIGA_FUTBOL/">Ir a la actividad</a><a href="PR%C3%81CTICA_LIGA_FUTBOL/readme.md">Descripción</a></div></article>
+        <article><div class="meta">06 · Práctica SQL individual</div><h3>PulsoFit: tablas y 15 CHECK</h3><p>Partiendo de las tablas socios y clases, añadir 15 restricciones CHECK con ALTER TABLE y entregar un archivo .sql.</p><div class="links"><a href="EXPRESIONES%20REGULARES/">Ir a la práctica</a></div></article>
+        <article><div class="meta">07 · Escape room · Repaso</div><h3>El secreto del doctor Grinberg</h3><p>Juego de ficción con 5 salas y 10 pruebas de expresiones regulares y restricciones CHECK.</p><div class="links"><a href="SECRETODRGRINBERG/">Entrar al juego</a><a href="SECRETODRGRINBERG/tablon.html">Tablón del aula</a></div></article>
+        <article><div class="meta">08 · Evaluación formativa</div><h3>PulsoFit: explicación y controles</h3><p>Presentación de 15 ejercicios, con 5 pausas para controles de 3 preguntas y seguimiento de respuestas.</p><div class="links"><a href="EJERCICIO_PULSOFIT_CHECKS/">Presentación</a><a href="EJERCICIO_PULSOFIT_CHECKS/alumnos.html">Responder controles</a></div></article>
+      </div>
+    </section>
+    <section id="profesor" aria-labelledby="tit-profesor">
+      <h2 id="tit-profesor">4. Recursos para organizar la clase</h2>
+      <div class="resource"><strong>PulsoFit · Panel del profesor.</strong><p>Abrir/cerrar controles, ver resultados, exportar CSV y reiniciar intentos.</p><a href="EJERCICIO_PULSOFIT_CHECKS/profesor.html">Abrir panel</a> · <a href="EJERCICIO_PULSOFIT_CHECKS/readme.md">Leer configuración</a></div>
+      <div class="resource"><strong>Doctor Grinberg · Tablón de progreso.</strong><p>Proyectar el avance del grupo en una partida; hay una demostración con datos ficticios.</p><a href="SECRETODRGRINBERG/tablon.html">Abrir tablón</a> · <a href="SECRETODRGRINBERG/tablon.html?demo=1">Ver demostración</a></div>
+      <div class="warning"><strong>Atención al uso con alumnos:</strong> la guía de PulsoFit indica que falta activar el acceso anónimo y autorizar la cuenta de profesor en Supabase. Consulta las instrucciones y haz una prueba antes de usar sus controles en clase. La práctica SQL PulsoFit funciona como material independiente.</div>
+    </section>
+    <section id="apoyo" aria-labelledby="tit-apoyo">
+      <h2 id="tit-apoyo">5. Materiales de apoyo y código</h2>
+      <div class="resource"><strong>Guion MySQL de claves.</strong><p>Ejemplos, relaciones, operaciones de prueba y un reto final para ejecutar en una base de prácticas.</p><a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/blob/main/1_CREACION_TABLAS/guion_mysql_claves.sql">Ver guion SQL en GitHub</a></div>
+      <div class="resource"><strong>Ficha REGEXP_LIKE (PDF).</strong><p>Documento de consulta sobre patrones y restricciones de expresiones regulares.</p><a href="SECRETODRGRINBERG/datasheet-regexp-mysql.pdf">Abrir PDF</a></div>
+      <div class="resource"><strong>Repositorio y documentación.</strong><p>Acceso a los archivos fuente HTML, JS, CSS y SQL y a las instrucciones de cada proyecto.</p><a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/tree/main/1_CREACION_TABLAS">Explorar carpeta GitHub</a> · <a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/blob/main/1_CREACION_TABLAS/laboratorios.md">Ver índice Markdown</a></div>
+    </section>
+  </main>
+  <footer><div class="wrap">Bases de Datos · 1.º DAM · Índice de recursos de <code>1_CREACION_TABLAS</code></div></footer>
+</body>
+</html>
