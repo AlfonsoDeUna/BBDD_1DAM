@@ -2,6 +2,14 @@
 
 Materiales y actividades para aprender a crear tablas, definir restricciones y trabajar con bases de datos.
 
+## Índice general de laboratorios y prácticas
+
+**[Abrir índice web de actividades (creación de tablas y claves)](https://alfonsodeuna.github.io/BBDD_1DAM/1_CREACION_TABLAS/)** · [Ver índice Markdown](1_CREACION_TABLAS/laboratorios.md)
+
+El índice reúne las prácticas de [`1_CREACION_TABLAS`](1_CREACION_TABLAS/) y el recorrido de [`2_CLAVES`](2_CLAVES/), con enlaces directos a clases guiadas, laboratorios, ejercicios y evaluación.
+
+**[Entrar directamente al laboratorio completo de claves](https://alfonsodeuna.github.io/BBDD_1DAM/2_CLAVES/)**
+
 ## Práctica: LaLiga y bases de datos
 
 Presentación guiada para 1.º DAM: tablas `equipo` y `jugador`, relación 1:N, restricciones `CHECK`, obtención de datos con IA y consultas `SELECT`.
