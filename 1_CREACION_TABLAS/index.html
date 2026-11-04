@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Índice de laboratorios, prácticas y recursos de creación de tablas y restricciones SQL para Bases de Datos de 1.º DAM.">
-  <title>Laboratorios y prácticas · Creación de tablas · 1.º DAM</title>
+  <title>Laboratorios, creación de tablas y claves · 1.º DAM</title>
   <style>
     :root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--ink:#1b2734;--muted:#576477;--line:#d9e0e8;--blue:#2354a7;--pale:#eaf1fc;--warm:#fff8e8}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
@@ -17,6 +17,7 @@
     article{background:var(--surface);border:1px solid var(--line);padding:21px;border-radius:10px;display:flex;flex-direction:column;gap:9px}
     article .meta{font-size:13px;font-weight:700;color:#465c79;text-transform:uppercase;letter-spacing:.025em}
     article h3{font-size:20px;line-height:1.27;margin:0}article p{color:var(--muted);margin:0;flex:1}article .links{margin-top:5px;display:flex;gap:11px;flex-wrap:wrap;font-weight:700;font-size:14px}
+    .lesson-list{margin:6px 0 0;padding-left:21px;font-size:14px;line-height:1.55}.lesson-list li{margin-bottom:6px}
     .resource{padding:12px 0;border-bottom:1px solid var(--line)}.resource:last-child{border-bottom:0}.resource p{margin:2px 0;color:var(--muted)}
     .warning{background:var(--warm);border-left:4px solid #c08416;padding:14px 18px;border-radius:5px;margin-top:16px}
     code{font-family:Consolas,monospace;background:#edf0f5;border-radius:4px;padding:2px 4px}
@@ -28,10 +29,10 @@
   <header>
     <div class="wrap">
       <div class="eyebrow">Bases de Datos · 1.º DAM</div>
-      <h1>Laboratorios y prácticas de creación de tablas</h1>
-      <p>Índice de actividades para aprender claves, relaciones, restricciones, expresiones regulares y SQL. Los materiales están ordenados para facilitar la preparación y el trabajo de clase.</p>
+      <h1>Laboratorios, creación de tablas y claves</h1>
+      <p>Índice conjunto de 1_CREACION_TABLAS y 2_CLAVES. Accede a prácticas, simulaciones, presentaciones, ejercicios SQL y actividades evaluables de Bases de Datos.</p>
       <nav class="toplinks" aria-label="Ir a una sección">
-        <a href="#claves">Claves y relaciones</a><a href="#restricciones">Restricciones</a><a href="#aplicacion">Aplicación y repaso</a><a href="#profesor">Recursos de aula</a><a href="#apoyo">Material de apoyo</a>
+        <a href="#claves">Claves y relaciones</a><a href="#unidad-claves">Unidad 2_CLAVES</a><a href="#restricciones">Restricciones</a><a href="#aplicacion">Aplicación y repaso</a><a href="#profesor">Recursos de aula</a><a href="#apoyo">Material de apoyo</a>
       </nav>
     </div>
   </header>
@@ -43,6 +44,69 @@
       <div class="items">
         <article><div class="meta">01 · Laboratorio interactivo</div><h3>Claves primarias y foráneas</h3><p>Aprende PK y FK, relaciones 1:N, N:M y 1:1, mediante predicciones, simulaciones, práctica SQL y cuaderno exportable.</p><div class="links"><a href="laboratorio_claves.html">Ir a la actividad</a><a href="guion_mysql_claves.sql">Guion SQL</a></div></article>
         <article><div class="meta">02 · Presentación guiada</div><h3>Ejercicios de PK y FK</h3><p>6 ejercicios y 49 diapositivas: leer enunciados, identificar entidades y atributos, diseñar tablas y completar soluciones SQL paso a paso.</p><div class="links"><a href="EJERCICIOS_GUIADOS_PK_FK/">Ir a la actividad</a><a href="EJERCICIOS_GUIADOS_PK_FK/readme.md">Instrucciones</a></div></article>
+        <article><div class="meta">02A · Unidad ampliada · 2_CLAVES</div><h3>Recorrido completo de claves y relaciones</h3><p>Explicaciones por pantallas, práctica con SQL, simulación de integridad referencial, ejercicios y actividad evaluable.</p><div class="links"><a href="../2_CLAVES/">Abrir laboratorio completo</a><a href="#unidad-claves">Ver sus actividades</a></div></article>
+      </div>
+    </section>
+
+    <section id="unidad-claves" aria-labelledby="tit-unidad-claves">
+      <h2 id="tit-unidad-claves">Unidad ampliada: claves y relaciones · 2_CLAVES</h2>
+      <p>Un recorrido adicional con pantallas de explicación, ejemplos interactivos y ejercicios de creciente autonomía. Puedes empezar por la portada o elegir directamente un tema.</p>
+      <div class="items">
+        <article>
+          <div class="meta">Recorrido guiado</div>
+          <h3>Laboratorio completo de claves MySQL</h3>
+          <p>Desde el debate inicial hasta el diseño de relaciones y la actividad final. El laboratorio tiene un menú interno de navegación.</p>
+          <div class="links"><a href="../2_CLAVES/">Empezar el recorrido</a><a href="../2_CLAVES/readme.md">Instrucciones</a></div>
+        </article>
+        <article>
+          <div class="meta">01–04 · Identificar cada fila</div>
+          <h3>Claves primarias</h3>
+          <p>Qué es una PK, cómo elegirla y cómo escribir PRIMARY KEY o AUTO_INCREMENT.</p>
+          <ul class="lesson-list">
+            <li><a href="../2_CLAVES/inicio-laboratorio.html">01 · Debate inicial</a></li>
+            <li><a href="../2_CLAVES/laboratorio-claves-primarias.html">02 · Qué es una clave primaria</a></li>
+            <li><a href="../2_CLAVES/elegir-clave-primaria.html">03 · Elegir la PK</a></li>
+            <li><a href="../2_CLAVES/sintaxis-clave-primaria.html">04 · Sintaxis y ejercicios PK</a></li>
+          </ul>
+        </article>
+        <article>
+          <div class="meta">05–07 · Conectar tablas</div>
+          <h3>Relaciones y claves foráneas</h3>
+          <p>Entender las relaciones uno a muchos y definir FOREIGN KEY con REFERENCES.</p>
+          <ul class="lesson-list">
+            <li><a href="../2_CLAVES/relaciones-uno-a-muchos.html">05 · Relaciones 1:N</a></li>
+            <li><a href="../2_CLAVES/claves-foraneas.html">06 · Claves foráneas</a></li>
+            <li><a href="../2_CLAVES/sintaxis-clave-foranea.html">07 · Sintaxis FOREIGN KEY</a></li>
+            <li><a href="../2_CLAVES/ejercicios-foreign-key.html">07B · Tres ejercicios FK</a></li>
+          </ul>
+        </article>
+        <article>
+          <div class="meta">08–10 · Comprobar relaciones</div>
+          <h3>Integridad referencial y SQL</h3>
+          <p>Probar las acciones RESTRICT, CASCADE y SET NULL, escribir SQL completo y representar 1:N, N:M y 1:1.</p>
+          <ul class="lesson-list">
+            <li><a href="../2_CLAVES/integridad-referencial.html">08 · Simulador de integridad</a></li>
+            <li><a href="../2_CLAVES/sql-claves-integridad.html">09 · Todo en SQL</a></li>
+            <li><a href="../2_CLAVES/ejercicios-sql-completo.html">09B · Cuatro ejercicios SQL</a></li>
+            <li><a href="../2_CLAVES/ejercicios-integridad-referencial.html">09C · Tres ejercicios de integridad</a></li>
+            <li><a href="../2_CLAVES/relaciones-entre-tablas.html">10 · Relaciones 1:N, N:M y 1:1</a></li>
+          </ul>
+        </article>
+        <article>
+          <div class="meta">Prácticas para el alumnado</div>
+          <h3>Relaciones con SQL</h3>
+          <p>Una práctica de biblioteca guiada paso a paso y otra de seis enunciados para crear tablas relacionadas.</p>
+          <ul class="lesson-list">
+            <li><a href="../2_CLAVES/practica-guiada-relaciones.html">Práctica guiada: estanterías y libros</a></li>
+            <li><a href="../2_CLAVES/practica-relaciones.html">Seis ejercicios de tablas relacionadas</a></li>
+          </ul>
+        </article>
+        <article>
+          <div class="meta">11 · Actividad evaluable · 10 puntos</div>
+          <h3>Construye tus propias relaciones</h3>
+          <p>Siete ejercicios para aplicar de manera autónoma PK, FK, AUTO_INCREMENT, claves compuestas y relaciones entre tablas.</p>
+          <div class="links"><a href="../2_CLAVES/actividad-evaluable.html">Abrir actividad evaluable</a></div>
+        </article>
       </div>
     </section>
     <section id="restricciones" aria-labelledby="tit-restricciones">
@@ -73,9 +137,9 @@
       <h2 id="tit-apoyo">5. Materiales de apoyo y código</h2>
       <div class="resource"><strong>Guion MySQL de claves.</strong><p>Ejemplos, relaciones, operaciones de prueba y un reto final para ejecutar en una base de prácticas.</p><a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/blob/main/1_CREACION_TABLAS/guion_mysql_claves.sql">Ver guion SQL en GitHub</a></div>
       <div class="resource"><strong>Ficha REGEXP_LIKE (PDF).</strong><p>Documento de consulta sobre patrones y restricciones de expresiones regulares.</p><a href="SECRETODRGRINBERG/datasheet-regexp-mysql.pdf">Abrir PDF</a></div>
-      <div class="resource"><strong>Repositorio y documentación.</strong><p>Acceso a los archivos fuente HTML, JS, CSS y SQL y a las instrucciones de cada proyecto.</p><a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/tree/main/1_CREACION_TABLAS">Explorar carpeta GitHub</a> · <a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/blob/main/1_CREACION_TABLAS/laboratorios.md">Ver índice Markdown</a></div>
+      <div class="resource"><strong>Repositorio y documentación.</strong><p>Acceso a los archivos originales y a las instrucciones de los dos bloques.</p><a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/tree/main/1_CREACION_TABLAS">Carpeta 1_CREACION_TABLAS</a> · <a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/tree/main/2_CLAVES">Carpeta 2_CLAVES</a> · <a href="https://github.com/AlfonsoDeUna/BBDD_1DAM/blob/main/1_CREACION_TABLAS/laboratorios.md">Índice Markdown</a></div>
     </section>
   </main>
-  <footer><div class="wrap">Bases de Datos · 1.º DAM · Índice de recursos de <code>1_CREACION_TABLAS</code></div></footer>
+  <footer><div class="wrap">Bases de Datos · 1.º DAM · Índice de recursos de <code>1_CREACION_TABLAS</code> y <code>2_CLAVES</code></div></footer>
 </body>
 </html>
