@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Presentación de integridad referencial para 1.º DAM. Tres ejercicios con análisis, diagramas y resolución SQL progresiva. Funciona sin conexión.">
+  <title>Integridad referencial · Ejercicios guiados · 1.º DAM</title>
+  <style>
+    :root {
+      --ink: #172534;
+      --muted: #536477;
+      --line: #d7dfe8;
+      --blue: #1755a5;
+      --green: #246b3e;
+      --red: #b72d35;
+      --paper: #ffffff;
+      --soft: #f4f7fa;
+      --body-size: clamp(20px, 1.88vw, 28px);
+      --code-size: clamp(19px, 1.76vw, 25px);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; }
+    body {
+      background: var(--paper); color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+      height: 100vh; height: 100dvh; overflow: hidden;
+    }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button {
+      font: inherit; font-size: 14px; font-weight: 600;
+      color: var(--ink); background: white; border: 1px solid #bac7d5;
+      border-radius: 5px; padding: 9px 13px; min-height: 40px;
+      cursor: pointer; white-space: nowrap;
+    }
+    button:hover:not(:disabled) { background: #edf3f9; border-color: #718aa6; }
+    button:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 3px solid #c66b00; outline-offset: 3px;
+    }
+    button:disabled { opacity: .4; cursor: default; }
+    button.primary { color: white; background: var(--blue); border-color: var(--blue); }
+    button.primary:hover:not(:disabled) { background: #124786; }
+    a { color: var(--blue); text-underline-offset: 3px; }
+    .toolbar {
+      padding: 13px clamp(18px, 3.3vw, 48px);
+      border-bottom: 1px solid var(--line); display: flex;
+      align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .brand { display: flex; align-items: baseline; gap: 15px; min-width: 0; }
+    .brand strong { font-size: 17px; letter-spacing: -.02em; }
+    .brand span { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .tools { display: flex; align-items: center; gap: 8px; }
+    #deck { width: 100%; max-width: 1500px; min-height: 0; margin: 0 auto; }
+    .slide {
+      height: 100%; min-height: 0; width: 100%;
+      display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: clamp(12px, 2vh, 21px);
+      padding: clamp(18px, 3vh, 32px) clamp(24px, 4.2vw, 64px);
+    }
+    .slide[hidden] { display: none !important; }
+    .slide-heading { margin: 0; min-width: 0; }
+    .phase { margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+    h1, h2 { margin: 0; font-size: clamp(30px, 3.05vw, 46px); line-height: 1.13; letter-spacing: -.035em; font-weight: 700; }
+    h1:focus, h2:focus { outline: none; }
+    h3 { font-size: 1em; margin: 0 0 .6em; font-weight: 700; }
+    p { margin: 0 0 .7em; }
+    p:last-child { margin-bottom: 0; }
+    ul, ol { margin: .45em 0; padding-left: 1.3em; }
+    li { margin: .4em 0; }
+    code, pre { font-family: Consolas, "Liberation Mono", "Courier New", monospace; }
+    :not(pre) > code { font-size: .92em; color: #173f68; overflow-wrap: anywhere; }
+    .slide-content {
+      min-width: 0; min-height: 0; font-size: var(--body-size); line-height: 1.43;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .text-body { width: 100%; max-width: 1180px; }
+    .text-body .lead { font-size: 1.2em; line-height: 1.35; }
+    .text-body .think {
+      margin-top: 1em; padding: .85em 1em; border-left: 4px solid var(--blue);
+      background: #eff5fc;
+    }
+    .text-body .think > :last-child { margin-bottom: 0; }
+    .slide-note {
+      margin: 0; padding: 10px 15px; border-left: 3px solid #809bbb;
+      color: #334c68; background: #f4f7fb;
+      font-size: clamp(17px, 1.55vw, 22px); line-height: 1.36;
+    }
+    .statement { justify-content: center; }
+    .statement-text { max-width: 1190px; font-size: clamp(19px, 1.78vw, 27px); line-height: 1.43; }
+    .statement-text p { margin: 0 0 .75em; }
+    .statement-text p:last-child { margin-bottom: 0; }
+    .mark { text-decoration-line: underline; text-decoration-thickness: 2.5px; text-underline-offset: 4px; }
+    .mark-entities { color: var(--blue); text-decoration-color: var(--blue); }
+    .mark-attributes { color: var(--green); text-decoration-color: var(--green); }
+    .mark-rules { color: var(--red); text-decoration-color: var(--red); }
+    .mark-entities.is-new { background: #edf4ff; }
+    .mark-attributes.is-new { background: #edf7ee; }
+    .mark-rules.is-new { background: #fff1f0; }
+    .legend { margin: 0 0 15px; display: flex; flex-wrap: wrap; gap: 20px; font-size: 15px; }
+    .legend span { padding-bottom: 3px; border-bottom: 3px solid currentColor; }
+    .legend .inactive { color: #8794a3; border-color: #d7dfe8; }
+    .legend .entities { color: var(--blue); }
+    .legend .attributes { color: var(--green); }
+    .legend .rules { color: var(--red); }
+    .code-block {
+      width: 100%; margin: 0; padding: 16px 18px;
+      background: var(--soft); border: 1px solid var(--line); border-radius: 5px;
+      font-size: var(--code-size); line-height: 1.34; white-space: pre-wrap;
+      overflow-wrap: anywhere; tab-size: 2;
+    }
+    .code-block code { display: block; }
+    .code-line { display: block; min-height: 1.34em; padding: 0 7px; margin: 0 -7px; border-left: 3px solid transparent; }
+    .code-line.fresh { background: #e3efff; border-left-color: var(--blue); }
+    .sql-keyword { color: #1c4d88; font-weight: 600; }
+    .sql-comment { color: #596d7b; }
+    .sql-gap { background: #fff0c7; color: #805b06; font-weight: 700; }
+    .split-code { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 24px; width: 100%; }
+    .code-pane { min-width: 0; }
+    .code-pane h3 { margin-bottom: 10px; font-size: 17px; color: #3c5269; }
+    .split-code .code-block { font-size: clamp(15.5px, 1.44vw, 21px); padding: 13px 15px; line-height: 1.32; }
+    .split-code .code-line { min-height: 1.32em; }
+    table { border-collapse: collapse; width: 100%; line-height: 1.35; }
+    th, td { text-align: left; padding: 15px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: #edf2f7; font-size: .88em; color: #354f69; }
+    td:first-child { font-weight: 600; }
+    .schema { display: grid; grid-template-columns: minmax(0,1fr) 155px minmax(0,1fr); align-items: center; width: 100%; }
+    .schema-box { min-width: 0; height: 264px; border: 2px solid #8d9fb4; border-radius: 4px; background: white; }
+    .schema-box h3 { margin: 0; padding: 14px 17px; background: #edf2f8; border-bottom: 1px solid #8d9fb4; font-family: Consolas, monospace; font-size: clamp(20px, 1.9vw, 27px); }
+    .schema-fields { display: grid; grid-template-rows: repeat(3, 1fr); height: 202px; }
+    .field { display: flex; align-items: center; gap: 9px; padding: 8px 13px; min-width: 0; border-bottom: 1px solid #e1e7ed; font-size: clamp(15px, 1.48vw, 22px); }
+    .field:last-child { border-bottom: 0; }
+    .field-name { font-family: Consolas, monospace; white-space: nowrap; }
+    .field-type { margin-left: auto; font-family: Consolas, monospace; font-size: .8em; color: #536477; white-space: nowrap; }
+    .field-key { min-width: 30px; text-align: center; font-size: 12px; font-weight: 700; padding: 2px 3px; border: 1px solid #b5bdc8; border-radius: 3px; background: #f2f4f6; }
+    .field-key.pk { color: #71551d; background: #fff4d7; border-color: #d9c591; }
+    .field-key.fk { color: #246040; background: #e8f5ec; border-color: #a7c9b0; }
+    .field-key.empty { visibility: hidden; }
+    .field .null-note { font-size: 11px; display: block; color: #344b62; line-height: 1.3; margin-top: 3px; }
+    .field.new { background: #eef5ff; }
+    .field.fk-row { background: #f2f8f3; }
+    .field.fk-row.new { background: #e5f3e9; }
+    .field.null-new { background: #fff4d8; }
+    .field.placeholder { color: #6d7d8e; font-family: Arial, sans-serif; justify-content: center; font-size: 17px; }
+    .schema-link { min-width: 0; text-align: center; font-size: 14px; color: #4a617a; padding: 0 9px; }
+    .schema-link svg { width: 100%; height: 88px; display: block; }
+    .schema-link .link-label { font-size: 13px; line-height: 1.3; }
+    .schema-link.is-new { color: var(--blue); }
+    .schema-context { margin: 20px 0 0; text-align: center; color: #456078; font-size: 19px; }
+    .bottom { border-top: 1px solid var(--line); padding: 0 clamp(18px, 3.3vw, 48px) 12px; }
+    .progress-track { height: 4px; margin-bottom: 11px; background: #e8eef4; overflow: hidden; }
+    #progress { height: 100%; width: 0; background: var(--blue); }
+    .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .nav-buttons { display: flex; gap: 9px; }
+    #counter { color: var(--ink); font-size: 15px; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .nav-hint { font-size: 12px; color: var(--muted); }
+    kbd { font: inherit; border: 1px solid #cad5df; border-radius: 3px; padding: 2px 4px; background: #fafbfd; }
+    dialog { max-width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); width: 620px; padding: 25px; border: 1px solid #aebed0; border-radius: 8px; color: var(--ink); background: white; }
+    dialog::backdrop { background: rgba(23, 37, 52, .36); }
+    .dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 18px; }
+    .dialog-heading h2 { font-size: 27px; }
+    .toc-items { display: grid; gap: 9px; }
+    .toc-item { width: 100%; text-align: left; white-space: normal; padding: 13px 14px; font-size: 17px; }
+    .toc-item span { font-weight: 400; font-size: 13px; color: var(--muted); display: block; margin-top: 4px; }
+    .dialog-actions { margin-top: 20px; padding-top: 17px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 9px; }
+    .dialog-help { font-size: 13px; line-height: 1.5; color: #526579; margin-top: 17px; }
+    #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .print-counter { display: none; }
+    noscript { display: block; margin: 20px; padding: 20px; border: 1px solid #8d9fb4; }
+    @media (max-height: 700px) and (min-width: 901px) {
+      .toolbar { padding-top: 8px; padding-bottom: 8px; }
+      .slide { padding-top: 15px; padding-bottom: 15px; gap: 10px; }
+      h1, h2 { font-size: clamp(29px, 2.7vw, 39px); }
+      .phase { margin-bottom: 5px; }
+      .statement-text { font-size: clamp(18px, 1.63vw, 24px); line-height: 1.35; }
+      .legend { margin-bottom: 9px; }
+      .code-block { font-size: clamp(18px, 1.55vw, 22px); line-height: 1.3; padding-top: 10px; padding-bottom: 10px; }
+      .split-code .code-block { font-size: clamp(15.5px, 1.27vw, 18px); line-height: 1.3; }
+      .slide-note { font-size: 17px; padding: 8px 12px; }
+      .bottom { padding-bottom: 8px; }
+    }
+    @media (max-width: 900px) {
+      .brand span { display: none; }
+      .slide { padding: 20px 25px; }
+      .slide-content { justify-content: flex-start; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 3px; }
+      .text-body { margin-top: auto; margin-bottom: auto; }
+      .statement { justify-content: flex-start; }
+      .statement-text { font-size: 20px; }
+      .split-code { grid-template-columns: 1fr; gap: 18px; }
+      .split-code .code-block { font-size: 18px; }
+      .schema { grid-template-columns: minmax(0,1fr); max-width: 530px; margin: 0 auto; }
+      .schema-box { height: 227px; }
+      .schema-fields { height: 169px; }
+      .schema-box h3 { font-size: 23px; padding: 12px 16px; }
+      .field { font-size: 20px; }
+      .schema-link { height: 82px; width: 180px; margin: 0 auto; padding: 0; }
+      .schema-link svg { height: 57px; }
+      .schema-context { font-size: 17px; }
+      .nav-hint { display: none; }
+      .slide-note { font-size: 17px; }
+      table { font-size: 18px; }
+      th, td { padding: 12px 10px; }
+    }
+    @media (max-width: 540px) {
+      .toolbar { flex-wrap: wrap; padding: 10px 16px; gap: 9px; }
+      .brand strong { font-size: 16px; }
+      .tools { margin-left: auto; }
+      .tools button { padding: 8px 10px; font-size: 12px; min-height: 38px; }
+      #print-button { display: none; }
+      .slide { padding: 17px 17px 15px; gap: 13px; }
+      h1, h2 { font-size: 29px; }
+      .phase { font-size: 12px; }
+      .statement-text { font-size: 19px; line-height: 1.42; }
+      .slide-content { font-size: 20px; }
+      .legend { font-size: 13px; gap: 13px; }
+      .code-block, .split-code .code-block { font-size: 16px; padding: 11px 10px; }
+      .field { font-size: 18px; gap: 7px; padding-left: 10px; padding-right: 10px; }
+      .field-type { font-size: 13px; }
+      .field-key { min-width: 27px; font-size: 11px; }
+      .slide-note { font-size: 16px; padding: 9px 10px; }
+      .bottom { padding: 0 16px 10px; }
+      .nav-row { gap: 8px; }
+      .nav-buttons { gap: 7px; }
+      .nav-buttons button { font-size: 14px; padding: 9px 10px; min-height: 43px; }
+      #counter { font-size: 14px; }
+      .text-body .lead { font-size: 1.08em; }
+      .text-body .think { padding: .7em; }
+      th, td { padding: 10px 7px; font-size: 16px; }
+    }
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      html, body { height: auto !important; overflow: visible !important; display: block !important; background: white; }
+      .toolbar, .bottom, dialog, #status, noscript { display: none !important; }
+      #deck { max-width: none; width: 100%; height: auto; }
+      .slide, .slide[hidden] {
+        display: grid !important; height: 185mm !important; min-height: 185mm;
+        padding: 2mm 0 6mm !important; gap: 4mm; position: relative;
+        break-after: page; page-break-after: always; break-inside: avoid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+      }
+      .slide:last-child { break-after: auto; page-break-after: auto; }
+      .phase { font-size: 9pt; margin-bottom: 2mm; }
+      h1, h2 { font-size: 26pt; }
+      .slide-content { font-size: 16pt; overflow: visible !important; justify-content: center; }
+      .statement-text { font-size: 15pt; line-height: 1.43; }
+      .statement-text p { margin-bottom: .7em; }
+      .legend { font-size: 10pt; }
+      .code-block { font-size: 14pt; line-height: 1.33; padding: 3mm 4mm; }
+      .split-code { grid-template-columns: 1fr 1fr; gap: 6mm; }
+      .split-code .code-block { font-size: 10.5pt; line-height: 1.3; }
+      .code-pane h3 { font-size: 12pt; margin-bottom: 3mm; }
+      .slide-note { font-size: 12pt; padding: 2mm 3mm; }
+      .schema { grid-template-columns: minmax(0,1fr) 32mm minmax(0,1fr); max-width: none; }
+      .schema-box { height: 63mm; }
+      .schema-fields { height: 48mm; }
+      .schema-box h3 { font-size: 18pt; padding: 3mm; }
+      .field { font-size: 14pt; }
+      .field-type { font-size: 10pt; }
+      .schema-link { width: auto; height: auto; }
+      .schema-link svg { height: 18mm; }
+      .schema-context { font-size: 12pt; }
+      table { font-size: 15pt; }
+      th, td { padding: 3mm; font-size: inherit; }
+      .print-counter { display: block; position: absolute; bottom: 0; right: 0; font-size: 9pt; color: #526579; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand"><strong>Integridad referencial</strong><span>Bases de Datos · 1.º DAM</span></div>
+    <nav class="tools" aria-label="Herramientas de presentación">
+      <button type="button" id="index-button" aria-haspopup="dialog">Índice</button>
+      <button type="button" id="fullscreen-button">Pantalla completa</button>
+      <button type="button" id="print-button">Imprimir</button>
+    </nav>
+  </header>
+  <main id="deck" aria-label="Diapositivas de la presentación"></main>
+  <footer class="bottom">
+    <div class="progress-track"><div id="progress" role="progressbar" aria-label="Progreso de la presentación" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1"></div></div>
+    <div class="nav-row">
+      <div class="nav-buttons">
+        <button type="button" id="prev" aria-label="Diapositiva anterior">← Anterior</button>
+        <button type="button" id="next" class="primary" aria-label="Diapositiva siguiente">Siguiente →</button>
+      </div>
+      <div class="nav-hint"><kbd>←</kbd> <kbd>→</kbd> para avanzar · <kbd>Inicio</kbd> / <kbd>Fin</kbd></div>
+      <output id="counter" aria-live="polite" aria-atomic="true">1 / 1</output>
+    </div>
+  </footer>
+  <dialog id="index-dialog" aria-labelledby="index-title">
+    <div class="dialog-heading"><h2 id="index-title">Índice</h2><button type="button" id="close-index" aria-label="Cerrar índice">Cerrar</button></div>
+    <div id="toc-items" class="toc-items"></div>
+    <div class="dialog-actions">
+      <button type="button" id="download-button">Descargar HTML</button>
+      <button type="button" id="dialog-print-button">Imprimir todas</button>
+    </div>
+    <p class="dialog-help">El archivo descargado funciona sin conexión. Las flechas cambian de diapositiva. Inicio y Fin llevan a la primera y a la última. La impresión incluye la presentación completa.</p>
+  </dialog>
+  <p id="status" role="status" aria-live="polite"></p>
+  <noscript>Esta presentación necesita JavaScript para navegar entre diapositivas. Actívalo en el navegador y vuelve a abrir el archivo. No necesita conexión a Internet.</noscript>
+  <script type="application/json" id="lesson-data">{"title":"Integridad referencial paso a paso","subtitle":"Bases de Datos · 1.º DAM · MySQL e InnoDB","exercises":[{"id":"e1","title":"Proyectos y tareas","paragraphs":["Una empresa guarda sus proyectos en proyectos, con identificador y nombre, y sus tareas en tareas, con identificador, descripción e identificador del proyecto. Un proyecto puede tener varias tareas y cada tarea pertenece obligatoriamente a un único proyecto.","Actualmente, la relación impide borrar un proyecto o cambiar su identificador si tiene tareas asociadas. La restricción se llama fk_tareas_proyecto.","La empresa quiere que, al borrar un proyecto, desaparezcan también sus tareas. Si cambia el identificador de un proyecto, sus tareas deben seguir asociadas a él con el nuevo identificador."],"marks":{"entities":["proyectos","tareas"],"attributes":["identificador y nombre","identificador, descripción e identificador del proyecto"],"rules":["puede tener varias tareas","cada tarea pertenece obligatoriamente a un único proyecto","impide borrar un proyecto o cambiar su identificador si tiene tareas asociadas","fk_tareas_proyecto","al borrar un proyecto, desaparezcan también sus tareas","sus tareas deben seguir asociadas a él con el nuevo identificador"]},"parent":{"name":"proyectos","fields":[{"name":"id_proyecto","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"nombre","type":"VARCHAR(100)","key":"","nullable":""}]},"child":{"name":"tareas","fields":[{"name":"id_tarea","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"descripcion","type":"VARCHAR(255)","key":"","nullable":""},{"name":"id_proyecto","type":"INT","key":"FK","nullable":"NOT NULL"}]},"fkName":"fk_tareas_proyecto","initial":{"delete":"RESTRICT","update":"RESTRICT","nullable":false},"final":{"delete":"CASCADE","update":"CASCADE","nullable":false},"initialSql":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (id_proyecto)\n        REFERENCES proyectos (id_proyecto)\n        ON DELETE RESTRICT\n        ON UPDATE RESTRICT\n) ENGINE=InnoDB;","finalSql":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;\n\nALTER TABLE tareas\n    ADD CONSTRAINT fk_tareas_proyecto\n    FOREIGN KEY (id_proyecto)\n    REFERENCES proyectos (id_proyecto)\n    ON DELETE CASCADE\n    ON UPDATE CASCADE;"},{"id":"e2","title":"Tutores y alumnos","paragraphs":["Un centro guarda sus tutores en tutores, con identificador y nombre, y sus alumnos en alumnos, con identificador, nombre e identificador del tutor. Un tutor puede tener varios alumnos y cada alumno tiene inicialmente un único tutor obligatorio.","Actualmente, la relación impide borrar un tutor con alumnos y propaga a sus alumnos cualquier cambio de su identificador. La restricción se llama fk_alumnos_tutor.","El centro quiere conservar a los alumnos cuando se elimine su tutor, dejándolos sin tutor asignado. Si cambia el identificador de un tutor, los alumnos deben continuar asociados a él con el nuevo identificador. Adapta también la definición de los campos que sea necesario modificar."],"marks":{"entities":["tutores","alumnos"],"attributes":["identificador y nombre","identificador, nombre e identificador del tutor"],"rules":["puede tener varios alumnos","cada alumno tiene inicialmente un único tutor obligatorio","impide borrar un tutor con alumnos","propaga a sus alumnos cualquier cambio de su identificador","fk_alumnos_tutor","conservar a los alumnos cuando se elimine su tutor","dejándolos sin tutor asignado","los alumnos deben continuar asociados a él con el nuevo identificador","Adapta también la definición de los campos que sea necesario modificar"]},"parent":{"name":"tutores","fields":[{"name":"id_tutor","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"nombre","type":"VARCHAR(100)","key":"","nullable":""}]},"child":{"name":"alumnos","fields":[{"name":"id_alumno","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"nombre","type":"VARCHAR(100)","key":"","nullable":""},{"name":"id_tutor","type":"INT","key":"FK","nullable":"NOT NULL"}]},"fkName":"fk_alumnos_tutor","initial":{"delete":"RESTRICT","update":"CASCADE","nullable":false},"final":{"delete":"SET NULL","update":"CASCADE","nullable":true},"initialSql":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT NOT NULL,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE RESTRICT\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;","finalSql":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\nALTER TABLE alumnos\n    MODIFY COLUMN id_tutor INT NULL;\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE SET NULL\n    ON UPDATE CASCADE;"},{"id":"e3","title":"Clientes y facturas","paragraphs":["Una empresa guarda sus clientes en clientes, con identificador y nombre, y sus facturas en facturas, con identificador, fecha e identificador del cliente. Un cliente puede tener varias facturas y cada factura pertenece obligatoriamente a un único cliente.","Actualmente, al borrar un cliente se eliminan sus facturas y, al cambiar su identificador, el cambio se propaga a las facturas. La restricción se llama fk_facturas_cliente.","La empresa quiere impedir que se borre un cliente si tiene facturas. También quiere impedir que se cambie su identificador mientras existan facturas asociadas. Las facturas deben seguir vinculadas al cliente original."],"marks":{"entities":["clientes","facturas"],"attributes":["identificador y nombre","identificador, fecha e identificador del cliente"],"rules":["puede tener varias facturas","cada factura pertenece obligatoriamente a un único cliente","al borrar un cliente se eliminan sus facturas","al cambiar su identificador, el cambio se propaga a las facturas","fk_facturas_cliente","impedir que se borre un cliente si tiene facturas","impedir que se cambie su identificador mientras existan facturas asociadas","Las facturas deben seguir vinculadas al cliente original"]},"parent":{"name":"clientes","fields":[{"name":"id_cliente","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"nombre","type":"VARCHAR(100)","key":"","nullable":""}]},"child":{"name":"facturas","fields":[{"name":"id_factura","type":"INT","key":"PK","nullable":"NOT NULL"},{"name":"fecha","type":"DATE","key":"","nullable":""},{"name":"id_cliente","type":"INT","key":"FK","nullable":"NOT NULL"}]},"fkName":"fk_facturas_cliente","initial":{"delete":"CASCADE","update":"CASCADE","nullable":false},"final":{"delete":"RESTRICT","update":"RESTRICT","nullable":false},"initialSql":"CREATE TABLE clientes (\n    id_cliente INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE facturas (\n    id_factura INT PRIMARY KEY,\n    fecha DATE,\n    id_cliente INT NOT NULL,\n    CONSTRAINT fk_facturas_cliente\n        FOREIGN KEY (id_cliente)\n        REFERENCES clientes (id_cliente)\n        ON DELETE CASCADE\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;","finalSql":"ALTER TABLE facturas\n    DROP FOREIGN KEY fk_facturas_cliente;\n\nALTER TABLE facturas\n    ADD CONSTRAINT fk_facturas_cliente\n    FOREIGN KEY (id_cliente)\n    REFERENCES clientes (id_cliente)\n    ON DELETE RESTRICT\n    ON UPDATE RESTRICT;"}],"slides":[{"id":"portada","group":"intro","phase":"Inicio","title":"Integridad referencial","type":"text","html":"\u003cp class=\"lead\">Bases de Datos · 1.º DAM\u003c/p>\u003cp>Cambiar las reglas de una relación conservando las tablas.\u003c/p>\u003cp>\u003cstrong>Objetivo:\u003c/strong> interpretar el comportamiento solicitado y modificar las claves foráneas con MySQL e InnoDB.\u003c/p>"},{"id":"forma-de-trabajo","group":"intro","phase":"Inicio","title":"Cómo vamos a trabajar","type":"text","html":"\u003col>\u003cli>Leer el enunciado y pensar.\u003c/li>\u003cli>Identificar los datos y las condiciones.\u003c/li>\u003cli>Representar la relación.\u003c/li>\u003cli>Escribir y revisar el SQL.\u003c/li>\u003c/ol>\u003cp>\u003cstrong>Ejercicio 1:\u003c/strong> modelado y trabajo conjunto. \u003cstrong>Ejercicio 2:\u003c/strong> ayuda limitada. \u003cstrong>Ejercicio 3:\u003c/strong> resolución individual antes de corregir.\u003c/p>"},{"id":"condiciones-comunes","group":"intro","phase":"Inicio","title":"Qué hay que construir","type":"text","html":"\u003cp>En cada ejercicio, crea las dos tablas con sus claves y el comportamiento inicial descrito. Después, modifica la relación para cumplir las nuevas condiciones.\u003c/p>\u003cul>\u003cli>Utiliza \u003cstrong>MySQL y el motor InnoDB\u003c/strong>.\u003c/li>\u003cli>Conserva las tablas al modificar la relación.\u003c/li>\u003cli>Trabaja con la definición de tablas y restricciones. No se piden operaciones sobre los datos.\u003c/li>\u003c/ul>\u003cp>El análisis y los diagramas preparan una entrega que contiene únicamente SQL.\u003c/p>"},{"id":"e1-enunciado-0","group":"e1","phase":"Plantear","title":"1. Proyectos y tareas","type":"statement","exercise":"e1","level":0},{"id":"e1-enunciado-1","group":"e1","phase":"Analizar","title":"Las tablas del problema","type":"statement","exercise":"e1","level":1,"note":"Azul: las entidades que vamos a representar mediante tablas."},{"id":"e1-enunciado-2","group":"e1","phase":"Analizar","title":"Los datos de cada tabla","type":"statement","exercise":"e1","level":2,"note":"Verde: los campos que el enunciado pide almacenar. Se mantienen las marcas anteriores."},{"id":"e1-enunciado-3","group":"e1","phase":"Analizar","title":"Las condiciones de la relación","type":"statement","exercise":"e1","level":3,"note":"Rojo: obligatoriedad, comportamiento inicial y comportamiento solicitado."},{"id":"e1-diagrama-initial-0","group":"e1","phase":"Representar","title":"Dos tablas por completar","type":"diagram","exercise":"e1","stage":0,"state":"initial","note":"Primero situamos las tablas. Todavía faltan sus campos y la conexión."},{"id":"e1-diagrama-initial-1","group":"e1","phase":"Representar","title":"La tabla de proyectos","type":"diagram","exercise":"e1","stage":1,"state":"initial","note":"id_proyecto identifica a cada proyecto. PK significa clave primaria.","highlight":"parent"},{"id":"e1-diagrama-initial-2","group":"e1","phase":"Representar","title":"La tabla de tareas","type":"diagram","exercise":"e1","stage":2,"state":"initial","note":"id_tarea identifica a la tarea. El otro identificador servirá para indicar a qué proyecto pertenece.","highlight":"child"},{"id":"e1-diagrama-initial-3","group":"e1","phase":"Representar","title":"La referencia está en tareas","type":"diagram","exercise":"e1","stage":3,"state":"initial","note":"tareas.id_proyecto referencia a proyectos.id_proyecto. Es obligatorio porque toda tarea pertenece a un proyecto.","highlight":"link"},{"id":"e1-inicial-pendiente","group":"e1","phase":"Resolver","title":"La definición inicial","type":"code","code":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (__________)\n        REFERENCES __________ (__________)\n        ON DELETE __________\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[],"note":"Observa los campos ya definidos. ¿Qué columna debe apuntar a qué clave primaria?"},{"id":"e1-inicial-referencia","group":"e1","phase":"Resolver","title":"La clave foránea","type":"code","code":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (id_proyecto)\n        REFERENCES proyectos (id_proyecto)\n        ON DELETE __________\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[11,12],"note":"La restricción se define en la tabla hija. Conservamos el nombre indicado en el enunciado."},{"id":"e1-inicial-borrado","group":"e1","phase":"Resolver","title":"El borrado inicial","type":"code","code":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (id_proyecto)\n        REFERENCES proyectos (id_proyecto)\n        ON DELETE RESTRICT\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[13],"note":"RESTRICT impide borrar un proyecto mientras tenga tareas asociadas."},{"id":"e1-inicial-actualizacion","group":"e1","phase":"Resolver","title":"La actualización inicial","type":"code","code":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (id_proyecto)\n        REFERENCES proyectos (id_proyecto)\n        ON DELETE RESTRICT\n        ON UPDATE RESTRICT\n) ENGINE=InnoDB;","highlightLines":[14],"note":"También se impide cambiar el identificador del proyecto mientras existan esas referencias."},{"id":"e1-decision-cambio","group":"e1","phase":"Resolver","title":"El comportamiento que se quiere conseguir","type":"text","html":"\u003cdiv class=\"think\">\u003cp>\u003cstrong>Piensa antes de avanzar.\u003c/strong>\u003c/p>\u003cp>Al borrar el proyecto, sus tareas deben desaparecer. Si cambia el identificador del proyecto, las tareas deben seguir asociadas a él.\u003c/p>\u003c/div>\u003cp>¿Qué campo de una tarea debe cambiar cuando cambia el identificador de su proyecto? ¿Qué campo identifica a la propia tarea y debe mantenerse?\u003c/p>"},{"id":"e1-retirar-fk","group":"e1","phase":"Resolver","title":"Retirar la restricción anterior","type":"code","code":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;","highlightLines":[2],"note":"DROP FOREIGN KEY retira la regla de la relación. Las tablas, los campos y los registros permanecen."},{"id":"e1-nueva-fk-pendiente","group":"e1","phase":"Resolver","title":"Definir de nuevo la relación","type":"code","code":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;\n\nALTER TABLE tareas\n    ADD CONSTRAINT fk_tareas_proyecto\n    FOREIGN KEY (id_proyecto)\n    REFERENCES proyectos (id_proyecto)\n    ON DELETE __________\n    ON UPDATE __________;","highlightLines":[5,8,9],"note":"La nueva restricción conserva su nombre, su campo y su referencia. Quedan por decidir las dos acciones."},{"id":"e1-nuevo-borrado","group":"e1","phase":"Resolver","title":"Las tareas desaparecen con su proyecto","type":"code","code":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;\n\nALTER TABLE tareas\n    ADD CONSTRAINT fk_tareas_proyecto\n    FOREIGN KEY (id_proyecto)\n    REFERENCES proyectos (id_proyecto)\n    ON DELETE CASCADE\n    ON UPDATE __________;","highlightLines":[8],"note":"ON DELETE CASCADE elimina las tareas asociadas cuando se borra su proyecto."},{"id":"e1-nueva-actualizacion","group":"e1","phase":"Resolver","title":"Las tareas conservan su asociación","type":"code","code":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;\n\nALTER TABLE tareas\n    ADD CONSTRAINT fk_tareas_proyecto\n    FOREIGN KEY (id_proyecto)\n    REFERENCES proyectos (id_proyecto)\n    ON DELETE CASCADE\n    ON UPDATE CASCADE;","highlightLines":[9],"note":"ON UPDATE CASCADE propaga el nuevo identificador a tareas.id_proyecto. id_tarea se mantiene."},{"id":"e1-diagrama-final-4","group":"e1","phase":"Representar","title":"La relación final","type":"diagram","exercise":"e1","stage":4,"state":"final","note":"La referencia sigue siendo obligatoria. Cambian las reglas de borrado y actualización.","highlight":"link"},{"id":"e1-solucion-completa","group":"e1","phase":"Resolver","title":"Solución completa","type":"split-code","left":{"title":"1. Definición inicial","code":"CREATE TABLE proyectos (\n    id_proyecto INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE tareas (\n    id_tarea INT PRIMARY KEY,\n    descripcion VARCHAR(255),\n    id_proyecto INT NOT NULL,\n    CONSTRAINT fk_tareas_proyecto\n        FOREIGN KEY (id_proyecto)\n        REFERENCES proyectos (id_proyecto)\n        ON DELETE RESTRICT\n        ON UPDATE RESTRICT\n) ENGINE=InnoDB;"},"right":{"title":"2. Modificaciones","code":"ALTER TABLE tareas\n    DROP FOREIGN KEY fk_tareas_proyecto;\n\nALTER TABLE tareas\n    ADD CONSTRAINT fk_tareas_proyecto\n    FOREIGN KEY (id_proyecto)\n    REFERENCES proyectos (id_proyecto)\n    ON DELETE CASCADE\n    ON UPDATE CASCADE;"},"note":"El bloque de la izquierda se ejecuta antes que el de la derecha. Las tablas se conservan."},{"id":"e1-comprobar","group":"e1","phase":"Comprobar","title":"Dos comprobaciones","type":"text","html":"\u003cdiv class=\"think\">\u003col>\u003cli>Si cambia el identificador del proyecto, ¿qué campo cambia en sus tareas y cuál se mantiene?\u003c/li>\u003cli>Al retirar la FK, ¿se eliminan las tareas? Explica qué desaparece en ese paso.\u003c/li>\u003c/ol>\u003c/div>\u003cp>Responde con palabras. No hace falta escribir operaciones sobre los datos.\u003c/p>"},{"id":"e1-respuestas","group":"e1","phase":"Comprobar","title":"Qué debe quedar claro","type":"text","html":"\u003cp>\u003cstrong>1.\u003c/strong> Cambia \u003ccode>tareas.id_proyecto\u003c/code>, que contiene la referencia. Se mantiene \u003ccode>tareas.id_tarea\u003c/code>, que identifica a la tarea.\u003c/p>\u003cp>\u003cstrong>2.\u003c/strong> Al retirar la FK se elimina la restricción. Las tablas y sus registros se conservan.\u003c/p>\u003cp>\u003cstrong>Error habitual:\u003c/strong> escribir el \u003ccode>ALTER TABLE\u003c/code> sobre \u003ccode>proyectos\u003c/code>. La restricción está definida en \u003ccode>tareas\u003c/code>.\u003c/p>"},{"id":"e2-enunciado-0","group":"e2","phase":"Plantear","title":"2. Tutores y alumnos","type":"statement","exercise":"e2","level":0},{"id":"e2-analisis-propio","group":"e2","phase":"Analizar","title":"Tu análisis del enunciado","type":"text","html":"\u003cdiv class=\"think\">\u003cp>Identifica por tu cuenta las tablas, los campos y las condiciones.\u003c/p>\u003cp>Separa lo que ocurre \u003cstrong>actualmente\u003c/strong> de lo que el centro quiere que ocurra \u003cstrong>después\u003c/strong>.\u003c/p>\u003c/div>\u003cp>Subraya primero. Compara tu análisis con las siguientes diapositivas cuando hayas terminado.\u003c/p>"},{"id":"e2-enunciado-1","group":"e2","phase":"Analizar","title":"Las entidades identificadas","type":"statement","exercise":"e2","level":1,"note":"Compara las tablas marcadas con las que has identificado."},{"id":"e2-enunciado-2","group":"e2","phase":"Analizar","title":"Los datos identificados","type":"statement","exercise":"e2","level":2,"note":"Comprueba que has incluido los datos de cada alumno y su referencia al tutor."},{"id":"e2-enunciado-3","group":"e2","phase":"Analizar","title":"Las condiciones identificadas","type":"statement","exercise":"e2","level":3,"note":"Distingue la obligatoriedad inicial de la situación que debe permitirse al final."},{"id":"e2-diagrama-initial-0","group":"e2","phase":"Representar","title":"La estructura por completar","type":"diagram","exercise":"e2","stage":0,"state":"initial","note":"Dibuja los campos y señala cuáles deben ser claves antes de ver la corrección."},{"id":"e2-diagrama-initial-1","group":"e2","phase":"Representar","title":"El identificador del tutor","type":"diagram","exercise":"e2","stage":1,"state":"initial","note":"La clave primaria identifica a cada tutor.","highlight":"parent"},{"id":"e2-diagrama-initial-2","group":"e2","phase":"Representar","title":"El alumno y su referencia","type":"diagram","exercise":"e2","stage":2,"state":"initial","note":"Cada alumno tiene su propio identificador y otro campo para indicar el tutor.","highlight":"child"},{"id":"e2-diagrama-initial-3","group":"e2","phase":"Representar","title":"La relación inicial","type":"diagram","exercise":"e2","stage":3,"state":"initial","note":"Al principio, cada alumno tiene un tutor obligatorio. La FK se guarda en alumnos.","highlight":"link"},{"id":"e2-inicial-pendiente","group":"e2","phase":"Resolver","title":"Completa la definición inicial","type":"code","code":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT __________,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE __________\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[],"note":"Decide la obligatoriedad y las dos acciones usando únicamente la situación inicial del enunciado."},{"id":"e2-inicial-obligatorio","group":"e2","phase":"Resolver","title":"El tutor inicial es obligatorio","type":"code","code":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT NOT NULL,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE __________\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[9],"note":"La columna que contiene la referencia lleva NOT NULL en la situación inicial."},{"id":"e2-inicial-borrado","group":"e2","phase":"Resolver","title":"El borrado inicial está restringido","type":"code","code":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT NOT NULL,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE RESTRICT\n        ON UPDATE __________\n) ENGINE=InnoDB;","highlightLines":[13],"note":"Un tutor con alumnos no puede borrarse en la relación inicial."},{"id":"e2-inicial-actualizacion","group":"e2","phase":"Resolver","title":"El cambio de identificador se propaga","type":"code","code":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT NOT NULL,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE RESTRICT\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;","highlightLines":[14],"note":"Las referencias de sus alumnos reciben el nuevo identificador del tutor."},{"id":"e2-decision-conservar","group":"e2","phase":"Resolver","title":"Conservar al alumno cuando desaparece su tutor","type":"text","html":"\u003cdiv class=\"think\">\u003cp>El centro quiere conservar al alumno y permitir que se quede sin tutor asignado.\u003c/p>\u003cp>¿Puede representarse esa situación con la definición actual de los campos?\u003c/p>\u003c/div>\u003cp>Explica qué información debe permanecer y qué referencia debe poder quedar sin valor.\u003c/p>"},{"id":"e2-ayuda-null","group":"e2","phase":"Resolver","title":"Una referencia sin valor","type":"text","html":"\u003cp>\u003ccode>NULL\u003c/code> representa la ausencia de un valor. Una columna declarada \u003ccode>NOT NULL\u003c/code> no admite esa ausencia.\u003c/p>\u003cp>La acción \u003ccode>SET NULL\u003c/code> conserva la fila hija y deja su referencia a \u003ccode>NULL\u003c/code>.\u003c/p>\u003cp>La acción y la definición del campo deben ser compatibles.\u003c/p>"},{"id":"e2-ayuda-modify","group":"e2","phase":"Resolver","title":"Cambiar la definición de una columna","type":"code","code":"ALTER TABLE nombre_tabla\n    MODIFY COLUMN nombre_columna tipo_de_dato NULL;","highlightLines":[],"note":"Esta es la estructura general. Decide qué tabla y qué columna debes modificar, conservando su tipo."},{"id":"e2-cambio-pendiente","group":"e2","phase":"Resolver","title":"El paso que falta","type":"code","code":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\n-- Escribe aquí el cambio que falta.\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE __________\n    ON UPDATE __________;","highlightLines":[],"note":"Escribe la instrucción completa que falta antes de añadir la nueva FK. Después decide sus dos acciones."},{"id":"e2-cambio-columna","group":"e2","phase":"Resolver","title":"La referencia admite NULL","type":"code","code":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\nALTER TABLE alumnos\n    MODIFY COLUMN id_tutor INT NULL;\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE __________\n    ON UPDATE __________;","highlightLines":[5],"note":"Se modifica id_tutor, que guarda la referencia. El identificador propio del alumno se mantiene."},{"id":"e2-cambio-borrado","group":"e2","phase":"Resolver","title":"El alumno permanece sin tutor asignado","type":"code","code":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\nALTER TABLE alumnos\n    MODIFY COLUMN id_tutor INT NULL;\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE SET NULL\n    ON UPDATE __________;","highlightLines":[11],"note":"ON DELETE SET NULL conserva al alumno y deja alumnos.id_tutor a NULL."},{"id":"e2-cambio-actualizacion","group":"e2","phase":"Resolver","title":"La actualización mantiene su comportamiento","type":"code","code":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\nALTER TABLE alumnos\n    MODIFY COLUMN id_tutor INT NULL;\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE SET NULL\n    ON UPDATE CASCADE;","highlightLines":[12],"note":"La nueva FK incluye ON UPDATE CASCADE para mantener la propagación del identificador."},{"id":"e2-diagrama-final-4","group":"e2","phase":"Representar","title":"La relación final permite alumnos sin tutor","type":"diagram","exercise":"e2","stage":4,"state":"final","note":"Cada alumno puede tener cero o un tutor. Un tutor puede seguir teniendo varios alumnos.","highlight":"nullable"},{"id":"e2-solucion-completa","group":"e2","phase":"Resolver","title":"Solución completa","type":"split-code","left":{"title":"1. Definición inicial","code":"CREATE TABLE tutores (\n    id_tutor INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE alumnos (\n    id_alumno INT PRIMARY KEY,\n    nombre VARCHAR(100),\n    id_tutor INT NOT NULL,\n    CONSTRAINT fk_alumnos_tutor\n        FOREIGN KEY (id_tutor)\n        REFERENCES tutores (id_tutor)\n        ON DELETE RESTRICT\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;"},"right":{"title":"2. Modificaciones","code":"ALTER TABLE alumnos\n    DROP FOREIGN KEY fk_alumnos_tutor;\n\nALTER TABLE alumnos\n    MODIFY COLUMN id_tutor INT NULL;\n\nALTER TABLE alumnos\n    ADD CONSTRAINT fk_alumnos_tutor\n    FOREIGN KEY (id_tutor)\n    REFERENCES tutores (id_tutor)\n    ON DELETE SET NULL\n    ON UPDATE CASCADE;"},"note":"El bloque de la izquierda se ejecuta antes que el de la derecha. Las tablas se conservan."},{"id":"e2-comprobar","group":"e2","phase":"Comprobar","title":"Comprobación de las dos decisiones","type":"text","html":"\u003cdiv class=\"think\">\u003col>\u003cli>¿Por qué no basta con cambiar la acción de borrado de la FK?\u003c/li>\u003cli>¿Qué ocurriría si al reconstruir la restricción omitieses \u003ccode>ON UPDATE CASCADE\u003c/code>?\u003c/li>\u003c/ol>\u003c/div>\u003cp>Justifica cada respuesta relacionando el código con el enunciado.\u003c/p>"},{"id":"e2-respuestas","group":"e2","phase":"Comprobar","title":"La columna y la regla deben encajar","type":"text","html":"\u003cp>\u003cstrong>1.\u003c/strong> La columna y la regla deben permitir la misma situación. \u003ccode>ON DELETE SET NULL\u003c/code> requiere que \u003ccode>alumnos.id_tutor\u003c/code> admita \u003ccode>NULL\u003c/code>.\u003c/p>\u003cp>\u003cstrong>2.\u003c/strong> La FK nueva no hereda la acción anterior. Si se omite \u003ccode>ON UPDATE\u003c/code>, InnoDB aplica \u003ccode>NO ACTION\u003c/code>, equivalente a \u003ccode>RESTRICT\u003c/code>. El cambio del identificador del tutor se rechazaría si tiene alumnos asociados.\u003c/p>"},{"id":"e3-enunciado-0","group":"e3","phase":"Plantear","title":"3. Clientes y facturas","type":"statement","exercise":"e3","level":0},{"id":"e3-trabajo-autonomo","group":"e3","phase":"Resolver","title":"Resolución autónoma","type":"text","html":"\u003cdiv class=\"think\">\u003cp>\u003cstrong>Trabajo individual. Resuelve el ejercicio completo antes de avanzar.\u003c/strong>\u003c/p>\u003cp>Analiza el enunciado, construye tu representación, escribe el SQL y revisa si cumple todos los requisitos.\u003c/p>\u003c/div>\u003cp>Las siguientes diapositivas corresponden a la corrección. El profesor avanzará cuando termine el tiempo de trabajo.\u003c/p>"},{"id":"e3-enunciado-1","group":"e3","phase":"Analizar","title":"Corrección: las tablas","type":"statement","exercise":"e3","level":1,"note":"Compara tu análisis con las entidades del enunciado."},{"id":"e3-enunciado-2","group":"e3","phase":"Analizar","title":"Corrección: los campos","type":"statement","exercise":"e3","level":2,"note":"Comprueba que cada factura incluye su identificador, su fecha y la referencia al cliente."},{"id":"e3-enunciado-3","group":"e3","phase":"Analizar","title":"Corrección: las condiciones","type":"statement","exercise":"e3","level":3,"note":"Revisa por separado el comportamiento inicial y el que se solicita al final."},{"id":"e3-diagrama-initial-0","group":"e3","phase":"Representar","title":"Corrección del esquema","type":"diagram","exercise":"e3","stage":0,"state":"initial","note":"Situamos las tablas para revisar la representación que has construido."},{"id":"e3-diagrama-initial-1","group":"e3","phase":"Representar","title":"La clave de clientes","type":"diagram","exercise":"e3","stage":1,"state":"initial","note":"id_cliente identifica a cada cliente.","highlight":"parent"},{"id":"e3-diagrama-initial-2","group":"e3","phase":"Representar","title":"Los campos de facturas","type":"diagram","exercise":"e3","stage":2,"state":"initial","note":"La factura guarda su propio identificador, una fecha y la referencia al cliente.","highlight":"child"},{"id":"e3-diagrama-initial-3","group":"e3","phase":"Representar","title":"Cada factura tiene un cliente","type":"diagram","exercise":"e3","stage":3,"state":"initial","note":"La FK de facturas referencia la PK de clientes. La referencia es obligatoria.","highlight":"link"},{"id":"e3-definicion-inicial","group":"e3","phase":"Resolver","title":"La relación inicial propaga ambos cambios","type":"code","code":"CREATE TABLE clientes (\n    id_cliente INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE facturas (\n    id_factura INT PRIMARY KEY,\n    fecha DATE,\n    id_cliente INT NOT NULL,\n    CONSTRAINT fk_facturas_cliente\n        FOREIGN KEY (id_cliente)\n        REFERENCES clientes (id_cliente)\n        ON DELETE CASCADE\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;","highlightLines":[13,14],"note":"La situación inicial utiliza CASCADE al borrar el cliente y al cambiar su identificador."},{"id":"e3-sustituir-fk","group":"e3","phase":"Resolver","title":"Sustituir la restricción","type":"code","code":"ALTER TABLE facturas\n    DROP FOREIGN KEY fk_facturas_cliente;\n\nALTER TABLE facturas\n    ADD CONSTRAINT fk_facturas_cliente\n    FOREIGN KEY (id_cliente)\n    REFERENCES clientes (id_cliente)\n    ON DELETE __________\n    ON UPDATE __________;","highlightLines":[2,5],"note":"La relación sigue conectando los mismos campos. La modificación afecta a sus acciones."},{"id":"e3-restringir-borrado","group":"e3","phase":"Resolver","title":"El cliente con facturas se conserva","type":"code","code":"ALTER TABLE facturas\n    DROP FOREIGN KEY fk_facturas_cliente;\n\nALTER TABLE facturas\n    ADD CONSTRAINT fk_facturas_cliente\n    FOREIGN KEY (id_cliente)\n    REFERENCES clientes (id_cliente)\n    ON DELETE RESTRICT\n    ON UPDATE __________;","highlightLines":[8],"note":"ON DELETE RESTRICT impide borrar el cliente mientras tenga facturas asociadas."},{"id":"e3-restringir-actualizacion","group":"e3","phase":"Resolver","title":"El identificador permanece mientras haya facturas","type":"code","code":"ALTER TABLE facturas\n    DROP FOREIGN KEY fk_facturas_cliente;\n\nALTER TABLE facturas\n    ADD CONSTRAINT fk_facturas_cliente\n    FOREIGN KEY (id_cliente)\n    REFERENCES clientes (id_cliente)\n    ON DELETE RESTRICT\n    ON UPDATE RESTRICT;","highlightLines":[9],"note":"ON UPDATE RESTRICT impide cambiar la clave referenciada mientras existan facturas asociadas."},{"id":"e3-diagrama-final-4","group":"e3","phase":"Representar","title":"La relación final","type":"diagram","exercise":"e3","stage":4,"state":"final","note":"Las facturas mantienen su cliente obligatorio. Las dos acciones quedan restringidas cuando existen referencias.","highlight":"link"},{"id":"e3-solucion-completa","group":"e3","phase":"Resolver","title":"Solución completa","type":"split-code","left":{"title":"1. Definición inicial","code":"CREATE TABLE clientes (\n    id_cliente INT PRIMARY KEY,\n    nombre VARCHAR(100)\n) ENGINE=InnoDB;\n\nCREATE TABLE facturas (\n    id_factura INT PRIMARY KEY,\n    fecha DATE,\n    id_cliente INT NOT NULL,\n    CONSTRAINT fk_facturas_cliente\n        FOREIGN KEY (id_cliente)\n        REFERENCES clientes (id_cliente)\n        ON DELETE CASCADE\n        ON UPDATE CASCADE\n) ENGINE=InnoDB;"},"right":{"title":"2. Modificaciones","code":"ALTER TABLE facturas\n    DROP FOREIGN KEY fk_facturas_cliente;\n\nALTER TABLE facturas\n    ADD CONSTRAINT fk_facturas_cliente\n    FOREIGN KEY (id_cliente)\n    REFERENCES clientes (id_cliente)\n    ON DELETE RESTRICT\n    ON UPDATE RESTRICT;"},"note":"El bloque de la izquierda se ejecuta antes que el de la derecha. Las tablas se conservan."},{"id":"e3-comprobar","group":"e3","phase":"Comprobar","title":"El alcance de RESTRICT","type":"text","html":"\u003cdiv class=\"think\">\u003col>\u003cli>Si un cliente no tiene facturas, ¿esta FK impide borrarlo?\u003c/li>\u003cli>Si tiene facturas, ¿esta FK impide cambiar su nombre?\u003c/li>\u003c/ol>\u003c/div>\u003cp>Explica cuándo interviene la restricción.\u003c/p>"},{"id":"e3-respuestas","group":"e3","phase":"Comprobar","title":"La restricción actúa sobre las referencias","type":"text","html":"\u003cp>\u003cstrong>1.\u003c/strong> Si no tiene facturas, esta FK no bloquea el borrado: no existen filas que lo referencien.\u003c/p>\u003cp>\u003cstrong>2.\u003c/strong> Cambiar el nombre no modifica la clave referenciada. Esta FK no bloquea ese cambio.\u003c/p>\u003cp>\u003cstrong>Error habitual:\u003c/strong> interpretar \u003ccode>RESTRICT\u003c/code> como una prohibición de modificar cualquier dato del cliente.\u003c/p>"},{"id":"comparacion-final","group":"cierre","phase":"Comprobar","title":"Las decisiones de los tres ejercicios","type":"recap","rows":[["Proyectos y tareas","RESTRICT / RESTRICT","CASCADE / CASCADE"],["Tutores y alumnos","RESTRICT / CASCADE","SET NULL / CASCADE"],["Clientes y facturas","CASCADE / CASCADE","RESTRICT / RESTRICT"]],"note":"En cada pareja: ON DELETE / ON UPDATE. En el ejercicio 2, alumnos.id_tutor pasa de NOT NULL a admitir NULL."},{"id":"entrega-archivo","group":"cierre","phase":"Entrega","title":"Un único archivo SQL","type":"text","html":"\u003col>\u003cli>Entrega \u003cstrong>un único archivo SQL\u003c/strong> llamado \u003ccode>ejercicios_09c_integridad_nombre_apellidos.sql\u003c/code>, con los tres ejercicios.\u003c/li>\u003cli>Incluye al principio un comentario con tu nombre, apellidos, grupo y fecha. Separa y numera cada ejercicio con comentarios.\u003c/li>\u003cli>El archivo debe poder ejecutarse completo, en orden, en una base de datos vacía ya seleccionada. Crea las tablas padre antes que las hijas e incluye primero la definición inicial de cada relación y después sus modificaciones. Usa nombres de tablas distintos para cada ejercicio, de forma que todos puedan ejecutarse en el mismo archivo.\u003c/li>\u003c/ol>"},{"id":"entrega-revision","group":"cierre","phase":"Entrega","title":"Revisión antes de entregar","type":"text","html":"\u003col start=\"4\">\u003cli>Entrega únicamente el código SQL final necesario para los ejercicios, sin soluciones alternativas duplicadas ni capturas de pantalla.\u003c/li>\u003cli>En esta actividad no se piden INSERT, SELECT, DELETE ni UPDATE de datos: debes definir las tablas, restricciones y acciones de borrado y actualización.\u003c/li>\u003cli>Comprueba en MySQL que el archivo se ejecuta sin errores antes de entregarlo. Usa tipos compatibles y respeta los nombres de las restricciones cuando se indiquen en el enunciado.\u003c/li>\u003c/ol>"}]}</script>
+  <script>
+  'use strict';
+  document.addEventListener('DOMContentLoaded', function () {
+    const downloadSource = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const lesson = JSON.parse(document.getElementById('lesson-data').textContent);
+    const deck = document.getElementById('deck');
+    const exercises = Object.fromEntries(lesson.exercises.map(exercise => [exercise.id, exercise]));
+    const slides = lesson.slides;
+    const counter = document.getElementById('counter');
+    const progress = document.getElementById('progress');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const indexDialog = document.getElementById('index-dialog');
+    const fullButton = document.getElementById('fullscreen-button');
+    const status = document.getElementById('status');
+    let current = 0;
+    const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const escapeRx = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wordChar = value => /[\p{L}\p{N}_]/u.test(value || '');
+
+    function annotated(text, exercise, level) {
+      if (!level) return escape(text);
+      const categories = ['entities','attributes','rules'];
+      const candidates = [];
+      categories.slice(0, level).forEach((category, order) => {
+        (exercise.marks[category] || []).forEach(phrase => {
+          if (!phrase) return;
+          const regex = new RegExp(escapeRx(phrase), 'gu');
+          for (const match of text.matchAll(regex)) {
+            const start = match.index, end = start + phrase.length;
+            if (wordChar(phrase[0]) && wordChar(text[start - 1])) continue;
+            if (wordChar(phrase[phrase.length - 1]) && wordChar(text[end])) continue;
+            candidates.push({start,end,category,order});
+          }
+        });
+      });
+      candidates.sort((a,b) => b.order - a.order || (b.end-b.start) - (a.end-a.start));
+      const selected = [];
+      candidates.forEach(candidate => {
+        if (!selected.some(other => candidate.start < other.end && candidate.end > other.start)) selected.push(candidate);
+      });
+      selected.sort((a,b) => a.start - b.start);
+      let html = '', cursor = 0;
+      selected.forEach(mark => {
+        html += escape(text.slice(cursor,mark.start));
+        html += '<span class="mark mark-' + mark.category + (mark.order === level - 1 ? ' is-new' : '') + '">' + escape(text.slice(mark.start,mark.end)) + '</span>';
+        cursor = mark.end;
+      });
+      return html + escape(text.slice(cursor));
+    }
+
+    function sqlLine(line) {
+      const pattern = /(--[^\n]*)|\b(CREATE|TABLE|INT|VARCHAR|DATE|PRIMARY|KEY|NOT|NULL|CONSTRAINT|FOREIGN|REFERENCES|ON|DELETE|UPDATE|RESTRICT|CASCADE|SET|ENGINE|ALTER|DROP|ADD|MODIFY|COLUMN|InnoDB)\b|(_{3,})/g;
+      let html = '', cursor = 0;
+      for (const match of line.matchAll(pattern)) {
+        html += escape(line.slice(cursor,match.index));
+        const cls = match[1] ? 'sql-comment' : match[3] ? 'sql-gap' : 'sql-keyword';
+        html += '<span class="' + cls + '">' + escape(match[0]) + '</span>';
+        cursor = match.index + match[0].length;
+      }
+      return html + escape(line.slice(cursor));
+    }
+
+    function codeBlock(code, highlightLines) {
+      const highlights = new Set(highlightLines || []);
+      const lines = String(code || '').split('\n');
+      return '<pre class="code-block"><code>' + lines.map((line,i) => '<span class="code-line' + (highlights.has(i+1) ? ' fresh' : '') + '">' + (sqlLine(line) || ' ') + '</span>').join('') + '</code></pre>';
+    }
+
+    function schemaBox(table, exercise, slide, side) {
+      const visible = side === 'parent' ? slide.stage >= 1 : slide.stage >= 2;
+      const nullable = slide.state === 'final' && exercise.final.nullable;
+      const fields = table.fields || [];
+      let rows = '';
+      for (let i = 0; i < 3; i++) {
+        const field = fields[i];
+        if (!visible) {
+          rows += '<div class="field placeholder">' + (i === 0 ? 'Campos por identificar' : '&nbsp;') + '</div>';
+          continue;
+        }
+        if (!field) { rows += '<div class="field" aria-hidden="true"></div>'; continue; }
+        const isForeign = field.key === 'FK';
+        const showForeign = isForeign && slide.stage >= 3;
+        const key = isForeign && !showForeign ? '' : (field.key || '');
+        const newRow = (slide.highlight === side) || (slide.highlight === 'link' && showForeign);
+        const classes = ['field', showForeign ? 'fk-row' : '', newRow ? 'new' : '', slide.highlight === 'nullable' && showForeign ? 'null-new' : ''].filter(Boolean).join(' ');
+        const nullNote = showForeign ? (nullable ? 'Admite NULL' : 'NOT NULL') : '';
+        rows += '<div class="' + classes + '"><span class="field-key ' + (key ? key.toLowerCase() : 'empty') + '">' + escape(key || '—') + '</span>';
+        rows += '<span class="field-name">' + escape(field.name) + (nullNote ? '<span class="null-note">' + nullNote + '</span>' : '') + '</span><span class="field-type">' + escape(field.type) + '</span></div>';
+      }
+      return '<section class="schema-box" aria-label="Tabla ' + escape(table.name) + '"><h3>' + escape(table.name) + '</h3><div class="schema-fields">' + rows + '</div></section>';
+    }
+
+    function diagram(slide, index) {
+      const exercise = exercises[slide.exercise];
+      const linked = slide.stage >= 3;
+      const parentCount = slide.state === 'final' && exercise.final.nullable ? '0..1' : '1';
+      const marker = 'fk-arrow-' + index;
+      const line = linked
+        ? '<defs><marker id="' + marker + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs><path d="M145 48 H15" stroke="currentColor" stroke-width="2" fill="none" marker-end="url(#' + marker + ')"/><text x="20" y="27" text-anchor="middle" fill="currentColor" font-size="18">' + parentCount + '</text><text x="137" y="27" text-anchor="middle" fill="currentColor" font-size="18">0..N</text>'
+        : '<path d="M15 48 H145" stroke="#aab7c5" stroke-width="2" stroke-dasharray="5 6" fill="none"/>';
+      return '<div class="schema">' + schemaBox(exercise.parent,exercise,slide,'parent') + '<div class="schema-link' + (slide.highlight === 'link' ? ' is-new' : '') + '"><svg viewBox="0 0 160 76" role="img" aria-label="' + (linked ? 'La clave foránea de la tabla hija referencia la clave primaria de la tabla padre' : 'Relación por completar') + '">' + line + '</svg><div class="link-label">' + (linked ? 'Referencia FK a PK' : 'Conexión pendiente') + '</div></div>' + schemaBox(exercise.child,exercise,slide,'child') + '</div>';
+    }
+
+    function renderSlide(slide,index) {
+      const section = document.createElement('section');
+      section.className = 'slide slide-' + slide.type;
+      section.id = 'diapositiva-' + (index + 1);
+      section.dataset.slide = slide.id;
+      section.dataset.slideIndex = index;
+      section.dataset.group = slide.group;
+      section.dataset.phase = slide.phase;
+      section.hidden = true;
+      section.setAttribute('aria-hidden','true');
+      const groupName = exercises[slide.group] ? 'Ejercicio ' + slide.group.slice(1) : (slide.group === 'cierre' ? 'Cierre' : 'Bases de Datos · 1.º DAM');
+      const header = '<header class="slide-heading"><p class="phase">' + escape(groupName) + ' · ' + escape(slide.phase) + '</p><h2 tabindex="-1">' + escape(slide.title) + '</h2></header>';
+      let body = '';
+      let bodyClass = '';
+      if (slide.type === 'statement') {
+        const exercise = exercises[slide.exercise];
+        const level = slide.level || 0;
+        if (level > 0) body += '<div class="legend" aria-label="Leyenda del subrayado"><span class="entities">Tablas</span><span class="' + (level >= 2 ? 'attributes' : 'inactive') + '">Campos</span><span class="' + (level >= 3 ? 'rules' : 'inactive') + '">Condiciones</span></div>';
+        body += '<div class="statement-text">' + exercise.paragraphs.map(paragraph => '<p>' + annotated(paragraph,exercise,level) + '</p>').join('') + '</div>';
+        bodyClass = ' statement';
+      } else if (slide.type === 'diagram') {
+        body = diagram(slide,index);
+      } else if (slide.type === 'code') {
+        const tableBlocks = slide.code.split(/\n\n(?=CREATE TABLE)/);
+        if (tableBlocks.length === 2) {
+          const offset = tableBlocks[0].split('\n').length + 1;
+          const highlights = slide.highlightLines || [];
+          body = '<div class="split-code">' + tableBlocks.map((code,i) => '<section class="code-pane"><h3>' + (i === 0 ? 'Tabla padre' : 'Tabla hija') + '</h3>' + codeBlock(code,highlights.filter(line => i === 0 ? line <= offset : line > offset).map(line => i === 0 ? line : line - offset)) + '</section>').join('') + '</div>';
+        } else {
+          body = codeBlock(slide.code,slide.highlightLines);
+        }
+      } else if (slide.type === 'split-code') {
+        body = '<div class="split-code">' + ['left','right'].map(side => '<section class="code-pane"><h3>' + escape(slide[side].title) + '</h3>' + codeBlock(slide[side].code,slide[side].highlightLines) + '</section>').join('') + '</div>';
+      } else if (slide.type === 'recap') {
+        body = '<table><thead><tr><th scope="col">Aspecto</th><th scope="col">Situación inicial</th><th scope="col">Situación final</th></tr></thead><tbody>' + slide.rows.map(row => '<tr>' + row.map((cell,i) => '<' + (i === 0 ? 'th scope="row"' : 'td') + '>' + escape(cell) + '</' + (i === 0 ? 'th' : 'td') + '>').join('') + '</tr>').join('') + '</tbody></table>';
+      } else {
+        body = '<div class="text-body">' + (slide.html || '') + '</div>';
+      }
+      section.innerHTML = header + '<div class="slide-content' + bodyClass + '">' + body + '</div>' + (slide.note ? '<p class="slide-note">' + escape(slide.note) + '</p>' : '<div></div>') + '<span class="print-counter">' + (index + 1) + ' / ' + slides.length + '</span>';
+      return section;
+    }
+
+    deck.replaceChildren(...slides.map(renderSlide));
+    const nodes = Array.from(deck.children);
+    const toc = document.getElementById('toc-items');
+    const groups = [
+      {id:'intro',title:'Inicio',detail:'Objetivo y forma de trabajo'},
+      ...lesson.exercises.map((exercise,index) => ({id:exercise.id,title:(index+1) + '. ' + exercise.title,detail:['Modelado y práctica conjunta','Práctica con ayuda','Resolución autónoma y corrección'][index]})),
+      {id:'cierre',title:'Cierre y entrega',detail:'Repaso y condiciones del archivo SQL'}
+    ];
+    groups.forEach(group => {
+      const target = slides.findIndex(slide => slide.group === group.id);
+      if (target < 0) return;
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'toc-item';
+      button.dataset.slideTarget = target;
+      button.innerHTML = escape(group.title) + '<span>' + escape(group.detail) + '</span>';
+      button.addEventListener('click',() => { indexDialog.close(); show(target,true); });
+      toc.appendChild(button);
+    });
+
+    function show(index,focusHeading,updateHash=true) {
+      if (!slides.length) return;
+      current = Math.max(0,Math.min(slides.length - 1,index));
+      nodes.forEach((node,i) => { node.hidden = i !== current; node.setAttribute('aria-hidden',String(i !== current)); });
+      const active = nodes[current];
+      active.querySelector('.slide-content').scrollTop = 0;
+      counter.textContent = (current + 1) + ' / ' + slides.length;
+      progress.style.width = ((current+1)/slides.length*100) + '%';
+      progress.setAttribute('aria-valuemax',String(slides.length));
+      progress.setAttribute('aria-valuenow',String(current+1));
+      progress.setAttribute('aria-valuetext','Diapositiva ' + (current+1) + ' de ' + slides.length);
+      prev.disabled = current === 0; next.disabled = current === slides.length - 1;
+      document.title = slides[current].title + ' · Integridad referencial';
+      if (updateHash) history.replaceState(null,'','#diapositiva-' + (current+1));
+      if (focusHeading) active.querySelector('h2').focus({preventScroll:true});
+    }
+    function readHash() {
+      const numbered = location.hash.match(/^#diapositiva-(\d+)$/);
+      if (numbered) return Math.max(0,Math.min(slides.length-1,Number(numbered[1])-1));
+      const named = slides.findIndex(slide => '#' + slide.id === location.hash);
+      return named >= 0 ? named : 0;
+    }
+    prev.addEventListener('click',() => show(current-1,true));
+    next.addEventListener('click',() => show(current+1,true));
+    document.getElementById('index-button').addEventListener('click',() => indexDialog.showModal());
+    document.getElementById('close-index').addEventListener('click',() => indexDialog.close());
+    indexDialog.addEventListener('click',event => { if (event.target === indexDialog) { const box=indexDialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) indexDialog.close(); } });
+    document.getElementById('print-button').addEventListener('click',() => window.print());
+    document.getElementById('dialog-print-button').addEventListener('click',() => { indexDialog.close(); window.print(); });
+    fullButton.addEventListener('click',async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        else status.textContent='Puedes usar la opción de pantalla completa del navegador.';
+      } catch (error) { status.textContent='Usa F11 o la opción de pantalla completa del navegador.'; }
+    });
+    document.addEventListener('fullscreenchange',() => { fullButton.textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa'; });
+    document.getElementById('download-button').addEventListener('click',() => {
+      const url = URL.createObjectURL(new Blob([downloadSource],{type:'text/html;charset=utf-8'}));
+      const link = document.createElement('a'); link.href=url; link.download='integridad-referencial.html'; document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url),1000);
+      status.textContent='Archivo HTML preparado para descargar.';
+    });
+    document.addEventListener('keydown',event => {
+      if (event.altKey || event.ctrlKey || event.metaKey || indexDialog.open || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+      let target;
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') target=current+1;
+      else if (event.key === 'ArrowLeft' || event.key === 'PageUp') target=current-1;
+      else if (event.key === 'Home') target=0;
+      else if (event.key === 'End') target=slides.length-1;
+      else return;
+      event.preventDefault(); show(target,true);
+    });
+    window.addEventListener('hashchange',() => show(readHash(),true,false));
+    window.__deckApi = {goto:index=>show(index,false),get current(){return current;},get total(){return slides.length;},slides};
+    show(readHash(),false);
+  });
+  </script>
+</body>
+</html>
