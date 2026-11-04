@@ -40,6 +40,6 @@ Abre **Índice → Descargar HTML**. Guarda el archivo `integridad-referencial.h
 
 [Ejercicios originales de integridad referencial](../../2_CLAVES/ejercicios-integridad-referencial.html)
 
-Se mantienen las condiciones originales: MySQL con InnoDB, creación inicial y modificación de las relaciones, conservación de las tablas y entrega de un único archivo SQL. Las soluciones utilizan seis `CREATE TABLE` y siete `ALTER TABLE`, sin operaciones sobre datos.
+Se mantienen las condiciones originales: MySQL, creación inicial y modificación de las relaciones, conservación de las tablas y entrega de un único archivo SQL. Las soluciones utilizan seis `CREATE TABLE` y siete `ALTER TABLE`, sin operaciones sobre datos.
 
 Referencias técnicas: [claves foráneas en MySQL](https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html) y [ALTER TABLE](https://dev.mysql.com/doc/refman/8.4/en/alter-table.html).
